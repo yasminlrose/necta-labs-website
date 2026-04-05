@@ -76,7 +76,7 @@ const WholesalePage = () => {
           background: "linear-gradient(135deg, #B8DDD8 0%, #F2C4A8 100%)",
         }}
       >
-        <div className="necta-container text-center max-w-3xl mx-auto">
+        <div className="necta-container text-center max-w-5xl mx-auto">
           <h1 className="text-4xl md:text-5xl text-foreground leading-[1.15] mb-6">
             Stock NECTA. Elevate your offering.
           </h1>
@@ -139,7 +139,7 @@ const WholesalePage = () => {
 
       {/* Pricing Table */}
       <section ref={pricingRef} className="py-28 bg-primary text-primary-foreground">
-        <div className={`necta-container max-w-3xl mx-auto scroll-fade-in ${pricingVisible ? "visible" : ""}`}>
+        <div className={`necta-container max-w-5xl mx-auto scroll-fade-in ${pricingVisible ? "visible" : ""}`}>
           <h2 className="text-4xl md:text-5xl font-heading font-extrabold text-center mb-16">
             WHOLESALE PRICING
           </h2>
@@ -177,7 +177,7 @@ const WholesalePage = () => {
           <h2 className={`text-3xl md:text-4xl font-heading font-extrabold text-foreground uppercase tracking-tight mb-12 scroll-fade-in ${venueVisible ? "visible" : ""}`}>
             PERFECT FOR
           </h2>
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6 max-w-4xl mx-auto">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
             {[
               { emoji: "☕", label: "Specialty Coffee Shops" },
               { emoji: "🧘", label: "Yoga Studios" },
@@ -205,7 +205,7 @@ const WholesalePage = () => {
           <h2 className={`text-3xl md:text-4xl font-heading font-extrabold text-center mb-16 scroll-fade-in ${includedVisible ? "visible" : ""}`}>
             WHAT'S INCLUDED
           </h2>
-          <div className="grid md:grid-cols-3 gap-8 max-w-4xl mx-auto">
+          <div className="grid md:grid-cols-3 gap-8">
             {[
               {
                 title: "FREE POS MATERIALS",

@@ -71,7 +71,7 @@ export default function ReviewSection({ product }: { product: string }) {
   if (reviews.length === 0) {
     return (
       <section ref={ref} id="reviews-section" className="py-20 bg-background">
-        <div className="necta-container max-w-4xl mx-auto text-center">
+        <div className="necta-container max-w-6xl mx-auto text-center">
           <Star className="h-16 w-16 text-border mx-auto mb-6" />
           <h2 className="text-2xl md:text-3xl font-heading font-bold text-foreground uppercase tracking-tight mb-3">
             NO REVIEWS YET
@@ -86,7 +86,7 @@ export default function ReviewSection({ product }: { product: string }) {
 
   return (
     <section ref={ref} id="reviews-section" className="py-20 bg-background">
-      <div className="necta-container max-w-4xl mx-auto">
+      <div className="necta-container max-w-6xl mx-auto">
         {/* Header */}
         <div className={`flex flex-col md:flex-row md:items-start md:justify-between gap-6 mb-10 scroll-fade-in ${isVisible ? "visible" : ""}`}>
           <div>

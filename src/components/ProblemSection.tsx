@@ -6,7 +6,7 @@ const ProblemSection = () => {
   return (
     <section ref={ref} className="py-24 md:py-32 bg-muted">
       <div className="necta-container">
-        <div className={`max-w-3xl mx-auto text-center scroll-fade-in ${isVisible ? "visible" : ""}`}>
+        <div className={`max-w-4xl mx-auto text-center scroll-fade-in ${isVisible ? "visible" : ""}`}>
           <p className="text-sm text-foreground/40 tracking-widest uppercase mb-6">The problem</p>
           <h2 className="text-3xl md:text-4xl lg:text-5xl text-foreground leading-[1.2] mb-8">
             98 million cups of coffee are consumed daily in the UK — and every infusion is the same

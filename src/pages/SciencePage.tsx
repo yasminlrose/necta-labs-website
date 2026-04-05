@@ -534,7 +534,7 @@ const SciencePage = () => {
           background: "linear-gradient(135deg, #C8E8E5 0%, #D4CAEC 30%, #F0D8D4 65%, #EAD8C8 100%)",
         }}
       >
-        <div className="necta-container max-w-4xl">
+        <div className="necta-container max-w-5xl">
           <p className="text-xs font-semibold uppercase tracking-[0.2em] text-foreground/40 mb-6">
             The Science
           </p>
@@ -646,7 +646,7 @@ const SciencePage = () => {
           background: "linear-gradient(135deg, #D6EBEA 0%, #E0DAEF 40%, #F2DDD4 100%)",
         }}
       >
-        <div className="necta-container max-w-3xl text-center">
+        <div className="necta-container max-w-4xl text-center">
           <p className="text-xs font-semibold uppercase tracking-[0.2em] text-foreground/50 mb-4">
             Our standards
           </p>

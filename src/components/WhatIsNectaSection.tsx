@@ -24,7 +24,7 @@ const WhatIsNectaSection = () => {
         ].join(", "),
       }}
     >
-      <div className="necta-container max-w-3xl">
+      <div className="necta-container max-w-4xl">
         <p className="text-xs font-semibold uppercase tracking-[0.25em] text-primary/35 mb-5">
           What is NECTA
         </p>

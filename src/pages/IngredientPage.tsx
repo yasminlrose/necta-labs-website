@@ -55,7 +55,7 @@ const IngredientPage = () => {
         className="pt-32 pb-16 md:pt-44 md:pb-24"
         style={{ backgroundColor: heroCardBg }}
       >
-        <div className="necta-container max-w-3xl mx-auto text-center">
+        <div className="necta-container max-w-5xl mx-auto text-center">
           <div
             className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6"
             style={{ backgroundColor: "rgba(255,255,255,0.6)" }}
@@ -90,7 +90,7 @@ const IngredientPage = () => {
 
       {/* What is it? — White card */}
       <section className="py-16 md:py-24">
-        <div className="max-w-[680px] mx-auto px-6">
+        <div className="max-w-3xl mx-auto px-6">
           <p className="text-sm text-foreground/40 tracking-widest uppercase mb-4">
             What is it?
           </p>
@@ -106,7 +106,7 @@ const IngredientPage = () => {
 
       {/* The Science — Cards with SKU accent border */}
       <section ref={scienceRef} className="py-16 md:py-24 bg-background">
-        <div className="necta-container max-w-4xl mx-auto">
+        <div className="necta-container max-w-6xl mx-auto">
           <p className="text-sm text-foreground/40 tracking-widest uppercase mb-4">
             The science
           </p>
@@ -164,7 +164,7 @@ const IngredientPage = () => {
         className="py-16 md:py-24"
         style={{ backgroundColor: heroCardBg }}
       >
-        <div className="max-w-[680px] mx-auto px-6">
+        <div className="max-w-3xl mx-auto px-6">
           <p className="text-sm text-foreground/40 tracking-widest uppercase mb-4">
             Why we use it
           </p>
@@ -215,7 +215,7 @@ const IngredientPage = () => {
 
       {/* Works well with — navy pills */}
       <section className="py-16 md:py-20 bg-background">
-        <div className="max-w-[680px] mx-auto px-6">
+        <div className="max-w-3xl mx-auto px-6">
           <p className="text-sm text-foreground/40 tracking-widest uppercase mb-4">
             Works well with
           </p>
@@ -240,7 +240,7 @@ const IngredientPage = () => {
 
       {/* Bottom CTA */}
       <section className="py-16 md:py-20">
-        <div className="max-w-[680px] mx-auto px-6 text-center">
+        <div className="max-w-3xl mx-auto px-6 text-center">
           <h2 className="text-2xl md:text-3xl font-semibold text-foreground mb-4">
             Explore all ingredients
           </h2>

@@ -438,7 +438,7 @@ const ProductPage = () => {
           <h2 className="text-2xl md:text-3xl font-bold text-primary text-center mb-12">
             Why NECTA {product.name}?
           </h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-3xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {benefits.map(({ icon: Icon, title, desc }) => (
               <div key={title} className="flex flex-col items-start gap-4 bg-white/70 rounded-xl p-6">
                 <div
@@ -501,7 +501,7 @@ const ProductPage = () => {
 
       {/* ── COMPARISON TABLE ── */}
       <section className="py-16 md:py-20 bg-white">
-        <div className="necta-container max-w-4xl mx-auto">
+        <div className="necta-container">
           <div className="text-center mb-10">
             <h2 className="text-2xl md:text-3xl font-bold text-primary mb-3">
               Why NECTA beats powders and gummies

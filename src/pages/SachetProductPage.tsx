@@ -245,7 +245,7 @@ function IngredientsSection({ product }: { product: NonNullable<ReturnType<typeo
         <h2 className={`text-4xl md:text-5xl font-heading font-extrabold text-center uppercase tracking-tight mb-16 scroll-fade-in ${isVisible ? "visible" : ""}`}>
           WHAT'S INSIDE
         </h2>
-        <div className="max-w-3xl mx-auto space-y-0">
+        <div className="max-w-5xl mx-auto space-y-0">
           {product.ingredients.map((ing, i) => (
             <div key={i} className="flex items-center justify-between py-5 border-b border-primary-foreground/10">
               <span className="font-bold text-lg">{ing.name}</span>
@@ -307,7 +307,7 @@ function RelatedSachets({ currentSlug }: { currentSlug: ProductSlug }) {
         <h2 className="text-3xl md:text-4xl font-heading font-extrabold text-foreground text-center uppercase tracking-tight mb-12">
           YOU MIGHT LIKE
         </h2>
-        <div className="grid md:grid-cols-3 gap-6 max-w-4xl mx-auto">
+        <div className="grid md:grid-cols-3 gap-6">
           {related.map((slug) => {
             const p = products[slug];
             return (

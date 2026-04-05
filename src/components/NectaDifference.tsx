@@ -21,7 +21,7 @@ const NectaDifference = () => {
           <p className="text-foreground/50 text-lg">Effective doses, not label claims.</p>
         </div>
 
-        <div className={`max-w-2xl mx-auto scroll-fade-in ${isVisible ? "visible" : ""}`}>
+        <div className={`max-w-3xl mx-auto scroll-fade-in ${isVisible ? "visible" : ""}`}>
           {/* Header */}
           <div className="grid grid-cols-3 gap-4 pb-4 border-b border-foreground/10">
             <div className="text-xs text-foreground/40 uppercase tracking-wider">Ingredient</div>

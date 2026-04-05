@@ -46,7 +46,7 @@ const WaysToEnjoy = () => {
         </div>
 
         {/* Ways Grid */}
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-6 max-w-4xl mx-auto">
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-6">
           {ways.map((way, index) => (
             <div key={index} className="text-center group">
               <div className="relative inline-flex items-center justify-center w-20 h-20 mb-4 mx-auto">

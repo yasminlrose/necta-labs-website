@@ -30,7 +30,7 @@ const HowItWorksPage = () => {
           <h1 className={`text-4xl md:text-5xl lg:text-6xl text-foreground leading-[1.15] mb-4 scroll-fade-in ${hero.isVisible ? "visible" : ""}`}>
             Wellness that fits your ritual
           </h1>
-          <p className={`text-lg text-foreground/55 max-w-2xl mx-auto scroll-fade-in ${hero.isVisible ? "visible" : ""}`}>
+          <p className={`text-lg text-foreground/55 max-w-3xl mx-auto scroll-fade-in ${hero.isVisible ? "visible" : ""}`}>
             No mixing. No mess. Just add to what you're already drinking.
           </p>
         </div>
@@ -96,7 +96,7 @@ const HowItWorksPage = () => {
       {/* Dosing Comparison */}
       <section ref={philosophy.ref} className="py-24 md:py-32 bg-background">
         <div className="necta-container">
-          <div className={`max-w-3xl mx-auto text-center mb-12 scroll-fade-in ${philosophy.isVisible ? "visible" : ""}`}>
+          <div className={`max-w-4xl mx-auto text-center mb-12 scroll-fade-in ${philosophy.isVisible ? "visible" : ""}`}>
             <p className="text-sm text-foreground/40 tracking-widest uppercase mb-4">The difference</p>
             <h2 className="text-3xl md:text-4xl text-foreground mb-4">
               Dosed to actually work
@@ -106,7 +106,7 @@ const HowItWorksPage = () => {
             </p>
           </div>
 
-          <div className={`max-w-2xl mx-auto scroll-fade-in ${philosophy.isVisible ? "visible" : ""}`}>
+          <div className={`max-w-3xl mx-auto scroll-fade-in ${philosophy.isVisible ? "visible" : ""}`}>
             <div className="grid grid-cols-3 gap-4 pb-4 border-b border-foreground/10">
               <span className="text-xs text-foreground/40 uppercase tracking-wider">Ingredient</span>
               <span className="text-xs text-foreground uppercase tracking-wider text-center">Necta</span>

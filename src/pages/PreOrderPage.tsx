@@ -241,7 +241,7 @@ export default function PreOrderPage() {
 
       {/* HERO */}
       <section className="pt-28 pb-16 px-4" style={{ background: "linear-gradient(135deg, #B8DDD8 0%, #F2C4A8 50%, #C8C0DF 100%)" }}>
-        <div className="max-w-3xl mx-auto text-center">
+        <div className="max-w-4xl mx-auto text-center">
           <h1 className="text-4xl md:text-5xl font-bold text-[#1E2D3D] mb-4">Be First. Pre-Order Necta.</h1>
           <p className="text-[#1E2D3D]/70 text-lg md:text-xl max-w-2xl mx-auto mb-8">
             We're in final production. Reserve your first order now with a £10 deposit — your balance is only charged when your order ships.
@@ -282,7 +282,7 @@ export default function PreOrderPage() {
 
       {/* EARLY BACKER BANNER */}
       <section className="px-4 py-14" style={{ background: "linear-gradient(135deg, #D6EBEA 0%, #F2DDD4 100%)" }}>
-        <div className="max-w-3xl mx-auto text-center">
+        <div className="max-w-4xl mx-auto text-center">
           <h2 className="text-2xl md:text-3xl font-bold text-[#1E2D3D] mb-3">Early backer reward: 20% off your first subscription</h2>
           <p className="text-[#1E2D3D]/60 text-sm md:text-base max-w-xl mx-auto mb-8">
             Pre-order customers receive 20% off their first recurring charge — better than our standard 15% launch offer. Automatically applied at dispatch.
@@ -320,7 +320,7 @@ export default function PreOrderPage() {
       </section>
 
       {/* FAQ */}
-      <section className="max-w-3xl mx-auto px-4 pb-16">
+      <section className="max-w-5xl mx-auto px-4 pb-16">
         <h2 className="text-2xl font-bold text-[#1E2D3D] mb-6 text-center">Pre-Order FAQ</h2>
         <div className="space-y-3">
           {faqItems.map((item, i) => {

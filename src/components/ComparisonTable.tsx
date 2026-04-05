@@ -62,7 +62,7 @@ const ComparisonTable = ({ product }: ComparisonTableProps) => {
 
   return (
     <section className="py-16 md:py-24 bg-background">
-      <div className="necta-container max-w-4xl mx-auto">
+      <div className="necta-container">
         {/* Heading */}
         <div className="text-center mb-10">
           <h2 className="text-2xl md:text-3xl font-semibold text-foreground mb-3">

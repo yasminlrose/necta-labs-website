@@ -28,7 +28,7 @@ const SubscribeSection = () => {
 
   return (
     <section className="py-16 md:py-20 bg-primary">
-      <div className="necta-container max-w-2xl mx-auto text-center">
+      <div className="necta-container max-w-3xl mx-auto text-center">
         <h2 className="text-3xl md:text-4xl font-bold text-white mb-3 tracking-tight">
           SIGN UP NOW
         </h2>

@@ -352,7 +352,7 @@ const StockistPage = () => {
           </Link>
         </div>
 
-        <div className="necta-container max-w-3xl relative z-10">
+        <div className="necta-container max-w-5xl relative z-10">
           <p className="text-xs font-semibold uppercase tracking-[0.25em] text-primary/30 mb-6">
             Wholesale &amp; Trade
           </p>
@@ -616,7 +616,7 @@ const StockistPage = () => {
             <p className="text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground mb-3">Venue types</p>
             <h2 className="text-3xl md:text-4xl font-bold text-foreground">Who stocks NECTA</h2>
           </div>
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-4 max-w-3xl mx-auto">
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-4 max-w-5xl mx-auto">
             {[
               { emoji: "☕", type: "Premium Cafes", desc: "Where wellness-conscious customers expect functional add-ons" },
               { emoji: "💪", type: "Boutique Gyms", desc: "Pre/post-workout ritual enhancement" },

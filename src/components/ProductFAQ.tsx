@@ -67,7 +67,7 @@ const ProductFAQ = ({ product }: ProductFAQProps) => {
   return (
     <section className="py-16 md:py-20 bg-background">
       <div className="necta-container">
-        <div className="max-w-3xl mx-auto">
+        <div className="max-w-5xl mx-auto">
           <h2 className="text-2xl md:text-3xl font-semibold text-foreground text-center mb-3">
             Questions about {product.name}
           </h2>

@@ -114,7 +114,7 @@ const ProductTabs = ({ product }: ProductTabsProps) => {
 
       {/* Tab content */}
       <div className="py-12 md:py-16">
-        <div className="necta-container max-w-3xl mx-auto">
+        <div className="necta-container max-w-5xl mx-auto">
 
           {/* HOW TO USE */}
           {activeTab === "how-to-use" && (
