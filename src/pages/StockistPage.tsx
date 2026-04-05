@@ -332,11 +332,11 @@ const StockistPage = () => {
         className="relative overflow-hidden pt-28 pb-20 md:pt-36 md:pb-28"
         style={{
           background: `
-            radial-gradient(ellipse 70% 90% at 8% 20%, rgba(212,229,228,0.70) 0%, transparent 58%),
-            radial-gradient(ellipse 60% 70% at 85% 10%, rgba(224,218,239,0.60) 0%, transparent 52%),
-            radial-gradient(ellipse 75% 55% at 50% 95%, rgba(242,221,212,0.55) 0%, transparent 55%),
-            radial-gradient(ellipse 50% 60% at 78% 72%, rgba(240,222,218,0.50) 0%, transparent 50%),
-            radial-gradient(ellipse 40% 45% at 30% 55%, rgba(214,235,234,0.40) 0%, transparent 48%),
+            radial-gradient(ellipse 70% 90% at 8% 20%, rgba(180,218,215,0.95) 0%, transparent 58%),
+            radial-gradient(ellipse 60% 70% at 85% 10%, rgba(200,188,235,0.90) 0%, transparent 52%),
+            radial-gradient(ellipse 75% 55% at 50% 95%, rgba(238,195,182,0.88) 0%, transparent 55%),
+            radial-gradient(ellipse 50% 60% at 78% 72%, rgba(235,200,195,0.82) 0%, transparent 50%),
+            radial-gradient(ellipse 40% 45% at 30% 55%, rgba(185,225,220,0.75) 0%, transparent 48%),
             #fdfcfa
           `,
         }}
