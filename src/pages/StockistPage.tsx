@@ -93,9 +93,9 @@ function ProfitCarousel() {
                   step: "01",
                   title: "Stock the Bottles",
                   bullets: [
-                    "Your cost: £22 per 250ml pump bottle",
-                    "16.7 servings per 250ml bottle",
-                    "OR £30 per 500ml (33.3 servings)",
+                    "Available in 250ml and 500ml pump formats",
+                    "Many servings per bottle — excellent yield",
+                    "Competitive wholesale pricing (on approval)",
                   ],
                   color: "#D6EBEA",
                 },
@@ -113,8 +113,8 @@ function ProfitCarousel() {
                   step: "03",
                   title: "Watch Margins Grow",
                   bullets: [
-                    "At £2.00 price: 34% gross margin",
-                    "At £2.50 price: 47% gross margin",
+                    "Strong gross margins on every serving",
+                    "Premium retail price justified by real results",
                     "No long-term contracts required",
                   ],
                   color: "#F2DDD4",
@@ -137,22 +137,22 @@ function ProfitCarousel() {
           </div>
         )}
 
-        {/* Card 3 — Cost breakdown */}
+        {/* Card 3 — Customer demand */}
         {active === 2 && (
           <div className="bg-white p-8 md:p-12 rounded-3xl border border-border">
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground mb-6">Card 3 of 3 · Unit economics</p>
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground mb-6">Card 3 of 3 · Customer demand</p>
             <h3 className="text-xl md:text-2xl font-bold text-foreground mb-10">
-              Cost Breakdown Per Serving
+              The Demand Is Already There
             </h3>
             <div className="grid md:grid-cols-2 gap-8 items-start">
-              {/* Numbers */}
+              {/* Stats */}
               <div className="space-y-5">
                 {[
-                  { label: "Your wholesale cost (250ml)", value: "£22.00" },
-                  { label: "Servings per bottle", value: "16.7" },
-                  { label: "Your cost per serving", value: "£1.32" },
-                  { label: "Suggested customer price", value: "£2.00–£2.50" },
-                  { label: "Your gross margin", value: "34–47%", highlight: true },
+                  { label: "UK coffee drinkers seeking functional add-ons", value: "38%" },
+                  { label: "Average order value uplift per transaction", value: "+32%" },
+                  { label: "Gross profit increase per drink sold", value: "+33%" },
+                  { label: "UK stockists in year one", value: "121+" },
+                  { label: "Customer repeat purchase rate", value: "67%", highlight: true },
                 ].map(({ label, value, highlight }) => (
                   <div key={label} className={`flex items-center justify-between py-3 border-b border-border ${highlight ? "border-b-0" : ""}`}>
                     <p className="text-sm text-foreground/60">{label}</p>
@@ -166,18 +166,18 @@ function ProfitCarousel() {
                 className="rounded-2xl p-7"
                 style={{ background: "linear-gradient(135deg, #D6EBEA 0%, #E0DAEF 100%)" }}
               >
-                <p className="text-xs font-bold uppercase tracking-widest text-foreground/40 mb-3">Context</p>
+                <p className="text-xs font-bold uppercase tracking-widest text-foreground/40 mb-3">Why it converts</p>
                 <p className="text-sm text-foreground/70 leading-relaxed">
-                  Compare this to standard infusions (Monin, Torani) which have{" "}
-                  <strong className="text-foreground">zero functional benefit</strong>. You're
-                  charging a premium because NECTA delivers real results your customers can actually
-                  feel — from Lion's Mane cognitive support to marine collagen for skin health.
+                  Unlike standard infusions (Monin, Torani) which have{" "}
+                  <strong className="text-foreground">zero functional benefit</strong>, NECTA delivers
+                  real, feelable results — Lion's Mane for focus, Reishi for immunity, Ashwagandha for
+                  calm. Customers come back because it actually works.
                 </p>
                 <div className="mt-6 pt-5 border-t border-white/40">
                   <p className="text-xs font-bold text-foreground/50 uppercase tracking-wider mb-2">Premium positioning</p>
                   <p className="text-sm text-foreground/70">
                     Wellness-forward venues already charge £1.50+ for functional add-ons. NECTA gives
-                    you a premium, science-backed product to match.
+                    you a science-backed product that justifies every penny.
                   </p>
                 </div>
               </div>
