@@ -374,7 +374,7 @@ const StockistPage = () => {
           {/* Supporting stat */}
           <p className="text-sm text-primary/45 mb-10 max-w-lg">
             Average order value increases by 32% when customers add NECTA to their drink.
-            No long-term contracts. Net 30 payment terms.
+            No long-term contracts. Net 30 payment terms. Pricing details shared with approved stockists.
           </p>
 
           {/* CTAs */}
@@ -531,12 +531,12 @@ const StockistPage = () => {
             {[
               {
                 emoji: "💷",
-                title: "Wholesale Pricing",
+                title: "Strong Retail Margins",
                 color: "#D6EBEA",
                 lines: [
-                  "250ml pump bottle: £22",
-                  "500ml pump bottle: £30",
-                  "72% margin at £1.50–£2.50/serving",
+                  "Competitive wholesale pricing (shared on approval)",
+                  "Typical 70%+ gross margin per serving",
+                  "Volume discounts from 24+ bottles",
                 ],
               },
               {
@@ -564,7 +564,7 @@ const StockistPage = () => {
                 title: "Flexible Minimum Orders",
                 color: "#F0DEDA",
                 lines: [
-                  "Start with just 6 bottles (£132 + VAT)",
+                  "Low minimum order to get started",
                   "No long-term contracts",
                   "Net 30 payment terms",
                 ],
