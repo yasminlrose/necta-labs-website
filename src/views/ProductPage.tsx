@@ -91,6 +91,7 @@ const ProductPage = ({ slug: slugProp }: { slug?: string } = {}) => {
   const [mode, setMode] = useState<PurchaseMode>("subscribe");
   const [size, setSize] = useState<BottleSize>("250ml");
   const [sachetDays, setSachetDays] = useState<SachetDays>(30);
+  const [sachetMode, setSachetMode] = useState<'subscribe' | 'one-off'>('subscribe');
   const [frequency, setFrequency] = useState("monthly");
   const [freqOpen, setFreqOpen] = useState(false);
   const [activeImage, setActiveImage] = useState(0);
@@ -121,6 +122,7 @@ const ProductPage = ({ slug: slugProp }: { slug?: string } = {}) => {
 
   useEffect(() => { setActiveImage(0); }, [slug]);
   useEffect(() => { setActiveImage(format === "sachet" ? 1 : 0); }, [format]);
+  useEffect(() => { if (sachetDays === 7) setSachetMode('one-off'); }, [sachetDays]);
 
   if (!product || !colors) {
     if (typeof window !== 'undefined') window.location.replace('/shop');
@@ -340,73 +342,118 @@ const ProductPage = ({ slug: slugProp }: { slug?: string } = {}) => {
               )}
 
               {/* ── SACHET OPTIONS ── */}
-              {format === "sachet" && (
-                <>
-                  <p className="text-xs text-primary/50 mb-4">
-                    Single-serve sachets — one per drink, wherever you go.
-                  </p>
+              {format === "sachet" && (() => {
+                const SACHET_SUB_SAVINGS: Partial<Record<SachetDays, { amount: number; badge: string; freq: string }>> = {
+                  14: { amount: 3,  badge: "SAVE £3",    freq: "monthly"        },
+                  30: { amount: 7,  badge: "SAVE £7/mo", freq: "monthly"        },
+                  90: { amount: 21, badge: "SAVE £21",   freq: "every 3 months" },
+                };
+                const savings = sachetDays !== 7 ? SACHET_SUB_SAVINGS[sachetDays] : undefined;
+                const oneOffPrice = product.sachets[sachetDays];
+                const subPrice = savings ? oneOffPrice - savings.amount : oneOffPrice;
+                const displayPrice = sachetMode === 'subscribe' && savings ? subPrice : oneOffPrice;
+                const isSachetSub = sachetMode === 'subscribe' && !!savings;
 
-                  <div className="space-y-2.5 mb-5">
-                    {SACHET_OPTIONS.map((opt) => (
-                      <button
-                        key={opt.days}
-                        onClick={() => setSachetDays(opt.days)}
-                        className={`w-full flex items-center justify-between px-4 py-3.5 rounded-xl border-2 text-left transition-all ${
-                          sachetDays === opt.days
-                            ? "border-primary bg-primary/[0.03]"
-                            : "border-border hover:border-primary/30"
-                        }`}
-                      >
-                        <div className="flex items-center gap-3">
-                          {/* Radio dot */}
-                          <div
-                            className={`w-4 h-4 rounded-full border-2 flex items-center justify-center shrink-0 ${
-                              sachetDays === opt.days ? "border-primary" : "border-foreground/25"
+                return (
+                  <>
+                    <p className="text-xs text-primary/50 mb-4">
+                      Single-serve sachets — one per drink, wherever you go.
+                    </p>
+
+                    <div className="space-y-2.5 mb-4">
+                      {SACHET_OPTIONS.map((opt) => {
+                        const optSavings = opt.days !== 7 ? SACHET_SUB_SAVINGS[opt.days] : undefined;
+                        const optOneOff = product.sachets[opt.days];
+                        const optDisplay = sachetMode === 'subscribe' && optSavings
+                          ? optOneOff - optSavings.amount
+                          : optOneOff;
+                        return (
+                          <button
+                            key={opt.days}
+                            onClick={() => setSachetDays(opt.days)}
+                            className={`w-full flex items-center justify-between px-4 py-3.5 rounded-xl border-2 text-left transition-all ${
+                              sachetDays === opt.days
+                                ? "border-primary bg-primary/[0.03]"
+                                : "border-border hover:border-primary/30"
                             }`}
                           >
-                            {sachetDays === opt.days && (
-                              <div className="w-2 h-2 rounded-full bg-primary" />
+                            <div className="flex items-center gap-3">
+                              <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center shrink-0 ${sachetDays === opt.days ? "border-primary" : "border-foreground/25"}`}>
+                                {sachetDays === opt.days && <div className="w-2 h-2 rounded-full bg-primary" />}
+                              </div>
+                              <span className="text-sm font-semibold text-primary">{opt.label}</span>
+                              {opt.badge && (
+                                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full text-white" style={{ backgroundColor: colors.accent }}>
+                                  {opt.badge}
+                                </span>
+                              )}
+                            </div>
+                            <div className="text-right">
+                              <span className="text-sm font-bold text-primary">£{optDisplay}</span>
+                              {sachetMode === 'subscribe' && optSavings && (
+                                <span className="block text-[10px] text-primary/40 line-through">£{optOneOff}</span>
+                              )}
+                            </div>
+                          </button>
+                        );
+                      })}
+                    </div>
+
+                    {/* Subscribe / One-off toggle — hidden for 7-day */}
+                    {sachetDays !== 7 && (
+                      <div className="flex rounded-lg bg-muted p-1 mb-5">
+                        {(['subscribe', 'one-off'] as const).map((m) => (
+                          <button
+                            key={m}
+                            onClick={() => setSachetMode(m)}
+                            className={`relative flex-1 py-2 px-3 rounded-md text-sm font-semibold transition-all ${
+                              sachetMode === m ? "bg-white text-primary shadow-sm" : "text-primary/50 hover:text-primary"
+                            }`}
+                          >
+                            {m === 'subscribe' ? 'Subscribe & Save' : 'One-off'}
+                            {m === 'subscribe' && sachetMode === 'subscribe' && savings && (
+                              <span
+                                className="absolute -top-2.5 right-1 text-[9px] font-bold px-1.5 py-0.5 rounded-full text-white"
+                                style={{ backgroundColor: colors.accent }}
+                              >
+                                {savings.badge}
+                              </span>
                             )}
-                          </div>
-                          <span className="text-sm font-semibold text-primary">{opt.label}</span>
-                          {opt.badge && (
-                            <span
-                              className="text-[10px] font-bold px-2 py-0.5 rounded-full text-white"
-                              style={{ backgroundColor: colors.accent }}
-                            >
-                              {opt.badge}
-                            </span>
-                          )}
-                        </div>
-                        <span className="text-sm font-bold text-primary">
-                          £{product.sachets[opt.days]}
-                        </span>
-                      </button>
-                    ))}
-                  </div>
+                          </button>
+                        ))}
+                      </div>
+                    )}
 
-                  {/* Price display */}
-                  <div className="flex items-baseline gap-3 mb-5">
-                    <span className="text-2xl font-bold text-primary">£{sachetPrice}</span>
-                    <span className="text-sm text-primary/45">one-time purchase</span>
-                  </div>
+                    {/* Price display */}
+                    <div className="flex items-baseline gap-3 mb-5">
+                      <span className="text-2xl font-bold text-primary">£{displayPrice}</span>
+                      {isSachetSub && <span className="text-base text-primary/35 line-through">£{oneOffPrice}</span>}
+                      <span className="text-sm text-primary/45">
+                        {isSachetSub ? savings!.freq : "one-time"}
+                      </span>
+                    </div>
 
-                  {/* CTA */}
-                  <button
-                    disabled={checkoutLoading}
-                    onClick={() => {
-                      const opt = SACHET_OPTIONS.find(o => o.days === sachetDays)!;
-                      const priceId = getPriceId(slug as StripePriceSlug, 'sachet', sachetDays, 'one-off');
-                      const stripeMode = getStripeMode('sachet', sachetDays, 'one-off');
-                      handleCheckout(priceId, stripeMode, `NECTA ${product.name} Sachets`, opt.label);
-                    }}
-                    className="w-full py-4 rounded-xl font-semibold text-base text-white transition-all mb-4 disabled:opacity-60"
-                    style={{ backgroundColor: colors.accent }}
-                  >
-                    {checkoutLoading ? "Redirecting…" : `Add to Basket — £${sachetPrice}`}
-                  </button>
-                </>
-              )}
+                    {/* CTA */}
+                    <button
+                      disabled={checkoutLoading}
+                      onClick={() => {
+                        const opt = SACHET_OPTIONS.find(o => o.days === sachetDays)!;
+                        const priceId = getPriceId(slug as StripePriceSlug, 'sachet', sachetDays, sachetMode === 'subscribe' && !!savings ? 'subscribe' : 'one-off');
+                        const stripeMode = getStripeMode('sachet', sachetDays, sachetMode === 'subscribe' && !!savings ? 'subscribe' : 'one-off');
+                        handleCheckout(priceId, stripeMode, `NECTA ${product.name} Sachets`, opt.label, isSachetSub ? savings!.freq : undefined);
+                      }}
+                      className="w-full py-4 rounded-xl font-semibold text-base text-white transition-all mb-4 disabled:opacity-60"
+                      style={{ backgroundColor: colors.accent }}
+                    >
+                      {checkoutLoading
+                        ? "Redirecting…"
+                        : isSachetSub
+                          ? `Subscribe & Save — £${displayPrice}`
+                          : `Add to Basket — £${displayPrice}`}
+                    </button>
+                  </>
+                );
+              })()}
 
               {/* Trust signals */}
               <div className="flex items-center justify-center gap-6 text-primary/40">
