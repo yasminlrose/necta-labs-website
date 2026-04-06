@@ -59,10 +59,17 @@ export async function POST(req: NextRequest) {
   if (event.type === 'checkout.session.completed') {
     const session = event.data.object;
     console.log('[webhook] checkout.session.completed — session id:', session.id, '| mode:', session.mode, '| payment_status:', session.payment_status);
+    console.log('[webhook] customer_details:', JSON.stringify(session.customer_details));
+    console.log('[webhook] metadata:', JSON.stringify(session.metadata));
 
     const email = session.customer_details?.email;
-    const fullName = session.customer_details?.name ?? '';
-    const firstName = fullName.split(' ')[0] || 'there';
+    const rawName = session.customer_details?.name;
+    console.log('[webhook] rawName from customer_details.name:', rawName);
+
+    // Split on whitespace and take the first non-empty token; fall back to 'there'
+    const firstName = rawName?.trim().split(/\s+/)[0] || 'there';
+    console.log('[webhook] firstName resolved to:', firstName);
+
     const amountPence = session.amount_total ?? 0;
     const amount = `£${(amountPence / 100).toFixed(2)}`;
     const productName = session.metadata?.productName ?? 'NECTA Infusion';
@@ -82,10 +89,11 @@ export async function POST(req: NextRequest) {
         const resendId = await sendTemplate(
           RESEND_TEMPLATES.ORDER_CONFIRMATION,
           email,
+          'Your NECTA order is confirmed',
           {
-            first_name: firstName,
-            product_name: productName,
-            order_total: amount,
+            first_name:    firstName,
+            product_name:  productName,
+            order_total:   amount,
             dispatch_date: 'within 5–7 working days',
           },
         );
@@ -104,9 +112,10 @@ export async function POST(req: NextRequest) {
         const resendId = await sendTemplate(
           RESEND_TEMPLATES.SUBSCRIPTION_WELCOME,
           email,
+          'Welcome to your NECTA subscription',
           {
-            first_name: firstName,
-            product_name: productName,
+            first_name:        firstName,
+            product_name:      productName,
             amount,
             next_billing_date: chargeDate,
             frequency,

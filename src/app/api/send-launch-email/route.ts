@@ -32,6 +32,7 @@ export async function POST(req: NextRequest) {
           const id = await sendTemplate(
             RESEND_TEMPLATES.LAUNCH_ANNOUNCEMENT,
             email,
+            "NECTA Labs is live — you're first to know",
             { first_name: firstName ?? 'there' },
           );
           console.log('[send-launch-email] sent to:', email, '| resend id:', id);
