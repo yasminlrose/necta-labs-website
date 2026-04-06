@@ -1,3 +1,4 @@
+import Image from "next/image";
 import bottleFocus from "@/assets/bottle-focus.jpeg";
 import bottleImmunity from "@/assets/bottle-immunity.jpeg";
 import bottleCalm from "@/assets/bottle-calm.jpeg";
@@ -25,10 +26,11 @@ const sizeClasses = {
 const PumpBottle = ({ variant, size = "md", className = "" }: PumpBottleProps) => {
   return (
     <div className={`${sizeClasses[size]} w-auto ${className}`.trim()}>
-      <img
-        src={bottleImages[variant].src}
+      <Image
+        src={bottleImages[variant]}
         alt={`NECTA LABS ${variant} pump bottle`}
         className="h-full w-auto object-contain"
+        loading="lazy"
       />
     </div>
   );

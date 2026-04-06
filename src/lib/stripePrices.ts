@@ -100,21 +100,32 @@ export const STRIPE_PRICES: Record<ProductSlug, ProductPrices> = {
   },
 };
 
-/** Returns the Stripe price ID for the given product + purchase combination. */
+/**
+ * Returns the Stripe price ID for the given product + purchase combination.
+ *
+ * mode values:
+ *   'one-off'      → one-time payment
+ *   'subscribe'    → monthly recurring
+ *   'subscribe-2m' → every-2-months recurring (bottles only)
+ */
 export function getPriceId(
   slug: ProductSlug,
   format: 'bottle' | 'sachet',
   size: '250ml' | '500ml' | 7 | 14 | 30 | 90,
-  mode: 'subscribe' | 'one-off',
+  mode: 'subscribe' | 'subscribe-2m' | 'one-off',
 ): string {
   const p = STRIPE_PRICES[slug];
   if (format === 'sachet') {
     if (size === 7)  return p.sachet_7;
-    if (size === 14) return mode === 'subscribe' ? p.sachet_14_sub  : p.sachet_14_oneoff;
-    if (size === 30) return mode === 'subscribe' ? p.sachet_30_sub  : p.sachet_30_oneoff;
-    if (size === 90) return mode === 'subscribe' ? p.sachet_90_sub  : p.sachet_90_oneoff;
+    if (size === 14) return mode === 'one-off' ? p.sachet_14_oneoff : p.sachet_14_sub;
+    if (size === 30) return mode === 'one-off' ? p.sachet_30_oneoff : p.sachet_30_sub;
+    if (size === 90) return mode === 'one-off' ? p.sachet_90_oneoff : p.sachet_90_sub;
   }
-  if (size === '250ml') return mode === 'subscribe' ? p.bottle_250_sub : p.bottle_250_oneoff;
+  if (size === '250ml') {
+    if (mode === 'subscribe-2m') return p.bottle_250_sub_2m;
+    return mode === 'subscribe' ? p.bottle_250_sub : p.bottle_250_oneoff;
+  }
+  if (mode === 'subscribe-2m') return p.bottle_500_sub_2m;
   return mode === 'subscribe' ? p.bottle_500_sub : p.bottle_500_oneoff;
 }
 
@@ -122,7 +133,7 @@ export function getPriceId(
 export function getStripeMode(
   format: 'bottle' | 'sachet',
   size: '250ml' | '500ml' | 7 | 14 | 30 | 90,
-  mode: 'subscribe' | 'one-off',
+  mode: 'subscribe' | 'subscribe-2m' | 'one-off',
 ): 'payment' | 'subscription' {
   if (format === 'sachet' && size === 7) return 'payment';
   if (mode === 'one-off') return 'payment';

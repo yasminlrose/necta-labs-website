@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 import bottleFocus from "@/assets/bottle-focus.jpeg";
 import bottleImmunity from "@/assets/bottle-immunity.jpeg";
 import bottleGlow from "@/assets/bottle-glow.jpeg";
@@ -141,11 +142,14 @@ const HeroSection = () => {
 
         {/* Image side */}
         <div className="flex-1 flex justify-center items-end">
-          <img
+          <Image
             src={slide.image}
             alt={slide.imageAlt}
+            width={320}
+            height={480}
             className="w-52 md:w-68 lg:w-80 object-contain drop-shadow-xl"
             style={{ filter: "drop-shadow(0 20px 40px rgba(0,0,0,0.12))" }}
+            priority
           />
         </div>
       </div>

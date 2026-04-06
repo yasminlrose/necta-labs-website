@@ -22,11 +22,11 @@ const Hero = () => {
           </p>
 
           <Button asChild size="lg">
-            <Link href="/waitlist">Join the Waitlist</Link>
+            <Link href="/shop">Shop Now</Link>
           </Button>
 
           <p className="text-sm text-foreground/35 mt-6">
-            Launching Summer 2026 · Free UK delivery on subscriptions
+            Free UK delivery on subscriptions · Cancel anytime
           </p>
         </div>
       </div>

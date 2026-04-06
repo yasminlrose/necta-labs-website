@@ -57,7 +57,7 @@ export default function ImmunitySachetsPage() {
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(productSchema) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }} />
-      <Suspense><SachetProductPage /></Suspense>
+      <Suspense><SachetProductPage slug="immunity-sachets" /></Suspense>
     </>
   );
 }

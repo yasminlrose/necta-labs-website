@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Check, Minus, Plus } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 import { products, productSlugs, ProductSlug } from "@/data/products";
 
 const BUNDLE_TIERS = [
@@ -86,11 +87,14 @@ const BundleSection = () => {
                     <Check className="h-3.5 w-3.5 text-white" />
                   </span>
                 )}
-                <img
+                <Image
                   src={product.bottleImage}
                   alt={product.name}
-                  className="h-28 mx-auto object-contain mb-3"
+                  width={112}
+                  height={112}
+                  className="mx-auto object-contain mb-3"
                   style={{ mixBlendMode: "multiply" }}
+                  loading="lazy"
                 />
                 <p className="font-bold text-primary text-sm">{product.name}</p>
                 <p className="text-xs text-primary/60">{product.flavor}</p>

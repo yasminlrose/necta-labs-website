@@ -6,7 +6,7 @@ import Link from "next/link";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 
-import type { StaticImageData } from "next/image";
+import NextImage, { type StaticImageData } from "next/image";
 import lionsManeImg from "@/assets/ingredients/lions-mane.jpg";
 import reishiImg from "@/assets/ingredients/reishi.jpg";
 import ashwagandhaImg from "@/assets/ingredients/ashwagandha.jpg";
@@ -455,10 +455,11 @@ function IngredientModal({ ingredient, onClose }: { ingredient: Ingredient; onCl
 
         {/* Image banner */}
         <div className="relative h-56 overflow-hidden rounded-t-2xl bg-[#f5f0eb]">
-          <img
-            src={typeof ingredient.image === "string" ? ingredient.image : ingredient.image.src}
+          <NextImage
+            src={ingredient.image}
             alt={ingredient.name}
-            className="w-full h-full object-cover"
+            fill
+            className="object-cover"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
           <div className="absolute bottom-5 left-6">
@@ -606,11 +607,12 @@ const SciencePage = () => {
               >
                 {/* Circle image */}
                 <div className="relative w-full aspect-square rounded-full overflow-hidden bg-[#f5f0eb] mb-4 ring-2 ring-transparent group-hover:ring-primary/30 transition-all duration-300 group-hover:scale-105">
-                  <img
-                    src={typeof ing.image === "string" ? ing.image : ing.image.src}
+                  <NextImage
+                    src={ing.image}
                     alt={ing.name}
+                    fill
+                    className="object-cover"
                     loading="lazy"
-                    className="w-full h-full object-cover"
                   />
                   {/* Hover overlay */}
                   <div className="absolute inset-0 bg-primary/80 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center rounded-full">

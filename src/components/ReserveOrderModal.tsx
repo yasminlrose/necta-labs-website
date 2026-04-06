@@ -15,6 +15,7 @@ interface ReserveOrderModalProps {
 }
 
 const ReserveOrderModal = ({ open, onClose, productName, productSlug, format, size, price }: ReserveOrderModalProps) => {
+  const [firstName, setFirstName] = useState("");
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const [done, setDone] = useState(false);
@@ -47,8 +48,25 @@ const ReserveOrderModal = ({ open, onClose, productName, productSlug, format, si
         source: `reserve-${productSlug}-${format}`,
       });
 
+      // Send pre-order confirmation email (Email 1)
+      await fetch("/api/send-email", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          type: "preorder",
+          to: email.trim(),
+          data: {
+            firstName: firstName.trim() || "there",
+            productName: `NECTA ${productName}`,
+            size,
+            amount: price,
+            dispatchDate: "Summer 2026",
+          },
+        }),
+      });
+
       setDone(true);
-      toast.success("Order reserved! We'll email you when we launch.");
+      toast.success("Order reserved! Check your email for confirmation.");
     } catch {
       toast.error("Something went wrong. Please try again.");
     } finally {
@@ -93,6 +111,16 @@ const ReserveOrderModal = ({ open, onClose, productName, productSlug, format, si
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-4">
+              <div>
+                <label className="text-sm text-foreground/60 mb-1.5 block">First name</label>
+                <input
+                  type="text"
+                  value={firstName}
+                  onChange={(e) => setFirstName(e.target.value)}
+                  placeholder="Your first name"
+                  className="w-full rounded-xl border border-border bg-background px-4 py-3 text-sm text-foreground placeholder:text-foreground/30 focus:outline-none focus:ring-2 focus:ring-foreground/20"
+                />
+              </div>
               <div>
                 <label className="text-sm text-foreground/60 mb-1.5 block">Email address</label>
                 <input

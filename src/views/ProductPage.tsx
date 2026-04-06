@@ -74,10 +74,8 @@ const SACHET_OPTIONS: { days: SachetDays; label: string; badge?: string }[] = [
 ];
 
 const frequencies = [
-  { label: "Every 2 weeks", value: "2w" },
-  { label: "Every 4 weeks", value: "4w" },
-  { label: "Every 6 weeks", value: "6w" },
-  { label: "Every 8 weeks", value: "8w" },
+  { label: "Monthly",        value: "monthly"  },
+  { label: "Every 2 months", value: "2monthly" },
 ];
 
 const ProductPage = ({ slug: slugProp }: { slug?: string } = {}) => {
@@ -93,19 +91,19 @@ const ProductPage = ({ slug: slugProp }: { slug?: string } = {}) => {
   const [mode, setMode] = useState<PurchaseMode>("subscribe");
   const [size, setSize] = useState<BottleSize>("250ml");
   const [sachetDays, setSachetDays] = useState<SachetDays>(30);
-  const [frequency, setFrequency] = useState("4w");
+  const [frequency, setFrequency] = useState("monthly");
   const [freqOpen, setFreqOpen] = useState(false);
   const [activeImage, setActiveImage] = useState(0);
   const [modalOpen, setModalOpen] = useState(false);
   const [checkoutLoading, setCheckoutLoading] = useState(false);
 
-  const handleCheckout = useCallback(async (priceId: string, stripeMode: 'payment' | 'subscription', productName: string, sizeLabel: string) => {
+  const handleCheckout = useCallback(async (priceId: string, stripeMode: 'payment' | 'subscription', productName: string, sizeLabel: string, billingFrequency?: string) => {
     setCheckoutLoading(true);
     try {
       const res = await fetch('/api/checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ priceId, mode: stripeMode, productName, size: sizeLabel, productSlug: slug }),
+        body: JSON.stringify({ priceId, mode: stripeMode, productName, size: sizeLabel, productSlug: slug, frequency: billingFrequency }),
       });
       const data: { url?: string; error?: string } = await res.json();
       if (!res.ok || !data.url) {
@@ -319,9 +317,15 @@ const ProductPage = ({ slug: slugProp }: { slug?: string } = {}) => {
                   <button
                     disabled={checkoutLoading}
                     onClick={() => {
-                      const priceId = getPriceId(slug as StripePriceSlug, 'bottle', size as '250ml' | '500ml', mode === 'subscribe' ? 'subscribe' : 'one-off');
-                      const stripeMode = getStripeMode('bottle', size as '250ml' | '500ml', mode === 'subscribe' ? 'subscribe' : 'one-off');
-                      handleCheckout(priceId, stripeMode, `NECTA ${product.name}`, `${size} bottle`);
+                      const subMode = mode === 'subscribe'
+                        ? (frequency === '2monthly' ? 'subscribe-2m' : 'subscribe')
+                        : 'one-off';
+                      const priceId = getPriceId(slug as StripePriceSlug, 'bottle', size as '250ml' | '500ml', subMode);
+                      const stripeMode = getStripeMode('bottle', size as '250ml' | '500ml', subMode);
+                      const freqLabel = mode === 'subscribe'
+                        ? (frequency === '2monthly' ? 'every 2 months' : 'monthly')
+                        : undefined;
+                      handleCheckout(priceId, stripeMode, `NECTA ${product.name}`, `${size} bottle`, freqLabel);
                     }}
                     className="w-full py-4 rounded-xl font-semibold text-base text-white transition-all mb-4 disabled:opacity-60"
                     style={{ backgroundColor: colors.accent }}
@@ -593,10 +597,10 @@ const ProductPage = ({ slug: slugProp }: { slug?: string } = {}) => {
               Reserve your order
             </button>
             <Link
-              href="/waitlist"
+              href="/shop"
               className="px-8 py-3.5 rounded-lg font-medium text-primary text-sm border border-primary/25 hover:border-primary/50 transition-colors"
             >
-              Join the waitlist
+              Browse all products
             </Link>
           </div>
         </div>

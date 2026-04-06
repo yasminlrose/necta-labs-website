@@ -2,6 +2,7 @@
 
 import { useParams } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import { useEffect } from "react";
 import { ExternalLink, ArrowRight, Leaf } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -190,10 +191,12 @@ const IngredientPage = () => {
                     className="w-16 h-16 rounded-lg flex items-center justify-center flex-shrink-0"
                     style={{ backgroundColor: skuCardBg[pSlug] }}
                   >
-                    <img
+                    <Image
                       src={p.bottleImage}
                       alt={pName}
-                      className="h-12 object-contain"
+                      width={48}
+                      height={48}
+                      className="object-contain"
                       loading="lazy"
                     />
                   </div>

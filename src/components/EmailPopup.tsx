@@ -45,6 +45,17 @@ const EmailPopup = () => {
         .insert({ email: email.trim(), source: "popup" });
 
       if (error && error.code !== "23505") throw error;
+
+      await fetch("/api/send-email", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          type: "launch",
+          to: email.trim(),
+          data: { firstName: "" },
+        }),
+      }).catch(() => null);
+
       setSubmitted(true);
       setTimeout(handleClose, 2000);
     } catch {
@@ -75,10 +86,10 @@ const EmailPopup = () => {
         ) : (
           <>
             <h3 className="text-2xl font-medium text-foreground mb-2">
-              Get early access
+              Stay in the loop
             </h3>
             <p className="text-foreground/50 text-sm mb-6">
-              Join the waitlist and be the first to try Necta.
+              Get exclusive offers and new product launches direct to your inbox.
             </p>
             <form onSubmit={handleSubmit} className="space-y-3">
               <input
@@ -94,7 +105,7 @@ const EmailPopup = () => {
                 disabled={isSubmitting}
                 className="w-full"
               >
-                {isSubmitting ? "Joining..." : "Join Waitlist"}
+                {isSubmitting ? "Signing up..." : "Sign Up"}
               </Button>
             </form>
             <p className="text-xs text-foreground/30 mt-4 text-center">

@@ -3,7 +3,7 @@ import Index from '@/views/Index';
 
 export const metadata: Metadata = {
   title: 'NECTA Labs — Organic Functional Infusions for Coffee & Tea',
-  description: 'Premium organic functional infusions with Lion\'s Mane, Reishi, Ashwagandha & more. Add to any drink. Research-backed doses. UK made. Join the waitlist.',
+  description: 'Premium organic functional infusions with Lion\'s Mane, Reishi, Ashwagandha & more. Add to any drink. Research-backed doses. UK made.',
   alternates: { canonical: 'https://nectalabs.com' },
   openGraph: {
     title: 'NECTA Labs — Organic Functional Infusions for Coffee & Tea',

@@ -2,6 +2,7 @@
 
 import { ArrowRight } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 import { useScrollAnimation } from "@/hooks/use-scroll-animation";
 import bottleFocus from "@/assets/bottle-focus.jpeg";
 import bottleImmunity from "@/assets/bottle-immunity.jpeg";
@@ -69,10 +70,12 @@ const ProductShowcase = () => {
               style={{ transitionDelay: `${i * 100}ms` }}
             >
               <div className="p-5 flex items-center justify-center h-[220px] md:h-[280px]" style={{ backgroundColor: product.bg }}>
-                <img
+                <Image
                   src={product.image}
                   alt={`${product.name} infusion`}
-                  className="h-full w-auto object-contain group-hover:scale-105 transition-transform duration-500"
+                  width={200}
+                  height={280}
+                  className="object-contain group-hover:scale-105 transition-transform duration-500"
                   loading="lazy"
                 />
               </div>

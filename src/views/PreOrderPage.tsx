@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useMemo } from "react";
+import Image from "next/image";
 import { products, productSlugs, ProductSlug } from "@/data/products";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -107,10 +108,13 @@ function ProductCard({ slug, state, onChange }: { slug: ProductSlug; state: Card
           {/* Left — Image */}
           <div className="md:w-[45%] p-4 flex flex-col items-center">
             <div className="w-full aspect-square rounded-2xl flex items-center justify-center p-[10%]" style={{ backgroundColor: colors.card }}>
-              <img
+              <Image
                 src={state.imageView === "bottle" ? p.bottleImage : p.sachetImage}
                 alt={`${p.name} ${state.imageView}`}
+                width={300}
+                height={300}
                 className="max-h-full max-w-full object-contain"
+                loading="lazy"
               />
             </div>
             <div className="flex gap-2 mt-3">

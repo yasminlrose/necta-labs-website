@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { Star } from "lucide-react";
+import Image from "next/image";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { products, productSlugs } from "@/data/products";
@@ -139,10 +140,11 @@ function ProductCard({ card }: { card: ShopCard }) {
     <Link href={card.href} className="group flex flex-col">
       {/* Image — edge to edge, no padding, large portrait */}
       <div className="relative overflow-hidden bg-white aspect-[3/4] w-full">
-        <img
+        <Image
           src={card.image}
           alt={`NECTA ${card.name} ${card.format === "bottle" ? "pump bottle" : "sachets"}`}
-          className="w-full h-full object-contain transition-transform duration-500 group-hover:scale-105"
+          fill
+          className="object-contain transition-transform duration-500 group-hover:scale-105"
           style={{ mixBlendMode: "multiply" }}
           loading="lazy"
         />

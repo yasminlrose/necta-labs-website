@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo, useEffect, useCallback } from "react";
+import { useState, useMemo, useEffect, useCallback, useRef } from "react";
 import { Check, Minus, Plus, ShoppingBag, ChevronRight, X, Share2 } from "lucide-react";
 import Link from "next/link";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
@@ -121,12 +121,16 @@ const PickAndMixPage = () => {
     router.replace(qs ? `${currentPath}?${qs}` : currentPath, { scroll: false });
   }, [router, pathname]);
 
-  const setBundleSize = (v: number | null) => { setBundleSizeState(v); syncUrl(v, selection, filter, sellingPlan); };
-  const setFilter = (v: FilterTab) => { setFilterState(v); syncUrl(bundleSize, selection, v, sellingPlan); };
-  const setSelection = (fn: (prev: Selection) => Selection) => {
-    setSelectionState((prev) => { const next = fn(prev); syncUrl(bundleSize, next, filter, sellingPlan); return next; });
-  };
-  const setSellingPlan = (v: SellingPlan) => { setSellingPlanState(v); syncUrl(bundleSize, selection, filter, v); };
+  const isInitialRender = useRef(true);
+  useEffect(() => {
+    if (isInitialRender.current) { isInitialRender.current = false; return; }
+    syncUrl(bundleSize, selection, filter, sellingPlan);
+  }, [bundleSize, selection, filter, sellingPlan, syncUrl]);
+
+  const setBundleSize = (v: number | null) => setBundleSizeState(v);
+  const setFilter = (v: FilterTab) => setFilterState(v);
+  const setSelection = (fn: (prev: Selection) => Selection) => setSelectionState(fn);
+  const setSellingPlan = (v: SellingPlan) => setSellingPlanState(v);
 
   const tier = TIERS.find((t) => t.count === bundleSize);
   const totalSelected = useMemo(() => Object.values(selection).reduce((s, q) => s + q, 0), [selection]);

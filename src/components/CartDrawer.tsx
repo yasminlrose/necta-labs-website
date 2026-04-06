@@ -2,6 +2,7 @@
 
 import { X, Minus, Plus, ShoppingBag, ArrowRight } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 import { useCart } from "@/contexts/CartContext";
 
 const CartDrawer = () => {
@@ -63,12 +64,14 @@ const CartDrawer = () => {
               {items.map((item) => (
                 <div key={item.id} className="flex gap-4 py-4 border-b border-border last:border-0">
                   {/* Image */}
-                  <div className="w-20 h-20 rounded-lg bg-white flex-shrink-0 flex items-center justify-center overflow-hidden">
-                    <img
+                  <div className="relative w-20 h-20 rounded-lg bg-white flex-shrink-0 flex items-center justify-center overflow-hidden">
+                    <Image
                       src={item.image}
                       alt={item.name}
-                      className="h-full w-auto object-contain"
+                      fill
+                      className="object-contain"
                       style={{ mixBlendMode: "multiply" }}
+                      loading="lazy"
                     />
                   </div>
 
@@ -133,7 +136,37 @@ const CartDrawer = () => {
               <span className="font-bold text-primary">£{subtotal.toFixed(2)}</span>
             </div>
             <p className="text-xs text-primary/40">Free UK delivery on subscriptions. Shipping calculated at checkout.</p>
-            <button className="w-full bg-primary text-white font-semibold py-4 rounded-md hover:bg-primary/90 transition-colors text-sm">
+            <button
+              className="w-full bg-primary text-white font-semibold py-4 rounded-md hover:bg-primary/90 transition-colors text-sm"
+              onClick={async () => {
+                const subItems = items.filter((i) => i.mode === "subscribe");
+                if (subItems.length > 0) {
+                  const nextDate = new Date();
+                  nextDate.setDate(nextDate.getDate() + 28);
+                  const nextDateStr = nextDate.toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
+                  for (const item of subItems) {
+                    const slugMatch = item.slug?.match(/^(focus|immunity|calm|glow)/) ?? [];
+                    const productSlug = (slugMatch[1] ?? "focus") as "focus" | "immunity" | "calm" | "glow";
+                    await fetch("/api/send-email", {
+                      method: "POST",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify({
+                        type: "subscription",
+                        to: "", // filled by checkout — replace with real customer email when checkout is wired
+                        data: {
+                          firstName: "there",
+                          productName: `NECTA ${item.name.replace(" (Bundle)", "")}`,
+                          productSlug,
+                          size: item.size,
+                          amount: `£${(item.price * item.quantity).toFixed(2)}`,
+                          nextChargeDate: nextDateStr,
+                        },
+                      }),
+                    }).catch(() => null); // non-blocking
+                  }
+                }
+              }}
+            >
               Checkout — £{subtotal.toFixed(2)}
             </button>
             <button

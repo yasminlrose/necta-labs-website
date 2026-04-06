@@ -25,6 +25,18 @@ function EmailSignup() {
       setError("Something went wrong. Please try again.");
       return;
     }
+
+    // Send launch announcement email (Email 3)
+    await fetch("/api/send-email", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        type: "launch",
+        to: email.trim(),
+        data: { firstName: "" },
+      }),
+    }).catch(() => null); // non-blocking
+
     setDone(true);
   };
 
@@ -172,7 +184,6 @@ const Footer = () => {
             <ul className="space-y-3">
               {[
                 { href: "/stockist", label: "Become a Stockist" },
-                { href: "/waitlist", label: "Join Waitlist" },
               ].map(({ href, label }) => (
                 <li key={href}>
                   <Link

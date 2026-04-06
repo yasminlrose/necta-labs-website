@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Star } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 import { products, productSlugs } from "@/data/products";
 
 const BestSellersSection = () => {
@@ -42,11 +43,13 @@ const ProductCard = ({ slug }: { slug: string }) => {
       {/* Image area */}
       <Link href={`/shop/${slug}`} className="block">
         <div className="relative aspect-square flex items-center justify-center mb-4 overflow-hidden rounded-lg bg-white">
-          <img
+          <Image
             src={product.bottleImage}
             alt={`NECTA ${product.name}`}
-            className="h-full w-auto object-contain transition-transform duration-300 group-hover:scale-105"
+            fill
+            className="object-contain transition-transform duration-300 group-hover:scale-105"
             style={{ mixBlendMode: "multiply" }}
+            loading="lazy"
           />
           {isSubscription && (
             <span className="absolute top-3 right-3 bg-pink text-primary text-xs font-semibold px-2 py-1 rounded">

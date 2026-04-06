@@ -1,5 +1,6 @@
 'use client';
 
+import Image from "next/image";
 import { useState } from "react";
 import { Brain, Moon, Check } from "lucide-react";
 import Link from "next/link";
@@ -101,11 +102,14 @@ const BenefitTabsSection = () => {
           {/* Image side */}
           <div className="flex-1 flex justify-center">
             <div className="flex items-center justify-center w-full max-w-sm aspect-square">
-              <img
+              <Image
                 src={tab.image}
                 alt={tab.imgAlt}
+                width={256}
+                height={256}
                 className="h-64 object-contain"
                 style={{ mixBlendMode: "multiply" }}
+                loading="lazy"
               />
             </div>
           </div>

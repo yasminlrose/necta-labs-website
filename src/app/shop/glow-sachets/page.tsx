@@ -57,7 +57,7 @@ export default function GlowSachetsPage() {
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(productSchema) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }} />
-      <Suspense><SachetProductPage /></Suspense>
+      <Suspense><SachetProductPage slug="glow-sachets" /></Suspense>
     </>
   );
 }

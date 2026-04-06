@@ -1,3 +1,4 @@
+import Image from "next/image";
 import sachetFocus from "@/assets/sachet-focus.png";
 import sachetImmunity from "@/assets/sachet-immunity.png";
 import sachetCalm from "@/assets/sachet-calm.png";
@@ -24,10 +25,11 @@ const sizeClasses = {
 
 const Sachet = ({ variant, size = "md", className = "" }: SachetProps) => {
   return (
-    <img
-      src={sachetImages[variant].src}
+    <Image
+      src={sachetImages[variant]}
       alt={`NECTA LABS ${variant} sachet`}
       className={`${sizeClasses[size]} w-auto object-contain ${className}`}
+      loading="lazy"
     />
   );
 };

@@ -138,10 +138,10 @@ const HowItWorksPage = () => {
             Ready to upgrade your drinks?
           </h2>
           <p className={`text-foreground/50 mb-8 scroll-fade-in ${cta.isVisible ? "visible" : ""}`}>
-            Join the waitlist for early access and 20% off.
+            Start with a 7-day trial sachet box — just £12.
           </p>
-          <Link href="/waitlist">
-            <Button size="lg">Join the Waitlist</Button>
+          <Link href="/shop">
+            <Button size="lg">Shop Now</Button>
           </Link>
         </div>
       </section>

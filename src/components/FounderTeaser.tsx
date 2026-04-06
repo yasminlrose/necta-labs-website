@@ -3,6 +3,7 @@
 import { ArrowRight } from "lucide-react";
 import Link from "next/link";
 import { useScrollAnimation } from "@/hooks/use-scroll-animation";
+import Image from "next/image";
 import yasminPortrait from "@/assets/founder-yasmin.jpg";
 
 const FounderTeaser = () => {
@@ -14,10 +15,13 @@ const FounderTeaser = () => {
         <div className="grid md:grid-cols-2 gap-12 md:gap-16 items-center">
           {/* Image */}
           <div className={`rounded-2xl overflow-hidden scroll-slide-left ${isVisible ? "visible" : ""}`}>
-            <img
-              src={yasminPortrait.src}
+            <Image
+              src={yasminPortrait}
               alt="Yasmin, Founder of NECTA Labs"
+              width={600}
+              height={520}
               className="w-full h-[400px] md:h-[520px] object-cover"
+              loading="lazy"
             />
           </div>
 

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 import bottleFocus from "@/assets/bottle-focus.jpeg";
 import bottleCalm from "@/assets/bottle-calm.jpeg";
 import bottleImmunity from "@/assets/bottle-immunity.jpeg";
@@ -101,11 +102,14 @@ const IngredientSpotlightsSection = () => {
           <div className="flex flex-col md:flex-row items-center gap-10 md:gap-16">
             {/* Image */}
             <div className="flex-shrink-0 flex items-center justify-center">
-              <img
+              <Image
                 src={spot.image}
                 alt={`NECTA ${spot.product}`}
-                className="h-44 md:h-60 object-contain"
+                width={192}
+                height={240}
+                className="object-contain"
                 style={{ mixBlendMode: "multiply" }}
+                loading="lazy"
               />
             </div>
 

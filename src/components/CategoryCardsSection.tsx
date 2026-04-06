@@ -2,6 +2,7 @@
 
 import { ArrowRight } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 import bottleFocus from "@/assets/bottle-focus.jpeg";
 import bottleCalm from "@/assets/bottle-calm.jpeg";
 import bottleImmunity from "@/assets/bottle-immunity.jpeg";
@@ -37,11 +38,14 @@ const CategoryCardsSection = () => {
             >
               {/* Image */}
               <div className="aspect-square flex items-center justify-center p-6 bg-white">
-                <img
+                <Image
                   src={image}
                   alt={`NECTA ${name}`}
-                  className="h-36 object-contain transition-transform duration-300 group-hover:scale-105"
+                  width={144}
+                  height={144}
+                  className="object-contain transition-transform duration-300 group-hover:scale-105"
                   style={{ mixBlendMode: "multiply" }}
+                  loading="lazy"
                 />
               </div>
               {/* Text */}

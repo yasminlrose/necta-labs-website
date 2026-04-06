@@ -44,9 +44,9 @@ const SachetProductPage = ({ slug: slugProp }: { slug?: string } = {}) => {
 
 /* Savings vs one-off price for each subscribable sachet duration */
 const SACHET_SAVINGS = {
-  14: { amount: 3,  badge: 'SAVE £3',     period: 'per delivery' },
-  30: { amount: 7,  badge: 'SAVE £7/mo',  period: 'per month'    },
-  90: { amount: 21, badge: 'SAVE £21',    period: 'per quarter'  },
+  14: { amount: 3,  badge: 'SAVE £3',    period: 'monthly',         frequency: 'monthly'        },
+  30: { amount: 7,  badge: 'SAVE £7/mo', period: 'monthly',         frequency: 'monthly'        },
+  90: { amount: 21, badge: 'SAVE £21',   period: 'every 3 months',  frequency: 'every 3 months' },
 } as const;
 
 function SachetHero({ product }: { product: NonNullable<ReturnType<typeof getProduct>> }) {
@@ -89,6 +89,9 @@ function SachetHero({ product }: { product: NonNullable<ReturnType<typeof getPro
       const priceId = getPriceId(product.slug as StripePriceSlug, 'sachet', duration, sellingMode);
       const stripeMode = getStripeMode('sachet', duration, sellingMode);
       const sizeLabel = `${duration}-day box`;
+      const billingFrequency = isSubscription
+        ? SACHET_SAVINGS[duration as 14 | 30 | 90].frequency
+        : undefined;
       const res = await fetch('/api/checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -98,6 +101,7 @@ function SachetHero({ product }: { product: NonNullable<ReturnType<typeof getPro
           productName: `NECTA ${product.name} Sachets`,
           size: sizeLabel,
           productSlug: product.slug,
+          frequency: billingFrequency,
         }),
       });
       const data: { url?: string; error?: string } = await res.json();
@@ -112,7 +116,7 @@ function SachetHero({ product }: { product: NonNullable<ReturnType<typeof getPro
     } finally {
       setCheckoutLoading(false);
     }
-  }, [duration, sellingMode, product.slug, product.name]);
+  }, [duration, sellingMode, isSubscription, product.slug, product.name]);
 
   const sachetOptions: {
     value: 7 | 14 | 30 | 90;

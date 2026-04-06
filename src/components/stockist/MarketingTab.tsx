@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Download, QrCode, Instagram, FileText, Image, Video, Copy, CheckCircle2 } from "lucide-react";
+import { Download, QrCode, Instagram, FileText, Image as ImageIcon, Video, Copy, CheckCircle2 } from "lucide-react";
 
 interface Asset {
   id: string;
@@ -14,7 +14,7 @@ const ASSET_CATEGORIES = [
   {
     id: "pos",
     title: "Point-of-Sale Signage",
-    icon: <Image className="h-4 w-4" />,
+    icon: <ImageIcon className="h-4 w-4" />,
     color: "#D6EBEA",
     assets: [
       { id: "a1", title: "Counter card — A5 landscape", description: "NECTA product & pricing overview for counter display", type: "pdf", size: "2.4 MB" },
@@ -60,7 +60,7 @@ const ASSET_CATEGORIES = [
 
 const typeIcon = (type: Asset["type"]) => {
   if (type === "pdf")   return <FileText className="h-3.5 w-3.5 text-red-400" />;
-  if (type === "image") return <Image className="h-3.5 w-3.5 text-blue-400" />;
+  if (type === "image") return <ImageIcon className="h-3.5 w-3.5 text-blue-400" />;
   if (type === "video") return <Video className="h-3.5 w-3.5 text-purple-400" />;
   return <Download className="h-3.5 w-3.5 text-primary/50" />;
 };

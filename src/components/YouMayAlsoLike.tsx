@@ -2,6 +2,7 @@
 
 import { Star } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 import { products, productSlugs, type ProductData } from "@/data/products";
 
 interface YouMayAlsoLikeProps {
@@ -48,11 +49,14 @@ const ProductCard = ({ product }: { product: ProductData }) => {
     >
       {/* Image */}
       <div className="flex items-center justify-center h-[220px] bg-white">
-        <img
+        <Image
           src={product.bottleImage}
           alt={`NECTA ${product.name}`}
-          className="h-[190px] w-auto object-contain transition-transform duration-300 group-hover:scale-[1.04]"
+          width={190}
+          height={190}
+          className="object-contain transition-transform duration-300 group-hover:scale-[1.04]"
           style={{ mixBlendMode: "multiply" }}
+          loading="lazy"
         />
       </div>
 

@@ -3,6 +3,7 @@
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import Link from "next/link";
+import Image from "next/image";
 import founderPhoto from "@/assets/founder-yasmin.jpg";
 
 const AboutPage = () => {
@@ -23,10 +24,13 @@ const AboutPage = () => {
             <div className="flex justify-center md:justify-start order-1 md:order-2">
               <div className="relative">
                 <div className="w-72 h-72 md:w-96 md:h-96 rounded-full overflow-hidden shadow-2xl">
-                  <img
-                    src={founderPhoto.src}
+                  <Image
+                    src={founderPhoto}
                     alt="Yasmin, Founder of NECTA Labs"
+                    width={384}
+                    height={384}
                     className="w-full h-full object-cover"
+                    loading="lazy"
                   />
                 </div>
                 {/* Name badge */}

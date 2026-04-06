@@ -23,6 +23,17 @@ const SubscribeSection = () => {
       setError("Something went wrong. Please try again.");
       return;
     }
+
+    await fetch("/api/send-email", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        type: "launch",
+        to: email.trim(),
+        data: { firstName: "" },
+      }),
+    }).catch(() => null);
+
     setDone(true);
   };
 

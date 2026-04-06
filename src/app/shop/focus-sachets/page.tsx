@@ -57,7 +57,7 @@ export default function FocusSachetsPage() {
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(productSchema) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }} />
-      <Suspense><SachetProductPage /></Suspense>
+      <Suspense><SachetProductPage slug="focus-sachets" /></Suspense>
     </>
   );
 }

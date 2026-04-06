@@ -8,6 +8,7 @@ import {
 } from "lucide-react";
 import CancelSubscriptionModal from "./CancelSubscriptionModal";
 import PauseSubscriptionModal from "./PauseSubscriptionModal";
+import Image from "next/image";
 import bottleFocusImg from "@/assets/bottle-focus.jpeg";
 import sachetCalmImg from "@/assets/sachet-calm.png";
 
@@ -116,14 +117,13 @@ const SubscriptionCard = ({ sub, onPause, onCancel, onSkip, onFrequencyChange }:
     <div className="bg-white border border-border rounded-2xl overflow-hidden">
       {/* Card header */}
       <div className="p-5 flex gap-4">
-        <div className="w-16 h-16 rounded-xl bg-muted overflow-hidden flex-shrink-0">
-          <img
+        <div className="relative w-16 h-16 rounded-xl bg-muted overflow-hidden flex-shrink-0">
+          <Image
             src={sub.image}
             alt={sub.product_title}
-            className="w-full h-full object-cover"
-            onError={(e) => {
-              (e.target as HTMLImageElement).style.display = "none";
-            }}
+            fill
+            className="object-cover"
+            loading="lazy"
           />
         </div>
         <div className="flex-1 min-w-0">

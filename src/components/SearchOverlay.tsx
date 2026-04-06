@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import { Search, X, ArrowRight } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 import { products, productSlugs } from "@/data/products";
 
 interface SearchOverlayProps {
@@ -94,12 +95,14 @@ const SearchOverlay = ({ isOpen, onClose }: SearchOverlayProps) => {
                       onClick={onClose}
                       className="group flex gap-3 items-center p-3 rounded-lg hover:bg-muted transition-colors"
                     >
-                      <div className="w-14 h-14 rounded-md bg-white flex items-center justify-center flex-shrink-0 overflow-hidden">
-                        <img
+                      <div className="relative w-14 h-14 rounded-md bg-white flex items-center justify-center flex-shrink-0 overflow-hidden">
+                        <Image
                           src={p.bottleImage}
                           alt={p.name}
-                          className="h-full w-auto object-contain"
+                          fill
+                          className="object-contain"
                           style={{ mixBlendMode: "multiply" }}
+                          loading="lazy"
                         />
                       </div>
                       <div className="min-w-0">

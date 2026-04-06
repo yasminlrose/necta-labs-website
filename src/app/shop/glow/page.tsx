@@ -57,7 +57,7 @@ export default function GlowPage() {
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(productSchema) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }} />
-      <Suspense><ProductPage /></Suspense>
+      <Suspense><ProductPage slug="glow" /></Suspense>
     </>
   );
 }

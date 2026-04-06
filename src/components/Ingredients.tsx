@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from "react";
+import Image from "next/image";
 
 type InfusionType = "focus" | "immunity" | "calm" | "beauty";
 
@@ -279,11 +280,12 @@ const Ingredients = () => {
               className="group relative bg-card p-4 rounded-2xl border border-border hover:border-accent/40 transition-all duration-300 hover:shadow-md ingredient-card"
             >
               {/* Ingredient Image */}
-              <div className="w-full aspect-square rounded-xl overflow-hidden mb-3 bg-muted">
-                <img
+              <div className="relative w-full aspect-square rounded-xl overflow-hidden mb-3 bg-muted">
+                <Image
                   src={ingredient.imageUrl}
                   alt={ingredient.name}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                  fill
+                  className="object-cover group-hover:scale-105 transition-transform duration-300"
                   loading="lazy"
                 />
               </div>

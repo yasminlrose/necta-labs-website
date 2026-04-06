@@ -7,7 +7,7 @@ module.exports = {
       { userAgent: '*', allow: '/' },
     ],
   },
-  exclude: ['/account', '/stockist-portal', '/api/*'],
+  exclude: ['/account', '/stockist-portal', '/api/*', '/waitlist'],
   changefreq: 'weekly',
   priority: 0.7,
   additionalPaths: async (config) => [

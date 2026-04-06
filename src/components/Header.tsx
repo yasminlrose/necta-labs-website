@@ -166,11 +166,11 @@ const Header = () => {
               </button>
             )}
             <Link
-              href="/waitlist"
+              href="/shop"
               onClick={() => setMenuOpen(false)}
               className="block w-full bg-primary text-primary-foreground text-center font-medium py-3 rounded-md text-sm"
             >
-              Join Waitlist
+              Shop Now
             </Link>
           </div>
         </div>

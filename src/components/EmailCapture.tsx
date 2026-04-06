@@ -39,7 +39,7 @@ const EmailCapture = () => {
   };
 
   return (
-    <section ref={ref} id="waitlist" className="py-24 md:py-32 bg-background">
+    <section ref={ref} id="email-signup" className="py-24 md:py-32 bg-background">
       <div className="necta-container">
         <div className={`max-w-xl mx-auto text-center scroll-fade-in ${isVisible ? "visible" : ""}`}>
           {submitted ? (
@@ -53,10 +53,10 @@ const EmailCapture = () => {
           ) : (
             <>
               <h2 className="text-3xl md:text-4xl text-foreground mb-4">
-                Be first to try NECTA
+                Stay in the loop
               </h2>
               <p className="text-foreground/50 mb-10 text-lg leading-relaxed">
-                Join the waitlist for early access and 20% off your first order.
+                Sign up for exclusive offers, new product launches, and wellness tips.
               </p>
               <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
                 <input
@@ -72,7 +72,7 @@ const EmailCapture = () => {
                   disabled={isSubmitting}
                   size="lg"
                 >
-                  {isSubmitting ? "Joining..." : "Join Waitlist"}
+                  {isSubmitting ? "Signing up..." : "Sign Up"}
                 </Button>
               </form>
               <p className="text-xs text-foreground/30 mt-6">
