@@ -2,11 +2,12 @@
 
 import { useParams } from "next/navigation";
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { Star, Truck, RefreshCcw, Leaf, ChevronDown, Check, FlaskConical, Shield, Zap } from "lucide-react";
-import { useCart } from "@/contexts/CartContext";
+import { getPriceId, getStripeMode } from "@/lib/stripePrices";
+import type { ProductSlug as StripePriceSlug } from "@/lib/stripePrices";
 import ProductTabs from "@/components/ProductTabs";
 import YouMayAlsoLike from "@/components/YouMayAlsoLike";
 import Header from "@/components/Header";
@@ -79,9 +80,9 @@ const frequencies = [
   { label: "Every 8 weeks", value: "8w" },
 ];
 
-const ProductPage = () => {
+const ProductPage = ({ slug: slugProp }: { slug?: string } = {}) => {
   const params = useParams();
-  const slug = params?.slug as string | undefined;
+  const slug = slugProp ?? (params?.slug as string | undefined);
   const searchParams = useSearchParams();
   const product = slug && slug in products ? products[slug as ProductSlug] : undefined;
   const colors = slug ? colorMap[slug] : undefined;
@@ -96,8 +97,22 @@ const ProductPage = () => {
   const [freqOpen, setFreqOpen] = useState(false);
   const [activeImage, setActiveImage] = useState(0);
   const [modalOpen, setModalOpen] = useState(false);
-  const [addedFeedback, setAddedFeedback] = useState(false);
-  const { addItem } = useCart();
+  const [checkoutLoading, setCheckoutLoading] = useState(false);
+
+  const handleCheckout = useCallback(async (priceId: string, stripeMode: 'payment' | 'subscription', productName: string, sizeLabel: string) => {
+    setCheckoutLoading(true);
+    try {
+      const res = await fetch('/api/checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ priceId, mode: stripeMode, productName, size: sizeLabel, productSlug: slug }),
+      });
+      const { url } = await res.json();
+      if (url) window.location.href = url;
+    } finally {
+      setCheckoutLoading(false);
+    }
+  }, [slug]);
 
   useEffect(() => { setActiveImage(0); }, [slug]);
   useEffect(() => { setActiveImage(format === "sachet" ? 1 : 0); }, [format]);
@@ -295,24 +310,17 @@ const ProductPage = () => {
 
                   {/* CTA */}
                   <button
+                    disabled={checkoutLoading}
                     onClick={() => {
-                      addItem({
-                        id: `${slug}-${size}-${mode}`,
-                        slug: slug!,
-                        name: product.name,
-                        image: product.bottleImage,
-                        price: bottlePrice,
-                        size: `${size} bottle`,
-                        mode,
-                      });
-                      setAddedFeedback(true);
-                      setTimeout(() => setAddedFeedback(false), 1800);
+                      const priceId = getPriceId(slug as StripePriceSlug, 'bottle', size as '250ml' | '500ml', mode === 'subscribe' ? 'subscribe' : 'one-off');
+                      const stripeMode = getStripeMode('bottle', size as '250ml' | '500ml', mode === 'subscribe' ? 'subscribe' : 'one-off');
+                      handleCheckout(priceId, stripeMode, `NECTA ${product.name}`, `${size} bottle`);
                     }}
-                    className="w-full py-4 rounded-xl font-semibold text-base text-white transition-all mb-4"
-                    style={{ backgroundColor: addedFeedback ? "#4caf50" : colors.accent }}
+                    className="w-full py-4 rounded-xl font-semibold text-base text-white transition-all mb-4 disabled:opacity-60"
+                    style={{ backgroundColor: colors.accent }}
                   >
-                    {addedFeedback
-                      ? "✓ Added to basket"
+                    {checkoutLoading
+                      ? "Redirecting…"
                       : mode === "subscribe"
                         ? `Subscribe & Save — £${bottlePrice}/mo`
                         : `Add to Basket — £${bottlePrice}`}
@@ -374,26 +382,17 @@ const ProductPage = () => {
 
                   {/* CTA */}
                   <button
+                    disabled={checkoutLoading}
                     onClick={() => {
                       const opt = SACHET_OPTIONS.find(o => o.days === sachetDays)!;
-                      addItem({
-                        id: `${slug}-sachet-${sachetDays}`,
-                        slug: slug!,
-                        name: product.name,
-                        image: product.sachetImage,
-                        price: sachetPrice,
-                        size: opt.label,
-                        mode: "one-off",
-                      });
-                      setAddedFeedback(true);
-                      setTimeout(() => setAddedFeedback(false), 1800);
+                      const priceId = getPriceId(slug as StripePriceSlug, 'sachet', sachetDays, 'one-off');
+                      const stripeMode = getStripeMode('sachet', sachetDays, 'one-off');
+                      handleCheckout(priceId, stripeMode, `NECTA ${product.name} Sachets`, opt.label);
                     }}
-                    className="w-full py-4 rounded-xl font-semibold text-base text-white transition-all mb-4"
-                    style={{ backgroundColor: addedFeedback ? "#4caf50" : colors.accent }}
+                    className="w-full py-4 rounded-xl font-semibold text-base text-white transition-all mb-4 disabled:opacity-60"
+                    style={{ backgroundColor: colors.accent }}
                   >
-                    {addedFeedback
-                      ? "✓ Added to basket"
-                      : `Add to Basket — £${sachetPrice}`}
+                    {checkoutLoading ? "Redirecting…" : `Add to Basket — £${sachetPrice}`}
                   </button>
                 </>
               )}

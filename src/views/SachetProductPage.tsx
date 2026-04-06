@@ -3,19 +3,21 @@
 import { useParams } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Star, ArrowRight, Minus, Plus, Check } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { getProduct, products, productSlugs, type ProductSlug } from "@/data/products";
+import { getPriceId, getStripeMode } from "@/lib/stripePrices";
+import type { ProductSlug as StripePriceSlug } from "@/lib/stripePrices";
 import { useScrollAnimation } from "@/hooks/use-scroll-animation";
 import ReviewSection from "@/components/ReviewSection";
 
-const SachetProductPage = () => {
+const SachetProductPage = ({ slug: slugProp }: { slug?: string } = {}) => {
   const params = useParams();
-  const slug = params?.slug as string | undefined;
+  const slug = slugProp ?? (params?.slug as string | undefined);
   const baseSlug = slug?.replace("-sachets", "") || "";
   const product = getProduct(baseSlug);
 
@@ -62,11 +64,32 @@ function SachetHero({ product }: { product: NonNullable<ReturnType<typeof getPro
     document.getElementById("reviews-section")?.scrollIntoView({ behavior: "smooth" });
   };
 
+  const [checkoutLoading, setCheckoutLoading] = useState(false);
+
   const price = duration === 14 && oneTimeFor14 ? 24 : product.sachets[duration];
   const earlyBirdPrice = +(price * 0.7).toFixed(2);
   const total = +(earlyBirdPrice * quantity).toFixed(2);
   const isSubscription = duration === 30 || duration === 90 || (duration === 14 && !oneTimeFor14);
   const isOneTime = duration === 7 || (duration === 14 && oneTimeFor14);
+
+  const handleCheckout = useCallback(async () => {
+    setCheckoutLoading(true);
+    try {
+      const purchaseMode = isOneTime ? 'one-off' : 'subscribe';
+      const priceId = getPriceId(product.slug as StripePriceSlug, 'sachet', duration, purchaseMode);
+      const stripeMode = getStripeMode('sachet', duration, purchaseMode);
+      const sizeLabel = `${duration}-day box`;
+      const res = await fetch('/api/checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ priceId, mode: stripeMode, productName: `NECTA ${product.name} Sachets`, size: sizeLabel, productSlug: product.slug }),
+      });
+      const { url } = await res.json();
+      if (url) window.location.href = url;
+    } finally {
+      setCheckoutLoading(false);
+    }
+  }, [duration, isOneTime, product.slug, product.name]);
 
   const sachetOptions: { value: 7 | 14 | 30 | 90; title: string; sachets: number; sub: string; badge?: string; frequency: string }[] = [
     { value: 30, title: "30-DAY BOX", sachets: 30, sub: `£${product.sachets[30]}/month`, badge: "MOST POPULAR", frequency: "Delivered monthly" },
@@ -209,13 +232,19 @@ function SachetHero({ product }: { product: NonNullable<ReturnType<typeof getPro
             {/* CTA */}
             <Button
               size="lg"
-              className={`w-full rounded-lg py-7 text-base font-heading font-bold tracking-wider uppercase shadow-bold mb-4 ${
+              disabled={checkoutLoading}
+              onClick={handleCheckout}
+              className={`w-full rounded-lg py-7 text-base font-heading font-bold tracking-wider uppercase shadow-bold mb-4 disabled:opacity-60 ${
                 isSubscription
                   ? "bg-secondary text-secondary-foreground hover:bg-secondary/90"
                   : "bg-foreground text-background hover:bg-foreground/90"
               }`}
             >
-              {isSubscription ? "SUBSCRIBE NOW — 30% OFF FIRST DELIVERY" : "ADD TO CART — 30% OFF"}
+              {checkoutLoading
+                ? "Redirecting…"
+                : isSubscription
+                  ? "SUBSCRIBE NOW — 30% OFF FIRST DELIVERY"
+                  : "ADD TO CART — 30% OFF"}
             </Button>
 
             <p className="text-xs text-muted-foreground text-center mb-4">
