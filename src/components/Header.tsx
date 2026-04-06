@@ -1,6 +1,9 @@
+'use client';
+
 import { useState } from "react";
 import { Menu, X, Search, User, ShoppingBag } from "lucide-react";
-import { Link, useNavigate } from "react-router-dom";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 import NectaLogo from "@/components/NectaLogo";
 import SearchOverlay from "@/components/SearchOverlay";
 import AccountModal from "@/components/AccountModal";
@@ -15,10 +18,10 @@ const announcements = [
 ];
 
 const navLinks = [
-  { to: "/shop", label: "Shop" },
-  { to: "/science", label: "Ingredients" },
-  { to: "/about", label: "About" },
-  { to: "/stockist", label: "Stockists" },
+  { href: "/shop", label: "Shop" },
+  { href: "/science", label: "Ingredients" },
+  { href: "/about", label: "About" },
+  { href: "/stockist", label: "Stockists" },
 ];
 
 const marqueeText = announcements.join("   ·   ");
@@ -29,11 +32,11 @@ const Header = () => {
   const [accountOpen, setAccountOpen] = useState(false);
   const { count, openCart } = useCart();
   const { user } = useAuth();
-  const navigate = useNavigate();
+  const router = useRouter();
 
   const handleAccountClick = () => {
     if (user) {
-      navigate("/account");
+      router.push("/account");
     } else {
       setAccountOpen(true);
     }
@@ -59,10 +62,10 @@ const Header = () => {
 
             {/* Desktop nav */}
             <div className="hidden md:flex items-center gap-8">
-              {navLinks.map(({ to, label }) => (
+              {navLinks.map(({ href, label }) => (
                 <Link
-                  key={to}
-                  to={to}
+                  key={href}
+                  href={href}
                   className="text-sm font-medium text-foreground/70 hover:text-foreground transition-colors"
                 >
                   {label}
@@ -72,15 +75,14 @@ const Header = () => {
 
             {/* Pick & Mix button (desktop only) */}
             <Link
-              to="/pick-and-mix"
+              href="/pick-and-mix"
               className="hidden md:inline-flex items-center gap-1.5 bg-primary text-white text-sm font-semibold px-4 py-2 rounded-full hover:bg-primary/90 transition-colors"
             >
               Pick &amp; Mix
             </Link>
 
-            {/* Icon group (desktop + mobile) */}
+            {/* Icon group */}
             <div className="flex items-center gap-1">
-              {/* Search */}
               <button
                 onClick={() => setSearchOpen(true)}
                 className="w-9 h-9 flex items-center justify-center rounded-full hover:bg-muted transition-colors"
@@ -89,7 +91,6 @@ const Header = () => {
                 <Search className="h-4.5 w-4.5 text-primary" />
               </button>
 
-              {/* Account — navigates to /account if logged in, opens modal if not */}
               <button
                 onClick={handleAccountClick}
                 className="relative w-9 h-9 flex items-center justify-center rounded-full hover:bg-muted transition-colors"
@@ -101,7 +102,6 @@ const Header = () => {
                 )}
               </button>
 
-              {/* Cart */}
               <button
                 onClick={openCart}
                 className="relative w-9 h-9 flex items-center justify-center rounded-full hover:bg-muted transition-colors"
@@ -115,7 +115,6 @@ const Header = () => {
                 )}
               </button>
 
-              {/* Mobile hamburger */}
               <button
                 onClick={() => setMenuOpen(!menuOpen)}
                 className="md:hidden w-9 h-9 flex items-center justify-center rounded-full hover:bg-muted transition-colors ml-1"
@@ -138,10 +137,10 @@ const Header = () => {
             <X className="h-5 w-5" />
           </button>
           <div className="space-y-6">
-            {navLinks.map(({ to, label }) => (
+            {navLinks.map(({ href, label }) => (
               <Link
-                key={to}
-                to={to}
+                key={href}
+                href={href}
                 onClick={() => setMenuOpen(false)}
                 className="block text-2xl font-bold text-primary"
               >
@@ -152,7 +151,7 @@ const Header = () => {
           <div className="mt-10 space-y-3">
             {user ? (
               <Link
-                to="/account"
+                href="/account"
                 onClick={() => setMenuOpen(false)}
                 className="block w-full border border-border text-primary font-medium py-3 rounded-md text-sm text-center"
               >
@@ -167,7 +166,7 @@ const Header = () => {
               </button>
             )}
             <Link
-              to="/waitlist"
+              href="/waitlist"
               onClick={() => setMenuOpen(false)}
               className="block w-full bg-primary text-primary-foreground text-center font-medium py-3 rounded-md text-sm"
             >

@@ -1,5 +1,7 @@
+'use client';
+
 import { ArrowRight } from "lucide-react";
-import { Link } from "react-router-dom";
+import Link from "next/link";
 import { useScrollAnimation } from "@/hooks/use-scroll-animation";
 import yasminPortrait from "@/assets/founder-yasmin.jpg";
 
@@ -13,7 +15,7 @@ const FounderTeaser = () => {
           {/* Image */}
           <div className={`rounded-2xl overflow-hidden scroll-slide-left ${isVisible ? "visible" : ""}`}>
             <img
-              src={yasminPortrait}
+              src={yasminPortrait.src}
               alt="Yasmin, Founder of NECTA Labs"
               className="w-full h-[400px] md:h-[520px] object-cover"
             />
@@ -33,7 +35,7 @@ const FounderTeaser = () => {
               — Yasmin, Founder
             </p>
             <Link
-              to="/about"
+              href="/about"
               className="inline-flex items-center gap-2 text-sm text-foreground/60 hover:text-foreground transition-colors"
             >
               Read the full story <ArrowRight className="h-3.5 w-3.5" />

@@ -1,6 +1,8 @@
+'use client';
+
 import { useState, useEffect } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { Link } from "react-router-dom";
+import Link from "next/link";
 import bottleFocus from "@/assets/bottle-focus.jpeg";
 import bottleImmunity from "@/assets/bottle-immunity.jpeg";
 import bottleGlow from "@/assets/bottle-glow.jpeg";
@@ -13,7 +15,7 @@ const slides = [
     sub: "Lion's Mane · Rhodiola · L-Theanine · Bacopa",
     cta: "Shop FOCUS",
     ctaLink: "/shop/focus",
-    image: bottleFocus,
+    image: bottleFocus.src,
     imageAlt: "NECTA FOCUS bottle",
     // Pastel gradient — sage
     gradient: "radial-gradient(ellipse 80% 70% at 60% 50%, #C8E8E5 0%, #E8F6F5 45%, #F5FFFE 100%)",
@@ -25,7 +27,7 @@ const slides = [
     sub: "Chamomile · Lemon Balm · Jujube Seed · Poria",
     cta: "Shop CALM",
     ctaLink: "/shop/calm",
-    image: bottleCalm,
+    image: bottleCalm.src,
     imageAlt: "NECTA CALM bottle",
     // Pastel gradient — lavender
     gradient: "radial-gradient(ellipse 80% 70% at 60% 50%, #CFC7EC 0%, #E8E3F6 45%, #F7F5FE 100%)",
@@ -37,7 +39,7 @@ const slides = [
     sub: "Reishi · Elderberry · Ashwagandha · Vitamin C",
     cta: "Shop IMMUNITY",
     ctaLink: "/shop/immunity",
-    image: bottleImmunity,
+    image: bottleImmunity.src,
     imageAlt: "NECTA IMMUNITY bottle",
     // Pastel gradient — peach
     gradient: "radial-gradient(ellipse 80% 70% at 60% 50%, #EAC9BB 0%, #F5E5DC 45%, #FEF7F4 100%)",
@@ -49,7 +51,7 @@ const slides = [
     sub: "Marine Collagen · Hyaluronic Acid · CoQ10 · Fisetin",
     cta: "Shop GLOW",
     ctaLink: "/shop/glow",
-    image: bottleGlow,
+    image: bottleGlow.src,
     imageAlt: "NECTA GLOW bottle",
     // Pastel gradient — warm rose
     gradient: "radial-gradient(ellipse 80% 70% at 60% 50%, #E8C4BD 0%, #F5DDD9 45%, #FEF6F5 100%)",
@@ -107,13 +109,13 @@ const HeroSection = () => {
           </p>
           <div className="flex flex-wrap gap-4">
             <Link
-              to={slide.ctaLink}
+              href={slide.ctaLink}
               className="inline-block bg-primary text-primary-foreground font-semibold px-8 py-3.5 rounded-md text-sm hover:bg-primary/90 transition-colors"
             >
               {slide.cta}
             </Link>
             <Link
-              to="/shop"
+              href="/shop"
               className="inline-block border border-primary/25 text-primary font-medium px-8 py-3.5 rounded-md text-sm hover:border-primary/50 transition-colors"
             >
               View All

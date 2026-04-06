@@ -1,6 +1,8 @@
+'use client';
+
 import { useState } from "react";
 import { Brain, Moon, Check } from "lucide-react";
-import { Link } from "react-router-dom";
+import Link from "next/link";
 import bottleFocus from "@/assets/bottle-focus.jpeg";
 import bottleCalm from "@/assets/bottle-calm.jpeg";
 
@@ -19,7 +21,7 @@ const tabs = [
     ],
     cta: "Shop FOCUS",
     ctaLink: "/shop/focus",
-    image: bottleFocus,
+    image: bottleFocus.src,
     imgAlt: "NECTA FOCUS",
     bgColor: "bg-[#D6EBEA]",
   },
@@ -37,7 +39,7 @@ const tabs = [
     ],
     cta: "Shop CALM",
     ctaLink: "/shop/calm",
-    image: bottleCalm,
+    image: bottleCalm.src,
     imgAlt: "NECTA CALM",
     bgColor: "bg-[#E0DAEF]",
   },
@@ -89,7 +91,7 @@ const BenefitTabsSection = () => {
               ))}
             </ul>
             <Link
-              to={tab.ctaLink}
+              href={tab.ctaLink}
               className="inline-block bg-primary text-primary-foreground font-semibold px-7 py-3 rounded-md text-sm hover:bg-primary/90 transition-colors"
             >
               {tab.cta}

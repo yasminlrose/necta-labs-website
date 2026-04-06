@@ -1,6 +1,8 @@
+'use client';
+
 import { Check, X, Minus, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Link } from "react-router-dom";
+import Link from "next/link";
 import type { ProductData } from "@/data/products";
 
 type CellValue = "yes" | "no" | "partial";
@@ -123,7 +125,7 @@ const ComparisonTable = ({ product }: ComparisonTableProps) => {
         {/* CTA */}
         <div className="text-center mt-10">
           <Button size="lg" className="rounded-full gap-2" asChild>
-            <Link to={`/shop/${product.slug}`}>
+            <Link href={`/shop/${product.slug}`}>
               Add {product.name} to your ritual <ArrowRight className="h-4 w-4" />
             </Link>
           </Button>

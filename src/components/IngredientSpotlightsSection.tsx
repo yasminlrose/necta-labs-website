@@ -1,6 +1,8 @@
+'use client';
+
 import { useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { Link } from "react-router-dom";
+import Link from "next/link";
 import bottleFocus from "@/assets/bottle-focus.jpeg";
 import bottleCalm from "@/assets/bottle-calm.jpeg";
 import bottleImmunity from "@/assets/bottle-immunity.jpeg";
@@ -11,7 +13,7 @@ const spotlights = [
     product: "FOCUS",
     tagline: "For mental clarity & performance",
     color: "bg-[#D6EBEA]",
-    image: bottleFocus,
+    image: bottleFocus.src,
     ingredients: [
       { name: "Lion's Mane", dose: "500mg", note: "Nerve growth factor" },
       { name: "Rhodiola Rosea", dose: "200mg", note: "Stress resilience" },
@@ -24,7 +26,7 @@ const spotlights = [
     product: "IMMUNITY",
     tagline: "For daily immune defence",
     color: "bg-[#F2DDD4]",
-    image: bottleImmunity,
+    image: bottleImmunity.src,
     ingredients: [
       { name: "Reishi Mushroom", dose: "2g", note: "Immune modulation" },
       { name: "Elderberry", dose: "500mg", note: "Antioxidant defence" },
@@ -37,7 +39,7 @@ const spotlights = [
     product: "CALM",
     tagline: "For stress relief & sleep",
     color: "bg-[#E0DAEF]",
-    image: bottleCalm,
+    image: bottleCalm.src,
     ingredients: [
       { name: "Chamomile Extract", dose: "150mg", note: "Anxiolytic" },
       { name: "Lemon Balm", dose: "150mg", note: "Nervine tonic" },
@@ -50,7 +52,7 @@ const spotlights = [
     product: "GLOW",
     tagline: "For radiant skin & beauty",
     color: "bg-[#F0DEDA]",
-    image: bottleGlow,
+    image: bottleGlow.src,
     ingredients: [
       { name: "Marine Collagen", dose: "2.5g", note: "Skin firmness" },
       { name: "Hyaluronic Acid", dose: "120mg", note: "Skin hydration" },
@@ -133,7 +135,7 @@ const IngredientSpotlightsSection = () => {
               </div>
 
               <Link
-                to={spot.link}
+                href={spot.link}
                 className="inline-block bg-primary text-primary-foreground font-semibold px-7 py-3 rounded-md text-sm hover:bg-primary/90 transition-colors"
               >
                 Shop {spot.product}

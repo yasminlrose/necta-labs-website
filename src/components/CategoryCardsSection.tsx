@@ -1,15 +1,17 @@
+'use client';
+
 import { ArrowRight } from "lucide-react";
-import { Link } from "react-router-dom";
+import Link from "next/link";
 import bottleFocus from "@/assets/bottle-focus.jpeg";
 import bottleCalm from "@/assets/bottle-calm.jpeg";
 import bottleImmunity from "@/assets/bottle-immunity.jpeg";
 import bottleGlow from "@/assets/bottle-glow.jpeg";
 
 const categories = [
-  { slug: "focus",   name: "Focus",   desc: "Mental clarity & cognitive performance", image: bottleFocus },
-  { slug: "immunity",name: "Immunity",desc: "Daily immune defence & resilience",       image: bottleImmunity },
-  { slug: "calm",    name: "Calm",    desc: "Stress relief & restful sleep",           image: bottleCalm },
-  { slug: "glow",    name: "Glow",    desc: "Skin health from the inside out",         image: bottleGlow },
+  { slug: "focus",   name: "Focus",   desc: "Mental clarity & cognitive performance", image: bottleFocus.src },
+  { slug: "immunity",name: "Immunity",desc: "Daily immune defence & resilience",       image: bottleImmunity.src },
+  { slug: "calm",    name: "Calm",    desc: "Stress relief & restful sleep",           image: bottleCalm.src },
+  { slug: "glow",    name: "Glow",    desc: "Skin health from the inside out",         image: bottleGlow.src },
 ];
 
 const CategoryCardsSection = () => {
@@ -19,7 +21,7 @@ const CategoryCardsSection = () => {
         <div className="flex items-center justify-between mb-10">
           <h2 className="text-2xl md:text-3xl font-bold text-primary">Shop by goal</h2>
           <Link
-            to="/shop"
+            href="/shop"
             className="flex items-center gap-1.5 text-sm font-medium text-primary/60 hover:text-primary transition-colors"
           >
             View all <ArrowRight className="h-4 w-4" />
@@ -30,7 +32,7 @@ const CategoryCardsSection = () => {
           {categories.map(({ slug, name, desc, image }) => (
             <Link
               key={slug}
-              to={`/shop/${slug}`}
+              href={`/shop/${slug}`}
               className="group block rounded-xl overflow-hidden border border-border hover:border-primary/20 transition-all duration-200 hover:shadow-md bg-white"
             >
               {/* Image */}

@@ -1,6 +1,8 @@
+'use client';
+
 import { useState, useEffect, useRef } from "react";
 import { Search, X, ArrowRight } from "lucide-react";
-import { Link } from "react-router-dom";
+import Link from "next/link";
 import { products, productSlugs } from "@/data/products";
 
 interface SearchOverlayProps {
@@ -88,7 +90,7 @@ const SearchOverlay = ({ isOpen, onClose }: SearchOverlayProps) => {
                   return (
                     <Link
                       key={slug}
-                      to={`/shop/${slug}`}
+                      href={`/shop/${slug}`}
                       onClick={onClose}
                       className="group flex gap-3 items-center p-3 rounded-lg hover:bg-muted transition-colors"
                     >

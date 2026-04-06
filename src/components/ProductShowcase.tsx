@@ -1,5 +1,7 @@
+'use client';
+
 import { ArrowRight } from "lucide-react";
-import { Link } from "react-router-dom";
+import Link from "next/link";
 import { useScrollAnimation } from "@/hooks/use-scroll-animation";
 import bottleFocus from "@/assets/bottle-focus.jpeg";
 import bottleImmunity from "@/assets/bottle-immunity.jpeg";
@@ -12,7 +14,7 @@ const productCards = [
     flavour: "Vanilla Bean",
     ingredients: "Lion's Mane 2g · L-Theanine · Rhodiola",
     price: "From £25/mo",
-    image: bottleFocus,
+    image: bottleFocus.src,
     bg: "#D6EBEA",
     slug: "focus",
   },
@@ -21,7 +23,7 @@ const productCards = [
     flavour: "Hazelnut & Orange",
     ingredients: "Reishi 1.5g · Elderberry · Zinc",
     price: "From £25/mo",
-    image: bottleImmunity,
+    image: bottleImmunity.src,
     bg: "#F2DDD4",
     slug: "immunity",
   },
@@ -30,7 +32,7 @@ const productCards = [
     flavour: "Honey Caramel",
     ingredients: "Chamomile · Lemon Balm · Magnesium",
     price: "From £25/mo",
-    image: bottleCalm,
+    image: bottleCalm.src,
     bg: "#E0DAEF",
     slug: "calm",
   },
@@ -39,7 +41,7 @@ const productCards = [
     flavour: "Cherry Almond",
     ingredients: "Marine Collagen 2.5g · CoQ10 · Vitamin C",
     price: "From £25/mo",
-    image: bottleGlow,
+    image: bottleGlow.src,
     bg: "#F0DEDA",
     slug: "glow",
   },
@@ -62,7 +64,7 @@ const ProductShowcase = () => {
           {productCards.map((product, i) => (
             <Link
               key={product.slug}
-              to={`/shop/${product.slug}`}
+              href={`/shop/${product.slug}`}
               className={`group rounded-2xl overflow-hidden product-card-hover cursor-pointer scroll-fade-in ${isVisible ? "visible" : ""}`}
               style={{ transitionDelay: `${i * 100}ms` }}
             >

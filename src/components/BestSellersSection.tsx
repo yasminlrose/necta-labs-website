@@ -1,6 +1,8 @@
+'use client';
+
 import { useState } from "react";
 import { Star } from "lucide-react";
-import { Link } from "react-router-dom";
+import Link from "next/link";
 import { products, productSlugs } from "@/data/products";
 
 const BestSellersSection = () => {
@@ -10,7 +12,7 @@ const BestSellersSection = () => {
         <div className="flex items-center justify-between mb-10">
           <h2 className="text-2xl md:text-3xl font-bold text-primary">Best Sellers</h2>
           <Link
-            to="/shop"
+            href="/shop"
             className="text-sm font-medium text-primary/60 hover:text-primary transition-colors underline underline-offset-4"
           >
             View all
@@ -38,7 +40,7 @@ const ProductCard = ({ slug }: { slug: string }) => {
   return (
     <div className="group flex flex-col">
       {/* Image area */}
-      <Link to={`/shop/${slug}`} className="block">
+      <Link href={`/shop/${slug}`} className="block">
         <div className="relative aspect-square flex items-center justify-center mb-4 overflow-hidden rounded-lg bg-white">
           <img
             src={product.bottleImage}
@@ -56,7 +58,7 @@ const ProductCard = ({ slug }: { slug: string }) => {
 
       {/* Info */}
       <div className="flex-1 flex flex-col">
-        <Link to={`/shop/${slug}`}>
+        <Link href={`/shop/${slug}`}>
           <p className="text-xs font-medium text-primary/50 uppercase tracking-wider mb-0.5">NECTA Labs</p>
           <h3 className="font-bold text-primary text-sm md:text-base mb-1">{product.name} Infusion</h3>
           <p className="text-xs text-primary/60 mb-2 line-clamp-1">{product.tagline}</p>
@@ -109,7 +111,7 @@ const ProductCard = ({ slug }: { slug: string }) => {
             <span className="text-xs text-primary/40 block">/250ml</span>
           </div>
           <Link
-            to={`/shop/${slug}`}
+            href={`/shop/${slug}`}
             className="bg-primary text-primary-foreground text-xs font-semibold px-4 py-2.5 rounded-md hover:bg-primary/90 transition-colors"
           >
             Buy Now

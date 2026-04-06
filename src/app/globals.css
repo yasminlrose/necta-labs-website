@@ -1,0 +1,200 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* NECTA Labs — Trip-inspired navy/pink/white palette */
+    --background: 0 0% 100%;
+    --foreground: 222 65% 18%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 222 65% 18%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 65% 18%;
+
+    /* Deep navy — buttons, headings */
+    --primary: 222 65% 18%;
+    --primary-foreground: 0 0% 100%;
+
+    /* Pink accent */
+    --secondary: 336 69% 92%;
+    --secondary-foreground: 222 65% 18%;
+
+    /* Warm cream muted */
+    --muted: 40 25% 96%;
+    --muted-foreground: 222 30% 45%;
+
+    /* Pink accent */
+    --accent: 336 69% 92%;
+    --accent-foreground: 222 65% 18%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 220 13% 91%;
+    --input: 220 13% 91%;
+    --ring: 222 65% 18%;
+
+    --radius: 0.5rem;
+
+    --navy: 222 65% 18%;
+    --navy-foreground: 0 0% 100%;
+
+    /* Trip-style accent colours */
+    --trip-pink: 336 69% 92%;
+    --trip-cream: 40 33% 97%;
+
+    /* Product accent colours */
+    --necta-focus: 174 22% 58%;
+    --necta-immunity: 15 57% 59%;
+    --necta-calm: 257 26% 70%;
+    --necta-glow: 11 36% 63%;
+
+    /* Card background colours */
+    --necta-focus-card: 170 36% 91%;
+    --necta-immunity-card: 18 55% 89%;
+    --necta-calm-card: 252 34% 90%;
+    --necta-glow-card: 7 46% 90%;
+
+    /* Deep/sachet accent colours */
+    --necta-focus-dark: 175 27% 49%;
+    --necta-immunity-dark: 15 57% 59%;
+    --necta-calm-dark: 257 26% 70%;
+    --necta-glow-dark: 11 36% 63%;
+
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 240 5.3% 26.1%;
+    --sidebar-primary: 240 5.9% 10%;
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: 240 4.8% 95.9%;
+    --sidebar-accent-foreground: 240 5.9% 10%;
+    --sidebar-border: 220 13% 91%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground font-body antialiased;
+    font-size: 16px;
+    line-height: 1.7;
+  }
+
+  /* Clean, medium-weight headings — no uppercase, no bold */
+  h1 {
+    font-family: var(--font-inter), system-ui, sans-serif;
+    font-weight: 500;
+    letter-spacing: -0.02em;
+  }
+
+  h2 {
+    font-family: var(--font-inter), system-ui, sans-serif;
+    font-weight: 500;
+    letter-spacing: -0.01em;
+  }
+
+  h3, h4 {
+    font-family: var(--font-inter), system-ui, sans-serif;
+    font-weight: 500;
+  }
+
+  h5, h6 {
+    font-family: var(--font-inter), system-ui, sans-serif;
+    font-weight: 500;
+  }
+}
+
+@layer components {
+  .necta-container {
+    @apply max-w-7xl mx-auto px-5 sm:px-8 lg:px-10;
+  }
+}
+
+@layer utilities {
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+/* Marquee animation */
+@keyframes marquee {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+.animate-marquee {
+  animation: marquee 30s linear infinite;
+}
+
+/* Gentle hover for cards */
+.product-card-hover {
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.product-card-hover:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 40px -10px rgba(27, 46, 75, 0.08);
+}
+
+/* Product color utilities */
+.bg-necta-focus { background-color: hsl(var(--necta-focus)); }
+.bg-necta-immunity { background-color: hsl(var(--necta-immunity)); }
+.bg-necta-calm { background-color: hsl(var(--necta-calm)); }
+.bg-necta-glow { background-color: hsl(var(--necta-glow)); }
+
+.text-necta-focus { color: hsl(var(--necta-focus-dark)); }
+.text-necta-immunity { color: hsl(var(--necta-immunity-dark)); }
+.text-necta-calm { color: hsl(var(--necta-calm-dark)); }
+.text-necta-glow { color: hsl(var(--necta-glow-dark)); }
+
+.border-necta-focus { border-color: hsl(var(--necta-focus)); }
+.border-necta-immunity { border-color: hsl(var(--necta-immunity)); }
+.border-necta-calm { border-color: hsl(var(--necta-calm)); }
+.border-necta-glow { border-color: hsl(var(--necta-glow)); }
+
+/* Pulsing dot */
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(1.5); }
+}
+.animate-pulse-dot {
+  animation: pulse-dot 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* Scroll-triggered animations — gentle */
+.scroll-fade-in {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+}
+.scroll-fade-in.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+.scroll-slide-left {
+  opacity: 0;
+  transform: translateX(-30px);
+  transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+}
+.scroll-slide-left.visible {
+  opacity: 1;
+  transform: translateX(0);
+}
+.scroll-slide-right {
+  opacity: 0;
+  transform: translateX(30px);
+  transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+}
+.scroll-slide-right.visible {
+  opacity: 1;
+  transform: translateX(0);
+}

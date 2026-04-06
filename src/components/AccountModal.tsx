@@ -1,6 +1,8 @@
+'use client';
+
 import { useState, useEffect } from "react";
 import { X, Mail, Lock, User, LogOut, LayoutDashboard, Package, CreditCard, Settings } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useRouter } from "next/navigation";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 
@@ -13,7 +15,7 @@ type Tab = "login" | "register" | "forgot";
 
 const AccountModal = ({ isOpen, onClose }: AccountModalProps) => {
   const { user, signOut } = useAuth();
-  const navigate = useNavigate();
+  const router = useRouter();
 
   const [tab, setTab] = useState<Tab>("login");
   const [email, setEmail] = useState("");
@@ -49,7 +51,7 @@ const AccountModal = ({ isOpen, onClose }: AccountModalProps) => {
     setLoading(false);
     if (error) { setError(error.message); return; }
     onClose();
-    navigate("/account");
+    router.push("/account");
   };
 
   const handleRegister = async (e: React.FormEvent) => {
@@ -85,7 +87,7 @@ const AccountModal = ({ isOpen, onClose }: AccountModalProps) => {
 
   const goToDashboard = (tabId?: string) => {
     onClose();
-    navigate(tabId ? `/account?tab=${tabId}` : "/account");
+    router.push(tabId ? `/account?tab=${tabId}` : "/account");
   };
 
   return (

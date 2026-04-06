@@ -1,4 +1,7 @@
+'use client';
+
 import { useState } from "react";
+import Link from "next/link";
 import {
   RefreshCw, Pause, SkipForward, X, ChevronDown,
   TrendingUp, Package, Calendar, CheckCircle2, Clock
@@ -50,7 +53,7 @@ const DEMO_SUBSCRIPTIONS: Subscription[] = [
     next_charge_scheduled_at: "2026-04-18",
     created_at: "2025-11-15",
     savings_per_year: 75.00,
-    image: bottleFocusImg,
+    image: bottleFocusImg.src,
   },
   {
     id: "sub_002",
@@ -64,7 +67,7 @@ const DEMO_SUBSCRIPTIONS: Subscription[] = [
     next_charge_scheduled_at: "2026-04-22",
     created_at: "2026-01-08",
     savings_per_year: 57.00,
-    image: sachetCalmImg,
+    image: sachetCalmImg.src,
   },
 ];
 
@@ -316,12 +319,12 @@ const SubscriptionsTab = () => {
           <p className="text-sm text-primary/50 mb-6 max-w-xs mx-auto">
             Subscribe to any NECTA product to save up to 30% and never run out.
           </p>
-          <a
+          <Link
             href="/shop"
             className="inline-flex items-center gap-2 bg-primary text-white text-sm font-semibold px-5 py-2.5 rounded-full hover:bg-primary/90 transition-colors"
           >
             Shop & Subscribe
-          </a>
+          </Link>
         </div>
       ) : (
         <div className="space-y-4">

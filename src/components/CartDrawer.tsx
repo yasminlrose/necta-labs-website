@@ -1,5 +1,7 @@
+'use client';
+
 import { X, Minus, Plus, ShoppingBag, ArrowRight } from "lucide-react";
-import { Link } from "react-router-dom";
+import Link from "next/link";
 import { useCart } from "@/contexts/CartContext";
 
 const CartDrawer = () => {
@@ -49,7 +51,7 @@ const CartDrawer = () => {
               <p className="text-primary/50 font-medium">Your basket is empty</p>
               <p className="text-sm text-primary/35">Add a infusion to get started.</p>
               <Link
-                to="/shop"
+                href="/shop"
                 onClick={closeCart}
                 className="mt-2 inline-flex items-center gap-2 bg-primary text-white text-sm font-semibold px-6 py-3 rounded-md hover:bg-primary/90 transition-colors"
               >

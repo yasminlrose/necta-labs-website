@@ -1,5 +1,7 @@
+'use client';
+
 import { Button } from "@/components/ui/button";
-import { Link } from "react-router-dom";
+import Link from "next/link";
 
 const Hero = () => {
   return (
@@ -20,7 +22,7 @@ const Hero = () => {
           </p>
 
           <Button asChild size="lg">
-            <Link to="/waitlist">Join the Waitlist</Link>
+            <Link href="/waitlist">Join the Waitlist</Link>
           </Button>
 
           <p className="text-sm text-foreground/35 mt-6">

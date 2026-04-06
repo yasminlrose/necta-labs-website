@@ -1,6 +1,8 @@
+'use client';
+
 import { useState } from "react";
 import { Instagram, ArrowRight, Check } from "lucide-react";
-import { Link } from "react-router-dom";
+import Link from "next/link";
 import NectaLogo from "@/components/NectaLogo";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -94,7 +96,7 @@ const Footer = () => {
               <NectaLogo light />
             </div>
             <p className="text-sm text-primary-foreground/50 leading-relaxed max-w-xs">
-              Functional wellness infusions with clinically-dosed botanicals for your daily ritual.
+              Organic functional infusions with clinically-dosed botanicals for your daily ritual.
             </p>
             <div className="flex gap-3 mt-6">
               <a
@@ -125,15 +127,15 @@ const Footer = () => {
             <h4 className="text-sm font-semibold mb-4">Shop</h4>
             <ul className="space-y-3">
               {[
-                { to: "/shop", label: "All Products" },
-                { to: "/shop/focus", label: "FOCUS" },
-                { to: "/shop/immunity", label: "IMMUNITY" },
-                { to: "/shop/calm", label: "CALM" },
-                { to: "/shop/glow", label: "GLOW" },
-              ].map(({ to, label }) => (
-                <li key={to}>
+                { href: "/shop", label: "All Products" },
+                { href: "/shop/focus", label: "FOCUS" },
+                { href: "/shop/immunity", label: "IMMUNITY" },
+                { href: "/shop/calm", label: "CALM" },
+                { href: "/shop/glow", label: "GLOW" },
+              ].map(({ href, label }) => (
+                <li key={href}>
                   <Link
-                    to={to}
+                    href={href}
                     className="text-sm text-primary-foreground/50 hover:text-primary-foreground transition-colors"
                   >
                     {label}
@@ -148,13 +150,13 @@ const Footer = () => {
             <h4 className="text-sm font-semibold mb-4">Learn</h4>
             <ul className="space-y-3">
               {[
-                { to: "/how-it-works", label: "How It Works" },
-                { to: "/science", label: "The Science" },
-                { to: "/about", label: "Our Story" },
-              ].map(({ to, label }) => (
-                <li key={to}>
+                { href: "/how-it-works", label: "How It Works" },
+                { href: "/science", label: "The Science" },
+                { href: "/about", label: "Our Story" },
+              ].map(({ href, label }) => (
+                <li key={href}>
                   <Link
-                    to={to}
+                    href={href}
                     className="text-sm text-primary-foreground/50 hover:text-primary-foreground transition-colors"
                   >
                     {label}
@@ -169,12 +171,12 @@ const Footer = () => {
             <h4 className="text-sm font-semibold mb-4">Company</h4>
             <ul className="space-y-3">
               {[
-                { to: "/stockist", label: "Become a Stockist" },
-                { to: "/waitlist", label: "Join Waitlist" },
-              ].map(({ to, label }) => (
-                <li key={to}>
+                { href: "/stockist", label: "Become a Stockist" },
+                { href: "/waitlist", label: "Join Waitlist" },
+              ].map(({ href, label }) => (
+                <li key={href}>
                   <Link
-                    to={to}
+                    href={href}
                     className="text-sm text-primary-foreground/50 hover:text-primary-foreground transition-colors"
                   >
                     {label}
@@ -199,7 +201,7 @@ const Footer = () => {
             © 2026 NECTA GROUP LTD — Registered in England & Wales
           </p>
           <p className="text-xs text-primary-foreground/25">
-            Functional wellness infusions
+            Organic functional infusions
           </p>
         </div>
       </div>

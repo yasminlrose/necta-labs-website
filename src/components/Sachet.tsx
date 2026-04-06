@@ -25,7 +25,7 @@ const sizeClasses = {
 const Sachet = ({ variant, size = "md", className = "" }: SachetProps) => {
   return (
     <img
-      src={sachetImages[variant]}
+      src={sachetImages[variant].src}
       alt={`NECTA LABS ${variant} sachet`}
       className={`${sizeClasses[size]} w-auto object-contain ${className}`}
     />

@@ -1,6 +1,8 @@
+'use client';
+
 import { useState } from "react";
 import { Check, Minus, Plus } from "lucide-react";
-import { Link } from "react-router-dom";
+import Link from "next/link";
 import { products, productSlugs, ProductSlug } from "@/data/products";
 
 const BUNDLE_TIERS = [
@@ -117,7 +119,7 @@ const BundleSection = () => {
               )}
               <p className="text-3xl font-bold text-primary mb-4">£{finalPrice}</p>
               <Link
-                to="/shop"
+                href="/shop"
                 className="block w-full bg-primary text-primary-foreground font-semibold py-3 rounded-md text-sm hover:bg-primary/90 transition-colors"
               >
                 Shop Bundle

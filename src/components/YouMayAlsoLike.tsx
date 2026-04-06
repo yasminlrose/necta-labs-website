@@ -1,5 +1,7 @@
+'use client';
+
 import { Star } from "lucide-react";
-import { Link } from "react-router-dom";
+import Link from "next/link";
 import { products, productSlugs, type ProductData } from "@/data/products";
 
 interface YouMayAlsoLikeProps {
@@ -41,7 +43,7 @@ const ProductCard = ({ product }: { product: ProductData }) => {
 
   return (
     <Link
-      to={`/shop/${product.slug}`}
+      href={`/shop/${product.slug}`}
       className="group block rounded-2xl border border-border overflow-hidden hover:shadow-md transition-all duration-200"
     >
       {/* Image */}

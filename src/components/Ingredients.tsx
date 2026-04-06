@@ -1,6 +1,8 @@
+'use client';
+
 import { useState } from "react";
 
-type SyrupType = "focus" | "immunity" | "calm" | "beauty";
+type InfusionType = "focus" | "immunity" | "calm" | "beauty";
 
 interface Ingredient {
   name: string;
@@ -9,7 +11,7 @@ interface Ingredient {
   imageUrl: string;
 }
 
-const ingredientsByType: Record<SyrupType, { ingredients: Ingredient[]; color: string; bgColor: string }> = {
+const ingredientsByType: Record<InfusionType, { ingredients: Ingredient[]; color: string; bgColor: string }> = {
   focus: {
     color: "text-necta-focus",
     bgColor: "bg-necta-focus",
@@ -222,7 +224,7 @@ const ingredientsByType: Record<SyrupType, { ingredients: Ingredient[]; color: s
   },
 };
 
-const syrupTypes: { id: SyrupType; label: string }[] = [
+const infusionTypes: { id: InfusionType; label: string }[] = [
   { id: "focus", label: "Focus" },
   { id: "immunity", label: "Immunity" },
   { id: "calm", label: "Calm" },
@@ -230,7 +232,7 @@ const syrupTypes: { id: SyrupType; label: string }[] = [
 ];
 
 const Ingredients = () => {
-  const [activeType, setActiveType] = useState<SyrupType>("focus");
+  const [activeType, setActiveType] = useState<InfusionType>("focus");
   const currentData = ingredientsByType[activeType];
 
   return (
@@ -253,7 +255,7 @@ const Ingredients = () => {
         {/* Infusion Type Tabs */}
         <div className="flex justify-center mb-12">
           <div className="inline-flex gap-2 p-1.5 bg-muted rounded-full">
-            {syrupTypes.map((type) => (
+            {infusionTypes.map((type) => (
               <button
                 key={type.id}
                 onClick={() => setActiveType(type.id)}

@@ -1,5 +1,1 @@
-import { createRoot } from "react-dom/client";
-import App from "./App.tsx";
-import "./index.css";
-
-createRoot(document.getElementById("root")!).render(<App />);
+// This file was the Vite entry point. Next.js uses app/layout.tsx instead.

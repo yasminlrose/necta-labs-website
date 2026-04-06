@@ -1,6 +1,8 @@
+'use client';
+
 import { useState, useEffect } from "react";
 import { X, Mail, Lock, User, Building2, Coffee } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useRouter } from "next/navigation";
 import { supabase } from "@/integrations/supabase/client";
 
 interface StockistAuthModalProps {
@@ -21,7 +23,7 @@ const VENUE_TYPES = [
 ];
 
 const StockistAuthModal = ({ isOpen, onClose }: StockistAuthModalProps) => {
-  const navigate = useNavigate();
+  const router = useRouter();
   const [tab, setTab] = useState<Tab>("login");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -57,7 +59,7 @@ const StockistAuthModal = ({ isOpen, onClose }: StockistAuthModalProps) => {
       return;
     }
     onClose();
-    navigate("/stockist-portal");
+    router.push("/stockist-portal");
   };
 
   const handleRegister = async (e: React.FormEvent) => {
