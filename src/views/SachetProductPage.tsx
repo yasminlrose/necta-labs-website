@@ -4,7 +4,7 @@ import { useParams } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import { useState, useEffect, useCallback } from "react";
-import { Star, ArrowRight, Minus, Plus, Check } from "lucide-react";
+import { Star, ArrowRight, Check } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import Header from "@/components/Header";
@@ -42,12 +42,19 @@ const SachetProductPage = ({ slug: slugProp }: { slug?: string } = {}) => {
   );
 };
 
+/* Savings vs one-off price for each subscribable sachet duration */
+const SACHET_SAVINGS = {
+  14: { amount: 3,  badge: 'SAVE £3',     period: 'per delivery' },
+  30: { amount: 7,  badge: 'SAVE £7/mo',  period: 'per month'    },
+  90: { amount: 21, badge: 'SAVE £21',    period: 'per quarter'  },
+} as const;
+
 function SachetHero({ product }: { product: NonNullable<ReturnType<typeof getProduct>> }) {
   const [duration, setDuration] = useState<7 | 14 | 30 | 90>(30);
-  const [quantity, setQuantity] = useState(1);
-  const [oneTimeFor14, setOneTimeFor14] = useState(false);
+  const [sellingMode, setSellingMode] = useState<'subscribe' | 'one-off'>('subscribe');
   const [liveRating, setLiveRating] = useState(product.rating);
   const [liveCount, setLiveCount] = useState(product.reviewCount);
+  const [checkoutLoading, setCheckoutLoading] = useState(false);
 
   useEffect(() => {
     supabase.from("product_reviews").select("rating").eq("product", product.slug).then(({ data }) => {
@@ -60,42 +67,57 @@ function SachetHero({ product }: { product: NonNullable<ReturnType<typeof getPro
     });
   }, [product.slug]);
 
+  /* Force one-off when 7-day trial is selected */
+  useEffect(() => {
+    if (duration === 7) setSellingMode('one-off');
+  }, [duration]);
+
   const scrollToReviews = () => {
     document.getElementById("reviews-section")?.scrollIntoView({ behavior: "smooth" });
   };
 
-  const [checkoutLoading, setCheckoutLoading] = useState(false);
-
-  const price = duration === 14 && oneTimeFor14 ? 24 : product.sachets[duration];
-  const earlyBirdPrice = +(price * 0.7).toFixed(2);
-  const total = +(earlyBirdPrice * quantity).toFixed(2);
-  const isSubscription = duration === 30 || duration === 90 || (duration === 14 && !oneTimeFor14);
-  const isOneTime = duration === 7 || (duration === 14 && oneTimeFor14);
+  /* Prices */
+  const oneOffPrice = product.sachets[duration];
+  const savings = duration !== 7 ? SACHET_SAVINGS[duration as 14 | 30 | 90].amount : 0;
+  const subPrice = oneOffPrice - savings;
+  const displayPrice = sellingMode === 'subscribe' && duration !== 7 ? subPrice : oneOffPrice;
+  const isSubscription = sellingMode === 'subscribe' && duration !== 7;
 
   const handleCheckout = useCallback(async () => {
     setCheckoutLoading(true);
     try {
-      const purchaseMode = isOneTime ? 'one-off' : 'subscribe';
-      const priceId = getPriceId(product.slug as StripePriceSlug, 'sachet', duration, purchaseMode);
-      const stripeMode = getStripeMode('sachet', duration, purchaseMode);
+      const priceId = getPriceId(product.slug as StripePriceSlug, 'sachet', duration, sellingMode);
+      const stripeMode = getStripeMode('sachet', duration, sellingMode);
       const sizeLabel = `${duration}-day box`;
       const res = await fetch('/api/checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ priceId, mode: stripeMode, productName: `NECTA ${product.name} Sachets`, size: sizeLabel, productSlug: product.slug }),
+        body: JSON.stringify({
+          priceId,
+          mode: stripeMode,
+          productName: `NECTA ${product.name} Sachets`,
+          size: sizeLabel,
+          productSlug: product.slug,
+        }),
       });
       const { url } = await res.json();
       if (url) window.location.href = url;
     } finally {
       setCheckoutLoading(false);
     }
-  }, [duration, isOneTime, product.slug, product.name]);
+  }, [duration, sellingMode, product.slug, product.name]);
 
-  const sachetOptions: { value: 7 | 14 | 30 | 90; title: string; sachets: number; sub: string; badge?: string; frequency: string }[] = [
-    { value: 30, title: "30-DAY BOX", sachets: 30, sub: `£${product.sachets[30]}/month`, badge: "MOST POPULAR", frequency: "Delivered monthly" },
-    { value: 90, title: "90-DAY BOX", sachets: 90, sub: `£${product.sachets[90]}/quarter (£40/month)`, badge: "BEST VALUE", frequency: "Delivered quarterly" },
-    { value: 14, title: "14-DAY BOX", sachets: 14, sub: `£${product.sachets[14]}`, frequency: "Subscribe or one-time" },
-    { value: 7, title: "7-DAY TRIAL", sachets: 7, sub: `£${product.sachets[7]}`, frequency: "One-time only" },
+  const sachetOptions: {
+    value: 7 | 14 | 30 | 90;
+    title: string;
+    sachets: number;
+    badge?: string;
+    frequency: string;
+  }[] = [
+    { value: 30, title: "30-DAY BOX",  sachets: 30, badge: "MOST POPULAR", frequency: "Subscribe or buy once" },
+    { value: 90, title: "90-DAY BOX",  sachets: 90, badge: "BEST VALUE",   frequency: "Subscribe or buy once" },
+    { value: 14, title: "14-DAY BOX",  sachets: 14,                        frequency: "Subscribe or buy once" },
+    { value: 7,  title: "7-DAY TRIAL", sachets: 7,                         frequency: "One-time only"        },
   ];
 
   return (
@@ -124,7 +146,7 @@ function SachetHero({ product }: { product: NonNullable<ReturnType<typeof getPro
             </h1>
             <p className="text-lg font-sub text-muted-foreground mb-4">Your daily ritual, on-the-go</p>
 
-            {/* Rating - clickable, hidden when 0 reviews */}
+            {/* Rating */}
             {liveCount > 0 && (
               <button onClick={scrollToReviews} className="flex items-center gap-2 mb-8 group bg-transparent border-none cursor-pointer p-0">
                 <div className="flex">
@@ -138,95 +160,102 @@ function SachetHero({ product }: { product: NonNullable<ReturnType<typeof getPro
             )}
 
             {/* Box size selector cards */}
-            <div className="space-y-3 mb-6">
-              {sachetOptions.map((opt) => (
-                <button
-                  key={opt.value}
-                  onClick={() => { setDuration(opt.value); if (opt.value !== 14) setOneTimeFor14(false); }}
-                  className={`w-full text-left p-5 rounded-xl border-2 transition-all relative ${
-                    duration === opt.value
-                      ? "border-secondary bg-secondary/[0.04] shadow-md"
-                      : "border-border hover:border-secondary/40"
-                  }`}
-                >
-                  {opt.badge && (
-                    <span className="absolute -top-3 right-4 bg-secondary text-secondary-foreground text-[10px] font-heading font-bold tracking-wider uppercase px-3 py-1 rounded-full">
-                      {opt.badge}
-                    </span>
-                  )}
-                  <div className="flex items-start gap-3">
-                    <div className={`w-5 h-5 rounded-full border-2 shrink-0 flex items-center justify-center mt-0.5 ${
-                      duration === opt.value ? "border-secondary bg-secondary" : "border-muted-foreground/40"
-                    }`}>
-                      {duration === opt.value && <Check className="h-3 w-3 text-secondary-foreground" />}
-                    </div>
-                    <div className="flex-1">
-                      <div className="flex items-center justify-between">
-                        <div className="text-sm font-heading font-extrabold uppercase tracking-wider">{opt.title} <span className="text-muted-foreground font-body font-normal text-xs">({opt.sachets} sachets)</span></div>
+            <div className="space-y-3 mb-5">
+              {sachetOptions.map((opt) => {
+                const optOneOff = product.sachets[opt.value];
+                const optSavings = opt.value !== 7 ? SACHET_SAVINGS[opt.value as 14 | 30 | 90].amount : 0;
+                const optSubPrice = optOneOff - optSavings;
+                const optDisplayPrice = sellingMode === 'subscribe' && opt.value !== 7 ? optSubPrice : optOneOff;
+                const optPeriod = opt.value === 30 ? '/mo' : opt.value === 90 ? '/qtr' : '';
+
+                return (
+                  <button
+                    key={opt.value}
+                    onClick={() => setDuration(opt.value)}
+                    className={`w-full text-left p-5 rounded-xl border-2 transition-all relative ${
+                      duration === opt.value
+                        ? "border-secondary bg-secondary/[0.04] shadow-md"
+                        : "border-border hover:border-secondary/40"
+                    }`}
+                  >
+                    {opt.badge && (
+                      <span className="absolute -top-3 right-4 bg-secondary text-secondary-foreground text-[10px] font-heading font-bold tracking-wider uppercase px-3 py-1 rounded-full">
+                        {opt.badge}
+                      </span>
+                    )}
+                    <div className="flex items-start gap-3">
+                      <div className={`w-5 h-5 rounded-full border-2 shrink-0 flex items-center justify-center mt-0.5 ${
+                        duration === opt.value ? "border-secondary bg-secondary" : "border-muted-foreground/40"
+                      }`}>
+                        {duration === opt.value && <Check className="h-3 w-3 text-secondary-foreground" />}
                       </div>
-                      <p className="text-xs text-muted-foreground mt-1">{opt.frequency}</p>
-                      <div className="flex items-baseline gap-2 mt-1">
-                        <span className="text-lg font-heading font-extrabold text-foreground">{opt.sub}</span>
-                        {opt.value === 90 && <span className="text-xs text-green-600 dark:text-green-400 font-medium">Save £5/month vs 30-day</span>}
-                      </div>
-                      {opt.value === 30 && (
-                        <div className="flex flex-wrap gap-x-4 gap-y-1 mt-2 text-xs text-muted-foreground">
-                          <span className="flex items-center gap-1"><Check className="h-3 w-3 text-secondary" /> Daily supply</span>
-                          <span className="flex items-center gap-1"><Check className="h-3 w-3 text-secondary" /> Free shipping</span>
-                          <span className="flex items-center gap-1"><Check className="h-3 w-3 text-secondary" /> Cancel anytime</span>
+                      <div className="flex-1">
+                        <div className="text-sm font-heading font-extrabold uppercase tracking-wider">
+                          {opt.title} <span className="text-muted-foreground font-body font-normal text-xs">({opt.sachets} sachets)</span>
                         </div>
-                      )}
+                        <p className="text-xs text-muted-foreground mt-1">{opt.frequency}</p>
+                        <div className="flex items-baseline gap-2 mt-1">
+                          <span className="text-lg font-heading font-extrabold text-foreground">
+                            £{optDisplayPrice}{optPeriod && sellingMode === 'subscribe' && opt.value !== 7 ? optPeriod : ''}
+                          </span>
+                          {sellingMode === 'subscribe' && opt.value !== 7 && (
+                            <span className="text-xs text-muted-foreground line-through">£{optOneOff}</span>
+                          )}
+                          {sellingMode === 'subscribe' && opt.value !== 7 && (
+                            <span className="text-xs font-bold text-green-600">
+                              {SACHET_SAVINGS[opt.value as 14 | 30 | 90].badge}
+                            </span>
+                          )}
+                        </div>
+                        {opt.value === 30 && sellingMode === 'subscribe' && (
+                          <div className="flex flex-wrap gap-x-4 gap-y-1 mt-2 text-xs text-muted-foreground">
+                            <span className="flex items-center gap-1"><Check className="h-3 w-3 text-secondary" /> Daily supply</span>
+                            <span className="flex items-center gap-1"><Check className="h-3 w-3 text-secondary" /> Free shipping</span>
+                            <span className="flex items-center gap-1"><Check className="h-3 w-3 text-secondary" /> Cancel anytime</span>
+                          </div>
+                        )}
+                      </div>
                     </div>
-                  </div>
-                </button>
-              ))}
+                  </button>
+                );
+              })}
             </div>
 
-            {/* One-time toggle for 14-day */}
-            {duration === 14 && (
-              <label className="flex items-center gap-2 mb-6 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={oneTimeFor14}
-                  onChange={(e) => setOneTimeFor14(e.target.checked)}
-                  className="rounded border-border"
-                />
-                <span className="text-sm text-muted-foreground font-body">Make this a one-time purchase (£24)</span>
-              </label>
+            {/* Subscribe / One-off toggle — hidden for 7-day trial */}
+            {duration !== 7 && (
+              <div className="flex rounded-lg bg-muted p-1 mb-5">
+                {(['subscribe', 'one-off'] as const).map((m) => (
+                  <button
+                    key={m}
+                    onClick={() => setSellingMode(m)}
+                    className={`relative flex-1 py-2 px-3 rounded-md text-sm font-semibold transition-all ${
+                      sellingMode === m ? "bg-white text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"
+                    }`}
+                  >
+                    {m === 'subscribe' ? 'Subscribe & Save' : 'One-off'}
+                    {m === 'subscribe' && sellingMode === 'subscribe' && (
+                      <span className="absolute -top-2.5 right-1 text-[9px] font-bold bg-green-600 text-white px-1.5 py-0.5 rounded-full">
+                        {SACHET_SAVINGS[duration as 14 | 30 | 90].badge}
+                      </span>
+                    )}
+                  </button>
+                ))}
+              </div>
             )}
 
             {/* Price display */}
-            <div className="mb-4">
-              <div className="flex items-baseline gap-3">
-                <span className="text-4xl font-heading font-extrabold text-foreground">£{earlyBirdPrice}</span>
-                <span className="text-lg text-muted-foreground line-through">£{price.toFixed(2)}</span>
-                <span className="bg-accent text-accent-foreground text-xs font-bold px-2 py-1 rounded-full">30% OFF</span>
-              </div>
-              {isSubscription && (
-                <p className="text-xs text-muted-foreground mt-1">
-                  {duration === 30 ? "per month" : duration === 90 ? "per quarter" : "per delivery"} • Cancel anytime
-                </p>
-              )}
-              {isOneTime && (
-                <p className="text-xs text-muted-foreground mt-1">One-time purchase + £3.99 shipping</p>
-              )}
-            </div>
-
-            {/* Quantity */}
             <div className="mb-6">
-              <label className="text-xs font-heading font-bold tracking-wider uppercase text-foreground mb-2 block">QUANTITY</label>
-              <div className="flex items-center gap-4">
-                <div className="flex items-center">
-                  <button onClick={() => setQuantity(Math.max(1, quantity - 1))} className="w-10 h-10 border border-border rounded-lg flex items-center justify-center text-foreground hover:border-secondary transition-colors">
-                    <Minus className="h-4 w-4" />
-                  </button>
-                  <span className="w-14 text-center font-heading font-bold text-lg">{quantity}</span>
-                  <button onClick={() => setQuantity(Math.min(10, quantity + 1))} className="w-10 h-10 border border-border rounded-lg flex items-center justify-center text-foreground hover:border-secondary transition-colors">
-                    <Plus className="h-4 w-4" />
-                  </button>
-                </div>
-                {quantity > 1 && <span className="text-sm font-bold text-foreground">Total: £{total}</span>}
+              <div className="flex items-baseline gap-3">
+                <span className="text-4xl font-heading font-extrabold text-foreground">£{displayPrice}</span>
+                {isSubscription && (
+                  <span className="text-lg text-muted-foreground line-through">£{oneOffPrice}</span>
+                )}
               </div>
+              <p className="text-xs text-muted-foreground mt-1">
+                {isSubscription
+                  ? `${SACHET_SAVINGS[duration as 14 | 30 | 90].period} • Cancel anytime`
+                  : 'One-time purchase'}
+              </p>
             </div>
 
             {/* CTA */}
@@ -243,13 +272,9 @@ function SachetHero({ product }: { product: NonNullable<ReturnType<typeof getPro
               {checkoutLoading
                 ? "Redirecting…"
                 : isSubscription
-                  ? "SUBSCRIBE NOW — 30% OFF FIRST DELIVERY"
-                  : "ADD TO CART — 30% OFF"}
+                  ? "SUBSCRIBE & SAVE"
+                  : "BUY NOW"}
             </Button>
-
-            <p className="text-xs text-muted-foreground text-center mb-4">
-              Early bird pricing. Ships August 2026.
-            </p>
 
             {/* Trust signals */}
             {isSubscription && (
