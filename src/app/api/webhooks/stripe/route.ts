@@ -10,8 +10,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { stripe } from '@/lib/stripe';
-import { resend } from '@/lib/resend';
-import { preOrderEmail, subscriptionWelcomeEmail } from '@/lib/emails';
+import { sendTemplate, RESEND_TEMPLATES } from '@/lib/resendTemplates';
 
 /** Derive a human-readable delivery frequency from session metadata. */
 function deriveFrequency(size: string, metaFrequency: string): string {
@@ -35,10 +34,12 @@ function nextChargeDate(frequency: string): string {
 }
 
 export async function POST(req: NextRequest) {
+  console.log('[webhook] POST received');
+
   const body = await req.text();
   const sig = req.headers.get('stripe-signature');
 
-  console.log('[webhook] received request, sig present:', !!sig);
+  console.log('[webhook] stripe-signature present:', !!sig);
 
   if (!sig) {
     console.error('[webhook] missing stripe-signature header');
@@ -48,7 +49,7 @@ export async function POST(req: NextRequest) {
   let event;
   try {
     event = stripe.webhooks.constructEvent(body, sig, process.env.STRIPE_WEBHOOK_SECRET!);
-    console.log('[webhook] signature verified, event type:', event.type);
+    console.log('[webhook] signature verified — event type:', event.type, '| event id:', event.id);
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : 'Webhook error';
     console.error('[webhook] signature verification failed:', message);
@@ -57,7 +58,7 @@ export async function POST(req: NextRequest) {
 
   if (event.type === 'checkout.session.completed') {
     const session = event.data.object;
-    console.log('[webhook] checkout.session.completed — session id:', session.id, 'mode:', session.mode);
+    console.log('[webhook] checkout.session.completed — session id:', session.id, '| mode:', session.mode, '| payment_status:', session.payment_status);
 
     const email = session.customer_details?.email;
     const fullName = session.customer_details?.name ?? '';
@@ -66,65 +67,62 @@ export async function POST(req: NextRequest) {
     const amount = `£${(amountPence / 100).toFixed(2)}`;
     const productName = session.metadata?.productName ?? 'NECTA Infusion';
     const size = session.metadata?.size ?? '';
-    const productSlug = (session.metadata?.productSlug ?? 'focus') as import('@/lib/emails').ProductSlug;
     const metaFrequency = session.metadata?.frequency ?? '';
 
-    console.log('[webhook] customer email:', email ?? '(none)', '| product:', productName, '| size:', size);
+    console.log('[webhook] customer email:', email ?? '(none)', '| product:', productName, '| size:', size, '| amount:', amount);
 
     if (!email) {
-      console.warn('[webhook] no customer email — skipping confirmation email');
+      console.warn('[webhook] no customer email found — skipping confirmation email');
       return NextResponse.json({ received: true });
     }
 
     if (session.mode === 'payment') {
-      console.log('[webhook] sending one-off purchase confirmation to:', email);
+      console.log('[webhook] mode=payment → sending order-confirmation email to:', email);
       try {
-        const { subject, html } = preOrderEmail({
-          firstName,
-          productName,
-          size,
-          amount,
-          dispatchDate: 'within 5–7 working days',
-        });
-        const result = await resend.emails.send({
-          from: 'NECTA Labs <hello@nectalabs.com>',
-          to: [email],
-          subject,
-          html,
-        });
-        console.log('[webhook] pre-order email sent, resend id:', (result as { id?: string }).id ?? 'unknown');
+        const resendId = await sendTemplate(
+          RESEND_TEMPLATES.ORDER_CONFIRMATION,
+          email,
+          {
+            first_name: firstName,
+            product_name: productName,
+            order_total: amount,
+            dispatch_date: 'within 5–7 working days',
+          },
+        );
+        console.log('[webhook] order-confirmation email sent — resend id:', resendId);
       } catch (err: unknown) {
         const message = err instanceof Error ? err.message : String(err);
-        console.error('[webhook] failed to send pre-order email:', message);
+        console.error('[webhook] failed to send order-confirmation email:', message);
         // Return 200 so Stripe doesn't retry — email failure shouldn't block the webhook
       }
 
     } else if (session.mode === 'subscription') {
       const frequency = deriveFrequency(size, metaFrequency);
       const chargeDate = nextChargeDate(frequency);
-      console.log('[webhook] sending subscription welcome to:', email, '| frequency:', frequency, '| next charge:', chargeDate);
+      console.log('[webhook] mode=subscription → sending subscription-welcome email to:', email, '| frequency:', frequency, '| next charge:', chargeDate);
       try {
-        const { subject, html } = subscriptionWelcomeEmail({
-          firstName,
-          productName,
-          productSlug,
-          size,
-          amount,
-          nextChargeDate: chargeDate,
-          frequency,
-        });
-        const result = await resend.emails.send({
-          from: 'NECTA Labs <hello@nectalabs.com>',
-          to: [email],
-          subject,
-          html,
-        });
-        console.log('[webhook] subscription welcome email sent, resend id:', (result as { id?: string }).id ?? 'unknown');
+        const resendId = await sendTemplate(
+          RESEND_TEMPLATES.SUBSCRIPTION_WELCOME,
+          email,
+          {
+            first_name: firstName,
+            product_name: productName,
+            amount,
+            next_billing_date: chargeDate,
+            frequency,
+          },
+        );
+        console.log('[webhook] subscription-welcome email sent — resend id:', resendId);
       } catch (err: unknown) {
         const message = err instanceof Error ? err.message : String(err);
-        console.error('[webhook] failed to send subscription welcome email:', message);
+        console.error('[webhook] failed to send subscription-welcome email:', message);
       }
+
+    } else {
+      console.warn('[webhook] unhandled session.mode:', session.mode, '— no email sent');
     }
+  } else {
+    console.log('[webhook] unhandled event type:', event.type, '— ignoring');
   }
 
   return NextResponse.json({ received: true });
