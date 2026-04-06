@@ -107,8 +107,15 @@ const ProductPage = ({ slug: slugProp }: { slug?: string } = {}) => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ priceId, mode: stripeMode, productName, size: sizeLabel, productSlug: slug }),
       });
-      const { url } = await res.json();
-      if (url) window.location.href = url;
+      const data: { url?: string; error?: string } = await res.json();
+      if (!res.ok || !data.url) {
+        throw new Error(data.error ?? 'No checkout URL returned');
+      }
+      window.location.href = data.url;
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Checkout failed';
+      console.error('[checkout]', message);
+      alert(`Checkout unavailable: ${message}`);
     } finally {
       setCheckoutLoading(false);
     }
