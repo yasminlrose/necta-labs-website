@@ -40,8 +40,10 @@ export async function sendTemplate(
     body: JSON.stringify({
       from: FROM,
       to: [to],
-      template: templateId,
-      variables: { [to]: variables },
+      template: {
+        id: templateId,
+        variables,
+      },
     }),
   });
 
