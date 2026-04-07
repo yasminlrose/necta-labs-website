@@ -9,6 +9,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
+import Stripe from 'stripe';
 import { stripe } from '@/lib/stripe';
 import { sendTemplate, RESEND_TEMPLATES } from '@/lib/resendTemplates';
 
@@ -61,14 +62,7 @@ export async function POST(req: NextRequest) {
     console.log('[webhook] checkout.session.completed — session id:', session.id, '| mode:', session.mode, '| payment_status:', session.payment_status);
     console.log('[webhook] customer_details raw:', JSON.stringify(session.customer_details));
     console.log('[webhook] metadata raw:', JSON.stringify(session.metadata));
-
-    // Always read email from customer_details.email (populated for both payment and subscription modes)
-    const email = session.customer_details?.email ?? null;
-    console.log('[webhook] customer email:', email ?? '(none)');
-
-    const rawName = session.customer_details?.name ?? '';
-    const firstName = rawName.trim().split(/\s+/)[0] || 'there';
-    console.log('[webhook] rawName:', rawName, '| firstName resolved to:', firstName);
+    console.log('[webhook] session.customer:', session.customer);
 
     const amountPence = session.amount_total ?? 0;
     const amount = `£${(amountPence / 100).toFixed(2)}`;
@@ -78,12 +72,17 @@ export async function POST(req: NextRequest) {
 
     console.log('[webhook] product:', productName, '| size:', size, '| amount:', amount);
 
-    if (!email) {
-      console.warn('[webhook] no customer email found in customer_details.email — skipping confirmation email');
-      return NextResponse.json({ received: true });
-    }
-
     if (session.mode === 'payment') {
+      // For one-off payments, email is in customer_details
+      const email = session.customer_details?.email ?? null;
+      const rawName = session.customer_details?.name ?? '';
+      const firstName = rawName.trim().split(/\s+/)[0] || 'there';
+      console.log('[webhook] payment mode — email from customer_details.email:', email ?? '(none)', '| firstName:', firstName);
+
+      if (!email) {
+        console.warn('[webhook] no email in customer_details.email for payment — skipping');
+        return NextResponse.json({ received: true });
+      }
       console.log('[webhook] mode=payment → sending order-confirmation to:', email);
       try {
         const resendId = await sendTemplate(
@@ -104,9 +103,35 @@ export async function POST(req: NextRequest) {
       }
 
     } else if (session.mode === 'subscription') {
+      // For subscriptions, customer_details.email may be empty at webhook time.
+      // Retrieve the customer object from Stripe to get the email reliably.
+      console.log('[webhook] subscription mode — retrieving customer from Stripe, customer id:', session.customer);
+      let email: string | null = null;
+      let firstName = 'there';
+      try {
+        const customer = await stripe.customers.retrieve(session.customer as string);
+        if (customer.deleted) {
+          console.warn('[webhook] customer was deleted — cannot get email');
+        } else {
+          const c = customer as Stripe.Customer;
+          email = c.email ?? null;
+          const rawName = c.name ?? session.customer_details?.name ?? '';
+          firstName = rawName.trim().split(/\s+/)[0] || 'there';
+          console.log('[webhook] retrieved customer email:', email ?? '(none)', '| name:', rawName, '| firstName:', firstName);
+        }
+      } catch (err: unknown) {
+        const message = err instanceof Error ? err.message : String(err);
+        console.error('[webhook] failed to retrieve Stripe customer:', message);
+      }
+
+      if (!email) {
+        console.warn('[webhook] no email found for subscription customer — skipping welcome email');
+        return NextResponse.json({ received: true });
+      }
+
       const frequency = deriveFrequency(size, metaFrequency);
       const chargeDate = nextChargeDate(frequency);
-      console.log('[webhook] mode=subscription → sending subscription-welcome to:', email, '| frequency:', frequency, '| next charge:', chargeDate);
+      console.log('[webhook] sending subscription-welcome to:', email, '| frequency:', frequency, '| next charge:', chargeDate);
       try {
         const resendId = await sendTemplate(
           RESEND_TEMPLATES.SUBSCRIPTION_WELCOME,

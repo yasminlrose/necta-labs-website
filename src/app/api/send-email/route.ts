@@ -16,7 +16,13 @@ export async function POST(req: NextRequest) {
   console.log('[send-email] type:', type, '| to:', to, '| data:', data);
 
   if (!type || !to) {
+    console.error('[send-email] missing required field — type:', type, '| to:', to);
     return NextResponse.json({ error: 'Missing type or to' }, { status: 400 });
+  }
+
+  if (typeof to !== 'string' || !to.includes('@')) {
+    console.error('[send-email] invalid email address:', to);
+    return NextResponse.json({ error: 'Invalid email address' }, { status: 400 });
   }
 
   try {
