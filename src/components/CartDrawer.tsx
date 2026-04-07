@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from "react";
 import { X, Minus, Plus, ShoppingBag, ArrowRight } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
@@ -7,6 +8,26 @@ import { useCart } from "@/contexts/CartContext";
 
 const CartDrawer = () => {
   const { items, count, subtotal, isOpen, closeCart, removeItem, updateQty } = useCart();
+  const [checkoutLoading, setCheckoutLoading] = useState(false);
+
+  const handleCheckout = async () => {
+    setCheckoutLoading(true);
+    try {
+      const res = await fetch('/api/cart-checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ items }),
+      });
+      const data: { url?: string; error?: string } = await res.json();
+      if (!res.ok || !data.url) throw new Error(data.error ?? 'No checkout URL');
+      window.location.href = data.url;
+    } catch (err) {
+      console.error('[cart checkout]', err);
+      alert('Checkout unavailable. Please try again.');
+    } finally {
+      setCheckoutLoading(false);
+    }
+  };
 
   return (
     <>
@@ -66,7 +87,7 @@ const CartDrawer = () => {
                   {/* Image */}
                   <div className="relative w-20 h-20 rounded-lg bg-white flex-shrink-0 flex items-center justify-center overflow-hidden">
                     <Image
-                      src={item.image}
+                      src={typeof item.image === 'string' ? item.image : (item.image as unknown as { src: string }).src}
                       alt={item.name}
                       fill
                       className="object-contain"
@@ -137,37 +158,11 @@ const CartDrawer = () => {
             </div>
             <p className="text-xs text-primary/40">Free UK delivery on subscriptions. Shipping calculated at checkout.</p>
             <button
-              className="w-full bg-primary text-white font-semibold py-4 rounded-md hover:bg-primary/90 transition-colors text-sm"
-              onClick={async () => {
-                const subItems = items.filter((i) => i.mode === "subscribe");
-                if (subItems.length > 0) {
-                  const nextDate = new Date();
-                  nextDate.setDate(nextDate.getDate() + 28);
-                  const nextDateStr = nextDate.toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
-                  for (const item of subItems) {
-                    const slugMatch = item.slug?.match(/^(focus|immunity|calm|glow)/) ?? [];
-                    const productSlug = (slugMatch[1] ?? "focus") as "focus" | "immunity" | "calm" | "glow";
-                    await fetch("/api/send-email", {
-                      method: "POST",
-                      headers: { "Content-Type": "application/json" },
-                      body: JSON.stringify({
-                        type: "subscription",
-                        to: "", // filled by checkout — replace with real customer email when checkout is wired
-                        data: {
-                          firstName: "there",
-                          productName: `NECTA ${item.name.replace(" (Bundle)", "")}`,
-                          productSlug,
-                          size: item.size,
-                          amount: `£${(item.price * item.quantity).toFixed(2)}`,
-                          nextChargeDate: nextDateStr,
-                        },
-                      }),
-                    }).catch(() => null); // non-blocking
-                  }
-                }
-              }}
+              disabled={checkoutLoading}
+              onClick={handleCheckout}
+              className="w-full bg-primary text-white font-semibold py-4 rounded-md hover:bg-primary/90 transition-colors text-sm disabled:opacity-60"
             >
-              Checkout — £{subtotal.toFixed(2)}
+              {checkoutLoading ? 'Redirecting…' : `Checkout — £${subtotal.toFixed(2)}`}
             </button>
             <button
               onClick={closeCart}
