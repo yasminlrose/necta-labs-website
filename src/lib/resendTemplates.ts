@@ -41,7 +41,7 @@ export async function sendTemplate(
       from: FROM,
       to: [to],
       template: templateId,
-      variables,
+      variables: { [to]: variables },
     }),
   });
 
