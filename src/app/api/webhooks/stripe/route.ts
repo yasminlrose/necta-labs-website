@@ -62,7 +62,6 @@ export async function POST(req: NextRequest) {
     console.log('[webhook] checkout.session.completed — session id:', session.id, '| mode:', session.mode, '| payment_status:', session.payment_status);
     console.log('[webhook] customer_details raw:', JSON.stringify(session.customer_details));
     console.log('[webhook] metadata raw:', JSON.stringify(session.metadata));
-    console.log('[webhook] session.customer:', session.customer);
 
     const amountPence = session.amount_total ?? 0;
     const amount = `£${(amountPence / 100).toFixed(2)}`;
@@ -70,20 +69,17 @@ export async function POST(req: NextRequest) {
     const size = session.metadata?.size ?? '';
     const metaFrequency = session.metadata?.frequency ?? '';
 
-    console.log('[webhook] product:', productName, '| size:', size, '| amount:', amount);
-
     if (session.mode === 'payment') {
-      // For one-off payments, email is in customer_details
       const email = session.customer_details?.email ?? null;
       const rawName = session.customer_details?.name ?? '';
       const firstName = rawName.trim().split(/\s+/)[0] || 'there';
-      console.log('[webhook] payment mode — email from customer_details.email:', email ?? '(none)', '| firstName:', firstName);
+      console.log('[webhook] payment — email:', email ?? '(none)', '| firstName:', firstName);
 
       if (!email) {
-        console.warn('[webhook] no email in customer_details.email for payment — skipping');
+        console.warn('[webhook] no email in customer_details for payment — skipping');
         return NextResponse.json({ received: true });
       }
-      console.log('[webhook] mode=payment → sending order-confirmation to:', email);
+
       try {
         const resendId = await sendTemplate(
           RESEND_TEMPLATES.ORDER_CONFIRMATION,
@@ -97,41 +93,39 @@ export async function POST(req: NextRequest) {
         );
         console.log('[webhook] order-confirmation sent — resend id:', resendId);
       } catch (err: unknown) {
-        const message = err instanceof Error ? err.message : String(err);
-        console.error('[webhook] failed to send order-confirmation:', message);
+        console.error('[webhook] failed to send order-confirmation:', err instanceof Error ? err.message : String(err));
         // Return 200 so Stripe doesn't retry
       }
 
     } else if (session.mode === 'subscription') {
-      // For subscriptions, customer_details.email may be empty at webhook time.
-      // Retrieve the customer object from Stripe to get the email reliably.
-      console.log('[webhook] subscription mode — retrieving customer from Stripe, customer id:', session.customer);
+      // For subscriptions, customer_details.email may be empty — retrieve from Stripe
+      console.log('[webhook] subscription — retrieving customer from Stripe, id:', session.customer);
       let email: string | null = null;
       let firstName = 'there';
       try {
         const customer = await stripe.customers.retrieve(session.customer as string);
         if (customer.deleted) {
-          console.warn('[webhook] customer was deleted — cannot get email');
+          console.warn('[webhook] Stripe customer was deleted — cannot get email');
         } else {
           const c = customer as Stripe.Customer;
           email = c.email ?? null;
           const rawName = c.name ?? session.customer_details?.name ?? '';
           firstName = rawName.trim().split(/\s+/)[0] || 'there';
-          console.log('[webhook] retrieved customer email:', email ?? '(none)', '| name:', rawName, '| firstName:', firstName);
+          console.log('[webhook] subscription — email:', email ?? '(none)', '| firstName:', firstName);
         }
       } catch (err: unknown) {
-        const message = err instanceof Error ? err.message : String(err);
-        console.error('[webhook] failed to retrieve Stripe customer:', message);
+        console.error('[webhook] failed to retrieve Stripe customer:', err instanceof Error ? err.message : String(err));
       }
 
       if (!email) {
-        console.warn('[webhook] no email found for subscription customer — skipping welcome email');
+        console.warn('[webhook] no email for subscription customer — skipping welcome email');
         return NextResponse.json({ received: true });
       }
 
       const frequency = deriveFrequency(size, metaFrequency);
       const chargeDate = nextChargeDate(frequency);
-      console.log('[webhook] sending subscription-welcome to:', email, '| frequency:', frequency, '| next charge:', chargeDate);
+      console.log('[webhook] subscription — frequency:', frequency, '| next charge:', chargeDate);
+
       try {
         const resendId = await sendTemplate(
           RESEND_TEMPLATES.SUBSCRIPTION_WELCOME,
@@ -146,12 +140,11 @@ export async function POST(req: NextRequest) {
         );
         console.log('[webhook] subscription-welcome sent — resend id:', resendId);
       } catch (err: unknown) {
-        const message = err instanceof Error ? err.message : String(err);
-        console.error('[webhook] failed to send subscription-welcome:', message);
+        console.error('[webhook] failed to send subscription-welcome:', err instanceof Error ? err.message : String(err));
       }
 
     } else {
-      console.warn('[webhook] unhandled session.mode:', session.mode, '— no email sent');
+      console.warn('[webhook] unhandled session.mode:', session.mode);
     }
   } else {
     console.log('[webhook] unhandled event type:', event.type, '— ignoring');

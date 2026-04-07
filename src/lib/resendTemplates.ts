@@ -1,8 +1,8 @@
 /**
  * Resend template IDs and a raw REST API helper.
  *
- * The Resend Node.js SDK does not support template_id in emails.send().
- * We call the REST API directly instead.
+ * Uses "template" (not "template_id") in the request body — this is the
+ * correct Resend API parameter name for template-based sends.
  */
 
 export const RESEND_TEMPLATES = {
@@ -40,7 +40,7 @@ export async function sendTemplate(
     body: JSON.stringify({
       from: FROM,
       to: [to],
-      template_id: templateId,
+      template: templateId,
       variables,
     }),
   });

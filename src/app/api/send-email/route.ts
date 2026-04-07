@@ -60,7 +60,7 @@ export async function POST(req: NextRequest) {
     }
 
     const id = await sendTemplate(templateId, to, variables);
-    console.log('[send-email] email sent — resend id:', id);
+    console.log('[send-email] sent — resend id:', id);
     return NextResponse.json({ ok: true, id });
   } catch (err) {
     console.error('[send-email] failed:', err);

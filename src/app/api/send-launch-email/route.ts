@@ -24,7 +24,7 @@ export async function POST(req: NextRequest) {
 
   for (let i = 0; i < emails.length; i += BATCH) {
     const batch = emails.slice(i, i + BATCH);
-    console.log('[send-launch-email] processing batch', Math.floor(i / BATCH) + 1, '— size:', batch.length);
+    console.log('[send-launch-email] batch', Math.floor(i / BATCH) + 1, '— size:', batch.length);
     await Promise.all(
       batch.map(async ({ email, firstName }) => {
         try {
