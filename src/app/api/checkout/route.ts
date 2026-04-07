@@ -26,7 +26,7 @@ export async function POST(req: NextRequest) {
       cancel_url: `${origin}/shop`,
       metadata: meta,
       ...(mode === 'subscription' && {
-        subscription_data: { metadata: meta },
+        subscription_data: { metadata: meta, trial_period_days: 180 },
       }),
     });
 

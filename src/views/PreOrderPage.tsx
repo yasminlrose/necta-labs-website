@@ -153,7 +153,7 @@ function ProductCard({ slug, state, onChange }: { slug: ProductSlug; state: Card
                 {/* Subscribe toggle */}
                 <div>
                   <div className="flex gap-2">
-                    <Pill active={state.subscribe} onClick={() => onChange({ ...state, subscribe: true })}>Subscribe & Save 15%</Pill>
+                    <Pill active={state.subscribe} onClick={() => onChange({ ...state, subscribe: true })}>Pre-order & Subscribe 15%</Pill>
                     <Pill active={!state.subscribe} onClick={() => onChange({ ...state, subscribe: false })}>One-off</Pill>
                   </div>
                   {state.subscribe && (

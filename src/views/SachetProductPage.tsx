@@ -155,7 +155,10 @@ function SachetHero({ product }: { product: NonNullable<ReturnType<typeof getPro
             <h1 className="text-5xl md:text-6xl font-heading font-extrabold text-foreground uppercase tracking-tight mb-2">
               {product.name} SACHETS
             </h1>
-            <p className="text-lg font-sub text-muted-foreground mb-4">Your daily ritual, on-the-go</p>
+            <p className="text-lg font-sub text-muted-foreground mb-2">Your daily ritual, on-the-go</p>
+            <p className="text-xs text-muted-foreground bg-muted border border-border rounded-lg px-3 py-2 mb-4">
+              Pre-order — ships October 2026. Cancel any time before dispatch for a full refund.
+            </p>
 
             {/* Rating */}
             {liveCount > 0 && (
@@ -243,7 +246,7 @@ function SachetHero({ product }: { product: NonNullable<ReturnType<typeof getPro
                       sellingMode === m ? "bg-white text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"
                     }`}
                   >
-                    {m === 'subscribe' ? 'Subscribe & Save' : 'One-off'}
+                    {m === 'subscribe' ? 'Pre-order & Subscribe' : 'One-off'}
                     {m === 'subscribe' && sellingMode === 'subscribe' && (
                       <span className="absolute -top-2.5 right-1 text-[9px] font-bold bg-green-600 text-white px-1.5 py-0.5 rounded-full">
                         {SACHET_SAVINGS[duration as 14 | 30 | 90].badge}
@@ -283,8 +286,8 @@ function SachetHero({ product }: { product: NonNullable<ReturnType<typeof getPro
               {checkoutLoading
                 ? "Redirecting…"
                 : isSubscription
-                  ? "SUBSCRIBE & SAVE"
-                  : "BUY NOW"}
+                  ? "PRE-ORDER & SUBSCRIBE"
+                  : "PRE-ORDER NOW"}
             </Button>
 
             {/* Trust signals */}

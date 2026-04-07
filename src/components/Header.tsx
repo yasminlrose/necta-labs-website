@@ -12,7 +12,7 @@ import { useAuth } from "@/contexts/AuthContext";
 
 const announcements = [
   "Free delivery on orders over £35",
-  "Subscribe & save up to 30% on every order",
+  "Pre-order now — ships October 2026",
   "Clinically-dosed ingredients, third-party tested",
   "New: GLOW — skin health from the inside out",
 ];

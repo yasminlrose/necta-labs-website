@@ -88,7 +88,7 @@ export async function POST(req: NextRequest) {
             first_name:    firstName,
             product_name:  productName,
             order_total:   amount,
-            dispatch_date: 'within 5–7 working days',
+            dispatch_date: 'October 2026',
           },
         );
         console.log('[webhook] order-confirmation sent — resend id:', resendId);

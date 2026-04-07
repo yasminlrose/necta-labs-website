@@ -237,7 +237,7 @@ const ProductCard = ({ variant }: { variant: ProductVariant }) => {
               {/* Subscription Toggle */}
               <div className="flex items-center justify-between mb-4 p-3 bg-muted rounded-xl">
                 <div>
-                  <span className="text-sm font-medium">Subscribe & Save</span>
+                  <span className="text-sm font-medium">Pre-order & Subscribe</span>
                   {isSubscription && (
                     <span className="ml-2 text-xs bg-necta-focus text-foreground px-2 py-0.5 rounded-full">
                       Save {savingsPercent}%

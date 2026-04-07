@@ -228,7 +228,7 @@ const PickAndMixPage = () => {
               {(["one-off", "subscribe"] as SellingPlan[]).map((plan) => (
                 <button key={plan} onClick={() => setSellingPlan(plan)}
                   className={`flex-1 relative text-sm py-2.5 rounded-lg transition-all font-medium ${sellingPlan === plan ? "bg-white text-primary shadow-sm" : "text-primary/50 hover:text-primary"}`}>
-                  {plan === "subscribe" ? "Subscribe & Save" : "One-off"}
+                  {plan === "subscribe" ? "Pre-order & Subscribe" : "One-off"}
                   {plan === "subscribe" && <span className="absolute -top-2.5 right-1 text-[9px] font-bold px-2 py-0.5 rounded-full text-white bg-green-600">+20% OFF</span>}
                 </button>
               ))}
@@ -346,7 +346,7 @@ const PickAndMixPage = () => {
                     </button>
                     <button onClick={handleAddToCart} className="flex-1 sm:flex-none flex items-center justify-center gap-2 bg-primary text-white font-bold px-8 py-3.5 rounded-lg text-sm hover:bg-primary/90 transition-colors">
                       <ShoppingBag className="h-4 w-4" />
-                      {sellingPlan === "subscribe" ? "Subscribe & save" : "Add bundle to basket"}
+                      {sellingPlan === "subscribe" ? "Pre-order & Subscribe" : "Pre-order bundle"}
                       <ChevronRight className="h-4 w-4" />
                     </button>
                   </>
