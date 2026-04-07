@@ -26,12 +26,12 @@ function EmailSignup() {
       return;
     }
 
-    // Send launch announcement email (Email 3)
+    // Send newsletter welcome email
     await fetch("/api/send-email", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        type: "launch",
+        type: "newsletter",
         to: email.trim(),
         data: { firstName: "" },
       }),

@@ -50,7 +50,7 @@ const EmailPopup = () => {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          type: "launch",
+          type: "newsletter",
           to: email.trim(),
           data: { firstName: "" },
         }),

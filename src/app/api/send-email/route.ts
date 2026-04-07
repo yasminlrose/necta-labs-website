@@ -54,6 +54,12 @@ export async function POST(req: NextRequest) {
       variables = {
         first_name: String(data.firstName ?? 'there'),
       };
+    } else if (type === 'newsletter') {
+      console.log('[send-email] sending newsletter-welcome template');
+      templateId = RESEND_TEMPLATES.NEWSLETTER_WELCOME;
+      variables = {
+        first_name: String(data.firstName ?? 'there'),
+      };
     } else {
       console.error('[send-email] unknown email type:', type);
       return NextResponse.json({ error: `Unknown email type: ${type}` }, { status: 400 });

@@ -9,6 +9,7 @@ export const RESEND_TEMPLATES = {
   ORDER_CONFIRMATION:   '5aa58376-5fde-4e81-9fd6-0bd81a1daace',
   SUBSCRIPTION_WELCOME: 'affee8ae-d524-49e4-87d7-bdaffe6644a4',
   LAUNCH_ANNOUNCEMENT:  '5009f78f-d767-4487-9f80-6b6e1b906174',
+  NEWSLETTER_WELCOME:   '2c0f8509-5081-4e62-9038-5b9cec3e65c6',
 } as const;
 
 const FROM = 'NECTA Labs <hello@nectalabs.com>';
