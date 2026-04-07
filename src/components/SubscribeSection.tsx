@@ -6,6 +6,7 @@ const SubscribeSection = () => {
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const [done, setDone] = useState(false);
+  const [alreadyExists, setAlreadyExists] = useState(false);
   const [error, setError] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -13,6 +14,21 @@ const SubscribeSection = () => {
     if (!email.trim()) return;
     setLoading(true);
     setError("");
+    setAlreadyExists(false);
+
+    // Check if email already exists
+    const { data: existing } = await supabase
+      .from("email_signups")
+      .select("id")
+      .eq("email", email.trim())
+      .limit(1);
+
+    if (existing && existing.length > 0) {
+      setLoading(false);
+      setAlreadyExists(true);
+      setDone(true);
+      return;
+    }
 
     const { error } = await supabase
       .from("email_signups")
@@ -52,7 +68,7 @@ const SubscribeSection = () => {
             <div className="w-8 h-8 rounded-full bg-white/15 flex items-center justify-center">
               <Check className="h-4 w-4" />
             </div>
-            <p className="font-semibold">You're in — welcome to the community.</p>
+            <p className="font-semibold">{alreadyExists ? "You're already on the list!" : "You're in — welcome to the community."}</p>
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">

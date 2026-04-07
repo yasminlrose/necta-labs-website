@@ -10,6 +10,7 @@ function EmailSignup() {
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const [done, setDone] = useState(false);
+  const [alreadyExists, setAlreadyExists] = useState(false);
   const [error, setError] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -17,6 +18,22 @@ function EmailSignup() {
     if (!email.trim()) return;
     setLoading(true);
     setError("");
+    setAlreadyExists(false);
+
+    // Check if email already exists
+    const { data: existing } = await supabase
+      .from("email_signups")
+      .select("id")
+      .eq("email", email.trim())
+      .limit(1);
+
+    if (existing && existing.length > 0) {
+      setLoading(false);
+      setAlreadyExists(true);
+      setDone(true);
+      return;
+    }
+
     const { error } = await supabase
       .from("email_signups")
       .insert({ email: email.trim(), source: "footer" });
@@ -61,8 +78,8 @@ function EmailSignup() {
                 <Check className="h-4 w-4 text-primary-foreground" />
               </div>
               <div>
-                <p className="text-sm font-semibold text-primary-foreground">You're in!</p>
-                <p className="text-xs text-primary-foreground/50">Welcome to the NECTA community.</p>
+                <p className="text-sm font-semibold text-primary-foreground">{alreadyExists ? "You're already on the list!" : "You're in!"}</p>
+                <p className="text-xs text-primary-foreground/50">{alreadyExists ? "We'll keep you posted." : "Welcome to the NECTA community."}</p>
               </div>
             </div>
           ) : (

@@ -34,12 +34,29 @@ const EmailPopup = () => {
     sessionStorage.setItem("necta-popup-dismissed", "true");
   };
 
+  const [alreadyExists, setAlreadyExists] = useState(false);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email.trim()) return;
     setIsSubmitting(true);
+    setAlreadyExists(false);
 
     try {
+      // Check if email already exists
+      const { data: existing } = await supabase
+        .from("email_signups")
+        .select("id")
+        .eq("email", email.trim())
+        .limit(1);
+
+      if (existing && existing.length > 0) {
+        setAlreadyExists(true);
+        setSubmitted(true);
+        setTimeout(handleClose, 2000);
+        return;
+      }
+
       const { error } = await supabase
         .from("email_signups")
         .insert({ email: email.trim(), source: "popup" });
@@ -80,8 +97,8 @@ const EmailPopup = () => {
         {submitted ? (
           <div className="text-center py-4">
             <div className="text-4xl mb-4">✓</div>
-            <h3 className="text-xl font-medium text-foreground mb-2">You're on the list</h3>
-            <p className="text-foreground/50 text-sm">We'll be in touch soon.</p>
+            <h3 className="text-xl font-medium text-foreground mb-2">{alreadyExists ? "You're already on the list!" : "You're on the list"}</h3>
+            <p className="text-foreground/50 text-sm">{alreadyExists ? "We'll keep you posted." : "We'll be in touch soon."}</p>
           </div>
         ) : (
           <>
