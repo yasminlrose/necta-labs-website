@@ -1,12 +1,9 @@
 /**
- * Resend template IDs and a helper that sends via the Resend SDK.
+ * Resend template IDs and a raw REST API helper.
  *
- * The Resend TypeScript SDK doesn't expose `template_id` / `variables` in its
- * types, so we cast to `any` to pass them through. The SDK still serialises
- * them correctly and the API accepts them.
+ * The Resend Node.js SDK does not support template_id in emails.send().
+ * We call the REST API directly instead.
  */
-
-import { resend } from '@/lib/resend';
 
 export const RESEND_TEMPLATES = {
   ORDER_CONFIRMATION:   '5aa58376-5fde-4e81-9fd6-0bd81a1daace',
@@ -17,35 +14,43 @@ export const RESEND_TEMPLATES = {
 const FROM = 'NECTA Labs <hello@nectalabs.com>';
 
 /**
- * Send an email using a Resend template.
+ * Send an email using a Resend template via the REST API.
  *
  * @param templateId  One of the RESEND_TEMPLATES values
  * @param to          Recipient email address
- * @param subject     Email subject line
  * @param variables   Key/value pairs passed to the template
  * @returns           The Resend email ID on success
  */
 export async function sendTemplate(
   templateId: string,
   to: string,
-  subject: string,
   variables: Record<string, string>,
 ): Promise<string> {
-  console.log('[resendTemplates] sendTemplate called — template:', templateId, '| to:', to, '| subject:', subject, '| variables:', variables);
+  const apiKey = process.env.RESEND_API_KEY;
+  if (!apiKey) throw new Error('RESEND_API_KEY is not configured');
 
-  const result = await (resend.emails.send as (o: unknown) => Promise<{ data?: { id?: string }; error?: unknown }>)({
-    from: FROM,
-    to,
-    subject,
-    template_id: templateId,
-    variables,
+  console.log('[resendTemplates] sendTemplate — template:', templateId, '| to:', to, '| variables:', variables);
+
+  const response = await fetch('https://api.resend.com/emails', {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${apiKey}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      from: FROM,
+      to: [to],
+      template_id: templateId,
+      variables,
+    }),
   });
 
-  console.log('[resendTemplates] API result:', result);
+  const data = (await response.json()) as { id?: string; message?: string; name?: string };
+  console.log('[resendTemplates] API response status:', response.status, '| body:', data);
 
-  if (result.error) {
-    throw new Error(`Resend error: ${JSON.stringify(result.error)}`);
+  if (!response.ok) {
+    throw new Error(`Resend API error ${response.status}: ${JSON.stringify(data)}`);
   }
 
-  return result.data?.id ?? 'unknown';
+  return data.id ?? 'unknown';
 }

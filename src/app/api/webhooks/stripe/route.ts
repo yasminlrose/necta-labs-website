@@ -59,16 +59,16 @@ export async function POST(req: NextRequest) {
   if (event.type === 'checkout.session.completed') {
     const session = event.data.object;
     console.log('[webhook] checkout.session.completed — session id:', session.id, '| mode:', session.mode, '| payment_status:', session.payment_status);
-    console.log('[webhook] customer_details:', JSON.stringify(session.customer_details));
-    console.log('[webhook] metadata:', JSON.stringify(session.metadata));
+    console.log('[webhook] customer_details raw:', JSON.stringify(session.customer_details));
+    console.log('[webhook] metadata raw:', JSON.stringify(session.metadata));
 
-    const email = session.customer_details?.email;
-    const rawName = session.customer_details?.name;
-    console.log('[webhook] rawName from customer_details.name:', rawName);
+    // Always read email from customer_details.email (populated for both payment and subscription modes)
+    const email = session.customer_details?.email ?? null;
+    console.log('[webhook] customer email:', email ?? '(none)');
 
-    // Split on whitespace and take the first non-empty token; fall back to 'there'
-    const firstName = rawName?.trim().split(/\s+/)[0] || 'there';
-    console.log('[webhook] firstName resolved to:', firstName);
+    const rawName = session.customer_details?.name ?? '';
+    const firstName = rawName.trim().split(/\s+/)[0] || 'there';
+    console.log('[webhook] rawName:', rawName, '| firstName resolved to:', firstName);
 
     const amountPence = session.amount_total ?? 0;
     const amount = `£${(amountPence / 100).toFixed(2)}`;
@@ -76,20 +76,19 @@ export async function POST(req: NextRequest) {
     const size = session.metadata?.size ?? '';
     const metaFrequency = session.metadata?.frequency ?? '';
 
-    console.log('[webhook] customer email:', email ?? '(none)', '| product:', productName, '| size:', size, '| amount:', amount);
+    console.log('[webhook] product:', productName, '| size:', size, '| amount:', amount);
 
     if (!email) {
-      console.warn('[webhook] no customer email found — skipping confirmation email');
+      console.warn('[webhook] no customer email found in customer_details.email — skipping confirmation email');
       return NextResponse.json({ received: true });
     }
 
     if (session.mode === 'payment') {
-      console.log('[webhook] mode=payment → sending order-confirmation email to:', email);
+      console.log('[webhook] mode=payment → sending order-confirmation to:', email);
       try {
         const resendId = await sendTemplate(
           RESEND_TEMPLATES.ORDER_CONFIRMATION,
           email,
-          'Your NECTA order is confirmed',
           {
             first_name:    firstName,
             product_name:  productName,
@@ -97,22 +96,21 @@ export async function POST(req: NextRequest) {
             dispatch_date: 'within 5–7 working days',
           },
         );
-        console.log('[webhook] order-confirmation email sent — resend id:', resendId);
+        console.log('[webhook] order-confirmation sent — resend id:', resendId);
       } catch (err: unknown) {
         const message = err instanceof Error ? err.message : String(err);
-        console.error('[webhook] failed to send order-confirmation email:', message);
-        // Return 200 so Stripe doesn't retry — email failure shouldn't block the webhook
+        console.error('[webhook] failed to send order-confirmation:', message);
+        // Return 200 so Stripe doesn't retry
       }
 
     } else if (session.mode === 'subscription') {
       const frequency = deriveFrequency(size, metaFrequency);
       const chargeDate = nextChargeDate(frequency);
-      console.log('[webhook] mode=subscription → sending subscription-welcome email to:', email, '| frequency:', frequency, '| next charge:', chargeDate);
+      console.log('[webhook] mode=subscription → sending subscription-welcome to:', email, '| frequency:', frequency, '| next charge:', chargeDate);
       try {
         const resendId = await sendTemplate(
           RESEND_TEMPLATES.SUBSCRIPTION_WELCOME,
           email,
-          'Welcome to your NECTA subscription',
           {
             first_name:        firstName,
             product_name:      productName,
@@ -121,10 +119,10 @@ export async function POST(req: NextRequest) {
             frequency,
           },
         );
-        console.log('[webhook] subscription-welcome email sent — resend id:', resendId);
+        console.log('[webhook] subscription-welcome sent — resend id:', resendId);
       } catch (err: unknown) {
         const message = err instanceof Error ? err.message : String(err);
-        console.error('[webhook] failed to send subscription-welcome email:', message);
+        console.error('[webhook] failed to send subscription-welcome:', message);
       }
 
     } else {

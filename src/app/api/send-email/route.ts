@@ -21,13 +21,11 @@ export async function POST(req: NextRequest) {
 
   try {
     let templateId: string;
-    let subject: string;
     let variables: Record<string, string>;
 
     if (type === 'preorder') {
       console.log('[send-email] sending order-confirmation template');
       templateId = RESEND_TEMPLATES.ORDER_CONFIRMATION;
-      subject = 'Your NECTA order is confirmed';
       variables = {
         first_name:    String(data.firstName ?? 'there'),
         product_name:  String(data.productName ?? 'NECTA Infusion'),
@@ -37,7 +35,6 @@ export async function POST(req: NextRequest) {
     } else if (type === 'subscription') {
       console.log('[send-email] sending subscription-welcome template');
       templateId = RESEND_TEMPLATES.SUBSCRIPTION_WELCOME;
-      subject = 'Welcome to your NECTA subscription';
       variables = {
         first_name:        String(data.firstName ?? 'there'),
         product_name:      String(data.productName ?? 'NECTA Infusion'),
@@ -48,7 +45,6 @@ export async function POST(req: NextRequest) {
     } else if (type === 'launch') {
       console.log('[send-email] sending launch-announcement template');
       templateId = RESEND_TEMPLATES.LAUNCH_ANNOUNCEMENT;
-      subject = "NECTA Labs is live — you're first to know";
       variables = {
         first_name: String(data.firstName ?? 'there'),
       };
@@ -57,7 +53,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: `Unknown email type: ${type}` }, { status: 400 });
     }
 
-    const id = await sendTemplate(templateId, to, subject, variables);
+    const id = await sendTemplate(templateId, to, variables);
     console.log('[send-email] email sent — resend id:', id);
     return NextResponse.json({ ok: true, id });
   } catch (err) {
