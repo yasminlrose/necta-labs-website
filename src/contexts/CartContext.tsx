@@ -36,19 +36,21 @@ export const useCart = () => {
 };
 
 export const CartProvider = ({ children }: { children: ReactNode }) => {
-  const [items, setItems] = useState<CartItem[]>(() => {
-    try {
-      const stored = localStorage.getItem("necta-cart");
-      return stored ? JSON.parse(stored) : [];
-    } catch {
-      return [];
-    }
-  });
+  const [items, setItems] = useState<CartItem[]>([]);
   const [isOpen, setIsOpen] = useState(false);
+  const [hydrated, setHydrated] = useState(false);
 
   useEffect(() => {
-    localStorage.setItem("necta-cart", JSON.stringify(items));
-  }, [items]);
+    try {
+      const stored = localStorage.getItem("necta-cart");
+      if (stored) setItems(JSON.parse(stored));
+    } catch {}
+    setHydrated(true);
+  }, []);
+
+  useEffect(() => {
+    if (hydrated) localStorage.setItem("necta-cart", JSON.stringify(items));
+  }, [items, hydrated]);
 
   const addItem = (item: Omit<CartItem, "quantity">) => {
     setItems((prev) => {

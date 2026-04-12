@@ -18,6 +18,10 @@ export async function POST(req: NextRequest) {
       frequency: frequency ?? '',
     };
 
+    // Pre-order dispatch date — subscriptions don't charge until stock ships
+    const dispatchDate = new Date('2026-10-01T00:00:00Z');
+    const trialEnd = Math.floor(dispatchDate.getTime() / 1000);
+
     const session = await stripe.checkout.sessions.create({
       mode,
       line_items: [{ price: priceId, quantity: 1 }],
@@ -25,8 +29,16 @@ export async function POST(req: NextRequest) {
       success_url: `${origin}/order-success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${origin}/shop`,
       metadata: meta,
+      custom_text: {
+        submit: {
+          message: 'Pre-order: no payment is taken today. Your card will be charged when your order ships in October 2026. Cancel any time before dispatch for a full refund.',
+        },
+      },
       ...(mode === 'subscription' && {
-        subscription_data: { metadata: meta, trial_period_days: 180 },
+        subscription_data: {
+          metadata: meta,
+          trial_end: trialEnd,
+        },
       }),
     });
 

@@ -14,6 +14,7 @@ import { getPriceId, getStripeMode } from "@/lib/stripePrices";
 import type { ProductSlug as StripePriceSlug } from "@/lib/stripePrices";
 import { useScrollAnimation } from "@/hooks/use-scroll-animation";
 import ReviewSection from "@/components/ReviewSection";
+import { useCart } from "@/contexts/CartContext";
 
 const SachetProductPage = ({ slug: slugProp }: { slug?: string } = {}) => {
   const params = useParams();
@@ -54,6 +55,9 @@ function SachetHero({ product }: { product: NonNullable<ReturnType<typeof getPro
   const [liveRating, setLiveRating] = useState(product.rating);
   const [liveCount, setLiveCount] = useState(product.reviewCount);
   const [checkoutLoading, setCheckoutLoading] = useState(false);
+  const [purchaseType, setPurchaseType] = useState<"one-off" | "subscribe">("one-off");
+
+  const { addItem } = useCart();
 
   useEffect(() => {
     supabase.from("product_reviews").select("rating").eq("product", product.slug).then(({ data }) => {
@@ -174,7 +178,7 @@ function SachetHero({ product }: { product: NonNullable<ReturnType<typeof getPro
                 return (
                   <button
                     key={opt.value}
-                    onClick={() => setDuration(opt.value)}
+                    onClick={() => { setDuration(opt.value); if (opt.value === 7) setPurchaseType("one-off"); }}
                     className={`w-full text-left p-5 rounded-xl border-2 transition-all relative ${
                       duration === opt.value
                         ? "border-secondary bg-secondary/[0.04] shadow-md"
@@ -207,36 +211,85 @@ function SachetHero({ product }: { product: NonNullable<ReturnType<typeof getPro
               })}
             </div>
 
-            {/* Price display */}
-            <div className="mb-6">
-              <div className="flex items-baseline gap-3">
-                <span className="text-4xl font-heading font-extrabold text-foreground">£{oneOffPrice}</span>
-              </div>
-              <p className="text-xs text-muted-foreground mt-1">One-time purchase</p>
-            </div>
-
-            {/* Primary CTA — one-off */}
-            <Button
-              size="lg"
-              disabled={checkoutLoading}
-              onClick={() => handleCheckout('one-off')}
-              className="w-full rounded-lg py-7 text-base font-heading font-bold tracking-wider uppercase shadow-bold mb-3 disabled:opacity-60 bg-foreground text-background hover:bg-foreground/90"
-            >
-              {checkoutLoading ? "Redirecting…" : "PRE-ORDER NOW"}
-            </Button>
-
-            {/* Secondary CTA — subscribe (hidden for 7-day trial) */}
+            {/* Purchase type selector (hidden for 7-day — no subscribe option) */}
             {canSubscribe && (
-              <Button
-                size="lg"
-                variant="outline"
-                disabled={checkoutLoading}
-                onClick={() => handleCheckout('subscribe')}
-                className="w-full rounded-lg py-6 text-sm font-heading font-bold tracking-wider uppercase mb-3 disabled:opacity-60 border-2 border-secondary text-secondary hover:bg-secondary/10"
-              >
-                PRE-ORDER &amp; SUBSCRIBE — £{subPrice}
-                <span className="ml-2 text-xs font-normal opacity-70">{SACHET_SAVINGS[duration as 14 | 30 | 90].badge}</span>
-              </Button>
+              <div className="space-y-2.5 mb-5">
+                <button
+                  onClick={() => setPurchaseType("one-off")}
+                  className={`w-full flex items-center justify-between px-4 py-3.5 rounded-xl border-2 text-left transition-all ${
+                    purchaseType === "one-off" ? "border-foreground bg-foreground/[0.03]" : "border-border hover:border-foreground/30"
+                  }`}
+                >
+                  <div className="flex items-center gap-3">
+                    <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center shrink-0 ${purchaseType === "one-off" ? "border-foreground" : "border-foreground/25"}`}>
+                      {purchaseType === "one-off" && <div className="w-2 h-2 rounded-full bg-foreground" />}
+                    </div>
+                    <span className="text-sm font-semibold text-foreground">One-off</span>
+                  </div>
+                  <span className="text-sm font-bold text-foreground">£{oneOffPrice}</span>
+                </button>
+
+                <button
+                  onClick={() => setPurchaseType("subscribe")}
+                  className={`w-full flex items-center justify-between px-4 py-3.5 rounded-xl border-2 text-left transition-all ${
+                    purchaseType === "subscribe" ? "border-foreground bg-foreground/[0.03]" : "border-border hover:border-foreground/30"
+                  }`}
+                >
+                  <div className="flex items-center gap-3">
+                    <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center shrink-0 ${purchaseType === "subscribe" ? "border-foreground" : "border-foreground/25"}`}>
+                      {purchaseType === "subscribe" && <div className="w-2 h-2 rounded-full bg-foreground" />}
+                    </div>
+                    <span className="text-sm font-semibold text-foreground">Subscribe & save</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm font-bold text-foreground">£{subPrice}</span>
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-secondary text-secondary-foreground">{SACHET_SAVINGS[duration as 14 | 30 | 90].badge}</span>
+                  </div>
+                </button>
+              </div>
+            )}
+
+            {/* Action buttons */}
+            {(!canSubscribe || purchaseType === "one-off") ? (
+              <div className="flex gap-3 mb-3">
+                <Button
+                  size="lg"
+                  disabled={checkoutLoading}
+                  onClick={() => addItem({
+                    id: `${product.slug}-sachet-${duration}-one-off`,
+                    slug: product.slug,
+                    name: `NECTA ${product.name} Sachets`,
+                    image: product.sachetImage,
+                    price: oneOffPrice,
+                    size: `${duration}-day box`,
+                    mode: "one-off",
+                  })}
+                  variant="outline"
+                  className="flex-1 rounded-lg py-7 text-base font-heading font-bold tracking-wider uppercase disabled:opacity-60 border-2 border-foreground text-foreground hover:bg-foreground/[0.03]"
+                >
+                  Add to basket
+                </Button>
+                <Button
+                  size="lg"
+                  disabled={checkoutLoading}
+                  onClick={() => handleCheckout('one-off')}
+                  className="flex-1 rounded-lg py-7 text-base font-heading font-bold tracking-wider uppercase shadow-bold disabled:opacity-60 bg-foreground text-background hover:bg-foreground/90"
+                >
+                  {checkoutLoading ? "Redirecting…" : "Pre-order now"}
+                </Button>
+              </div>
+            ) : (
+              <div className="mb-3">
+                <Button
+                  size="lg"
+                  disabled={checkoutLoading}
+                  onClick={() => handleCheckout('subscribe')}
+                  className="w-full rounded-lg py-7 text-base font-heading font-bold tracking-wider uppercase shadow-bold disabled:opacity-60 bg-foreground text-background hover:bg-foreground/90"
+                >
+                  {checkoutLoading ? "Redirecting…" : `Pre-order & Subscribe — £${subPrice}`}
+                </Button>
+                <p className="text-xs text-center text-muted-foreground mt-2">Subscriptions check out directly</p>
+              </div>
             )}
 
             {/* Pick & Mix link */}

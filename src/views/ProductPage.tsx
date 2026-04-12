@@ -15,6 +15,7 @@ import Footer from "@/components/Footer";
 import ReserveOrderModal from "@/components/ReserveOrderModal";
 import { products } from "@/data/products";
 import type { ProductSlug } from "@/data/products";
+import { useCart } from "@/contexts/CartContext";
 
 /* ─── Per-product config ─────────────────────────────────────── */
 const seoTitles: Record<string, string> = {
@@ -94,6 +95,9 @@ const ProductPage = ({ slug: slugProp }: { slug?: string } = {}) => {
   const [activeImage, setActiveImage] = useState(0);
   const [modalOpen, setModalOpen] = useState(false);
   const [checkoutLoading, setCheckoutLoading] = useState(false);
+  const [purchaseType, setPurchaseType] = useState<"one-off" | "subscribe">("one-off");
+
+  const { addItem } = useCart();
 
   const handleCheckout = useCallback(async (priceId: string, stripeMode: 'payment' | 'subscription', productName: string, sizeLabel: string, billingFrequency?: string) => {
     setCheckoutLoading(true);
@@ -118,7 +122,8 @@ const ProductPage = ({ slug: slugProp }: { slug?: string } = {}) => {
   }, [slug]);
 
   useEffect(() => { setActiveImage(0); }, [slug]);
-  useEffect(() => { setActiveImage(format === "sachet" ? 1 : 0); }, [format]);
+  useEffect(() => { setActiveImage(format === "sachet" ? 1 : 0); setPurchaseType("one-off"); }, [format]);
+  useEffect(() => { if (sachetDays === 7) setPurchaseType("one-off"); }, [sachetDays]);
 
   if (!product || !colors) {
     if (typeof window !== 'undefined') window.location.replace('/shop');
@@ -244,29 +249,46 @@ const ProductPage = ({ slug: slugProp }: { slug?: string } = {}) => {
                     })}
                   </div>
 
-                  {/* Price display */}
-                  <div className="flex items-baseline gap-3 mb-5">
-                    <span className="text-2xl font-bold text-primary">£{oneOffPrice}</span>
+                  {/* Purchase type selector */}
+                  <p className="text-[11px] font-semibold text-primary/40 uppercase tracking-widest mb-2">Purchase type</p>
+                  <div className="space-y-2.5 mb-4">
+                    <button
+                      onClick={() => setPurchaseType("one-off")}
+                      className={`w-full flex items-center justify-between px-4 py-3.5 rounded-xl border-2 text-left transition-all ${
+                        purchaseType === "one-off" ? "border-primary bg-primary/[0.03]" : "border-border hover:border-primary/30"
+                      }`}
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center shrink-0 ${purchaseType === "one-off" ? "border-primary" : "border-foreground/25"}`}>
+                          {purchaseType === "one-off" && <div className="w-2 h-2 rounded-full bg-primary" />}
+                        </div>
+                        <span className="text-sm font-semibold text-primary">One-off</span>
+                      </div>
+                      <span className="text-sm font-bold text-primary">£{oneOffPrice}</span>
+                    </button>
+
+                    <button
+                      onClick={() => setPurchaseType("subscribe")}
+                      className={`w-full flex items-center justify-between px-4 py-3.5 rounded-xl border-2 text-left transition-all ${
+                        purchaseType === "subscribe" ? "border-primary bg-primary/[0.03]" : "border-border hover:border-primary/30"
+                      }`}
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center shrink-0 ${purchaseType === "subscribe" ? "border-primary" : "border-foreground/25"}`}>
+                          {purchaseType === "subscribe" && <div className="w-2 h-2 rounded-full bg-primary" />}
+                        </div>
+                        <span className="text-sm font-semibold text-primary">Subscribe & save</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm font-bold text-primary">£{subPrice}/mo</span>
+                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full text-white" style={{ backgroundColor: colors.accent }}>SAVE {savePct}%</span>
+                      </div>
+                    </button>
                   </div>
 
-                  {/* Primary CTA — one-off */}
-                  <button
-                    disabled={checkoutLoading}
-                    onClick={() => {
-                      const priceId = getPriceId(slug as StripePriceSlug, 'bottle', size as '250ml' | '500ml', 'one-off');
-                      const stripeMode = getStripeMode('bottle', size as '250ml' | '500ml', 'one-off');
-                      handleCheckout(priceId, stripeMode, `NECTA ${product.name}`, `${size} bottle`);
-                    }}
-                    className="w-full py-4 rounded-xl font-semibold text-base text-white transition-all mb-3 disabled:opacity-60"
-                    style={{ backgroundColor: colors.accent }}
-                  >
-                    {checkoutLoading ? "Redirecting…" : `Pre-order now — £${oneOffPrice}`}
-                  </button>
-
-                  {/* Secondary CTA — subscribe */}
-                  <div className="relative mb-2">
-                    {/* Delivery frequency */}
-                    <div className="relative mb-3">
+                  {/* Frequency picker — subscribe only */}
+                  {purchaseType === "subscribe" && (
+                    <div className="relative mb-4">
                       <button
                         onClick={() => setFreqOpen(!freqOpen)}
                         className="w-full flex items-center justify-between border border-border rounded-lg px-4 py-2.5 text-sm text-primary bg-white hover:border-primary/30 transition-colors"
@@ -289,22 +311,58 @@ const ProductPage = ({ slug: slugProp }: { slug?: string } = {}) => {
                         </div>
                       )}
                     </div>
-                    <button
-                      disabled={checkoutLoading}
-                      onClick={() => {
-                        const subMode = frequency === '2monthly' ? 'subscribe-2m' : 'subscribe';
-                        const priceId = getPriceId(slug as StripePriceSlug, 'bottle', size as '250ml' | '500ml', subMode);
-                        const stripeMode = getStripeMode('bottle', size as '250ml' | '500ml', subMode);
-                        const freqLabel = frequency === '2monthly' ? 'every 2 months' : 'monthly';
-                        handleCheckout(priceId, stripeMode, `NECTA ${product.name}`, `${size} bottle`, freqLabel);
-                      }}
-                      className="w-full py-3.5 rounded-xl font-semibold text-sm border-2 transition-all disabled:opacity-60"
-                      style={{ borderColor: colors.accent, color: colors.accent }}
-                    >
-                      {`Pre-order & Subscribe — £${subPrice}/mo`}
-                      <span className="ml-2 text-xs opacity-70">Save {savePct}%</span>
-                    </button>
-                  </div>
+                  )}
+
+                  {/* Action buttons */}
+                  {purchaseType === "one-off" ? (
+                    <div className="flex gap-3 mb-3">
+                      <button
+                        disabled={checkoutLoading}
+                        onClick={() => addItem({
+                          id: `${slug}-${size}-one-off`,
+                          slug: slug!,
+                          name: `NECTA ${product.name}`,
+                          image: product.bottleImage,
+                          price: oneOffPrice,
+                          size: `${size} bottle`,
+                          mode: "one-off",
+                        })}
+                        className="flex-1 py-4 rounded-xl font-semibold text-base border-2 border-primary text-primary transition-all hover:bg-primary/[0.03] disabled:opacity-60"
+                      >
+                        Add to basket
+                      </button>
+                      <button
+                        disabled={checkoutLoading}
+                        onClick={() => {
+                          const priceId = getPriceId(slug as StripePriceSlug, 'bottle', size as '250ml' | '500ml', 'one-off');
+                          const stripeMode = getStripeMode('bottle', size as '250ml' | '500ml', 'one-off');
+                          handleCheckout(priceId, stripeMode, `NECTA ${product.name}`, `${size} bottle`);
+                        }}
+                        className="flex-1 py-4 rounded-xl font-semibold text-base text-white transition-all disabled:opacity-60"
+                        style={{ backgroundColor: colors.accent }}
+                      >
+                        {checkoutLoading ? "Redirecting…" : `Pre-order now — £${oneOffPrice}`}
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="mb-3">
+                      <button
+                        disabled={checkoutLoading}
+                        onClick={() => {
+                          const subMode = frequency === '2monthly' ? 'subscribe-2m' : 'subscribe';
+                          const priceId = getPriceId(slug as StripePriceSlug, 'bottle', size as '250ml' | '500ml', subMode);
+                          const stripeMode = getStripeMode('bottle', size as '250ml' | '500ml', subMode);
+                          const freqLabel = frequency === '2monthly' ? 'every 2 months' : 'monthly';
+                          handleCheckout(priceId, stripeMode, `NECTA ${product.name}`, `${size} bottle`, freqLabel);
+                        }}
+                        className="w-full py-4 rounded-xl font-semibold text-base text-white transition-all disabled:opacity-60"
+                        style={{ backgroundColor: colors.accent }}
+                      >
+                        {checkoutLoading ? "Redirecting…" : `Pre-order & Subscribe — £${subPrice}/mo`}
+                      </button>
+                      <p className="text-xs text-center text-primary/40 mt-2">Subscriptions check out directly</p>
+                    </div>
+                  )}
 
                   {/* Pick & Mix link */}
                   <Link
@@ -333,9 +391,14 @@ const ProductPage = ({ slug: slugProp }: { slug?: string } = {}) => {
                       Single-serve sachets — one per drink, wherever you go.
                     </p>
 
-                    <div className="space-y-2.5 mb-4">
+                    <p className="text-[11px] font-semibold text-primary/40 uppercase tracking-widest mb-2">Supply</p>
+                    <div className="space-y-2.5 mb-5">
                       {SACHET_OPTIONS.map((opt) => {
                         const optOneOff = product.sachets[opt.days];
+                        const optSavings = opt.days !== 7 ? SACHET_SUB_SAVINGS[opt.days] : undefined;
+                        const renewalLabel = optSavings
+                          ? opt.days === 90 ? "renews every 3 months" : "renews monthly"
+                          : null;
                         return (
                           <button
                             key={opt.days}
@@ -350,12 +413,19 @@ const ProductPage = ({ slug: slugProp }: { slug?: string } = {}) => {
                               <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center shrink-0 ${sachetDays === opt.days ? "border-primary" : "border-foreground/25"}`}>
                                 {sachetDays === opt.days && <div className="w-2 h-2 rounded-full bg-primary" />}
                               </div>
-                              <span className="text-sm font-semibold text-primary">{opt.label}</span>
-                              {opt.badge && (
-                                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full text-white" style={{ backgroundColor: colors.accent }}>
-                                  {opt.badge}
-                                </span>
-                              )}
+                              <div>
+                                <div className="flex items-center gap-2">
+                                  <span className="text-sm font-semibold text-primary">{opt.label}</span>
+                                  {opt.badge && (
+                                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full text-white" style={{ backgroundColor: colors.accent }}>
+                                      {opt.badge}
+                                    </span>
+                                  )}
+                                </div>
+                                {purchaseType === "subscribe" && renewalLabel && (
+                                  <span className="text-[11px] font-semibold" style={{ color: colors.accent }}>{renewalLabel}</span>
+                                )}
+                              </div>
                             </div>
                             <span className="text-sm font-bold text-primary">£{optOneOff}</span>
                           </button>
@@ -363,42 +433,89 @@ const ProductPage = ({ slug: slugProp }: { slug?: string } = {}) => {
                       })}
                     </div>
 
-                    {/* Price display */}
-                    <div className="flex items-baseline gap-3 mb-5">
-                      <span className="text-2xl font-bold text-primary">£{sachetOneOff}</span>
-                    </div>
-
-                    {/* Primary CTA — one-off */}
-                    <button
-                      disabled={checkoutLoading}
-                      onClick={() => {
-                        const opt = SACHET_OPTIONS.find(o => o.days === sachetDays)!;
-                        const priceId = getPriceId(slug as StripePriceSlug, 'sachet', sachetDays, 'one-off');
-                        const stripeMode = getStripeMode('sachet', sachetDays, 'one-off');
-                        handleCheckout(priceId, stripeMode, `NECTA ${product.name} Sachets`, opt.label);
-                      }}
-                      className="w-full py-4 rounded-xl font-semibold text-base text-white transition-all mb-3 disabled:opacity-60"
-                      style={{ backgroundColor: colors.accent }}
-                    >
-                      {checkoutLoading ? "Redirecting…" : `Pre-order now — £${sachetOneOff}`}
-                    </button>
-
-                    {/* Secondary CTA — subscribe (hidden for 7-day) */}
+                    {/* Purchase type toggle (hidden for 7-day — no subscribe option) */}
                     {sachetDays !== 7 && savings && (
-                      <button
-                        disabled={checkoutLoading}
-                        onClick={() => {
-                          const opt = SACHET_OPTIONS.find(o => o.days === sachetDays)!;
-                          const priceId = getPriceId(slug as StripePriceSlug, 'sachet', sachetDays, 'subscribe');
-                          const stripeMode = getStripeMode('sachet', sachetDays, 'subscribe');
-                          handleCheckout(priceId, stripeMode, `NECTA ${product.name} Sachets`, opt.label, savings.freq);
-                        }}
-                        className="w-full py-3.5 rounded-xl font-semibold text-sm border-2 transition-all mb-2 disabled:opacity-60"
-                        style={{ borderColor: colors.accent, color: colors.accent }}
-                      >
-                        {`Pre-order & Subscribe — £${sachetSub}`}
-                        <span className="ml-2 text-xs opacity-70">{savings.badge}</span>
-                      </button>
+                      <div className="mb-4">
+                        <p className="text-[11px] font-semibold text-primary/40 uppercase tracking-widest mb-2">Purchase type</p>
+                        <div className="flex rounded-lg bg-muted p-1">
+                          <button
+                            onClick={() => setPurchaseType("one-off")}
+                            className={`flex-1 text-sm py-2.5 rounded-md transition-all font-medium ${
+                              purchaseType === "one-off" ? "bg-white text-primary shadow-sm" : "text-primary/50 hover:text-primary"
+                            }`}
+                          >
+                            One-off — £{sachetOneOff}
+                          </button>
+                          <button
+                            onClick={() => setPurchaseType("subscribe")}
+                            className={`flex-1 text-sm py-2.5 rounded-md transition-all font-medium flex items-center justify-center gap-1.5 ${
+                              purchaseType === "subscribe" ? "bg-white text-primary shadow-sm" : "text-primary/50 hover:text-primary"
+                            }`}
+                          >
+                            Subscribe — £{sachetSub}/{sachetDays === 90 ? "3 mo" : "mo"}
+                            <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full text-white" style={{ backgroundColor: colors.accent }}>{savings.badge}</span>
+                          </button>
+                        </div>
+                        {purchaseType === "subscribe" && (
+                          <p className="text-xs text-primary/50 mt-2 text-center">
+                            Billed {savings.freq} · Cancel any time before dispatch
+                          </p>
+                        )}
+                      </div>
+                    )}
+
+                    {/* Action buttons */}
+                    {(sachetDays === 7 || purchaseType === "one-off") ? (
+                      <div className="flex gap-3 mb-3">
+                        <button
+                          disabled={checkoutLoading}
+                          onClick={() => {
+                            const opt = SACHET_OPTIONS.find(o => o.days === sachetDays)!;
+                            addItem({
+                              id: `${slug}-sachet-${sachetDays}-one-off`,
+                              slug: slug!,
+                              name: `NECTA ${product.name} Sachets`,
+                              image: product.sachetImage,
+                              price: sachetOneOff,
+                              size: opt.label,
+                              mode: "one-off",
+                            });
+                          }}
+                          className="flex-1 py-4 rounded-xl font-semibold text-base border-2 border-primary text-primary transition-all hover:bg-primary/[0.03] disabled:opacity-60"
+                        >
+                          Add to basket
+                        </button>
+                        <button
+                          disabled={checkoutLoading}
+                          onClick={() => {
+                            const opt = SACHET_OPTIONS.find(o => o.days === sachetDays)!;
+                            const priceId = getPriceId(slug as StripePriceSlug, 'sachet', sachetDays, 'one-off');
+                            const stripeMode = getStripeMode('sachet', sachetDays, 'one-off');
+                            handleCheckout(priceId, stripeMode, `NECTA ${product.name} Sachets`, opt.label);
+                          }}
+                          className="flex-1 py-4 rounded-xl font-semibold text-base text-white transition-all disabled:opacity-60"
+                          style={{ backgroundColor: colors.accent }}
+                        >
+                          {checkoutLoading ? "Redirecting…" : `Pre-order now — £${sachetOneOff}`}
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="mb-3">
+                        <button
+                          disabled={checkoutLoading}
+                          onClick={() => {
+                            const opt = SACHET_OPTIONS.find(o => o.days === sachetDays)!;
+                            const priceId = getPriceId(slug as StripePriceSlug, 'sachet', sachetDays, 'subscribe');
+                            const stripeMode = getStripeMode('sachet', sachetDays, 'subscribe');
+                            handleCheckout(priceId, stripeMode, `NECTA ${product.name} Sachets`, opt.label, savings!.freq);
+                          }}
+                          className="w-full py-4 rounded-xl font-semibold text-base text-white transition-all disabled:opacity-60"
+                          style={{ backgroundColor: colors.accent }}
+                        >
+                          {checkoutLoading ? "Redirecting…" : `Pre-order & Subscribe — £${sachetSub}`}
+                        </button>
+                        <p className="text-xs text-center text-primary/40 mt-2">Subscriptions check out directly</p>
+                      </div>
                     )}
 
                     {/* Pick & Mix link */}
