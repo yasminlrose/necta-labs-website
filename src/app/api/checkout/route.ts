@@ -1,16 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { stripe } from '@/lib/stripe';
 
-/** Returns a publicly accessible product image URL for Stripe to display. */
-function getProductImageUrl(slug: string, size: string): string {
-  const isSachet = !size.includes('ml');
-  if (isSachet) {
-    // glow's sachet image is named sachet-beauty
-    const imgSlug = slug === 'glow' ? 'beauty' : slug;
-    return `https://www.nectalabs.com/sachet-${imgSlug}.png`;
-  }
-  return `https://www.nectalabs.com/bottle-${slug}.jpeg`;
-}
 
 export async function POST(req: NextRequest) {
   try {
@@ -29,31 +19,28 @@ export async function POST(req: NextRequest) {
       frequency: frequency ?? '',
     };
 
-    const imageUrl = getProductImageUrl(productSlug ?? '', size ?? '');
-
-    // Subscription pre-orders: use setup mode to save card with no charge today.
-    // Stripe's trial mechanism always shows "X days free" which is misleading.
-    // Setup mode collects the payment method cleanly — subscriptions are activated
-    // via Stripe API when stock ships in October 2026.
+    // Subscription pre-orders: use subscription mode with trial_end set to the
+    // dispatch date so Stripe shows the proper order summary panel with product
+    // image. Stripe displays "Subscription starts 1 Oct 2026" (specific date),
+    // not "X days free", so the copy is honest. No charge until dispatch.
     if (mode === 'subscription') {
-      const stripePrice = await stripe.prices.retrieve(priceId);
-      const unitAmount = stripePrice.unit_amount ?? 0;
-      const displayPrice = `£${(unitAmount / 100).toFixed(2)}`;
       const billingFreq = frequency === 'every 2 months' ? 'every 2 months' : 'monthly';
+      const trialEnd = Math.floor(new Date('2026-10-01T00:00:00Z').getTime() / 1000);
 
       const session = await stripe.checkout.sessions.create({
-        mode: 'setup',
-        currency: 'gbp',
+        mode: 'subscription',
+        line_items: [{ price: priceId, quantity: 1 }],
         customer_email: email ?? undefined,
-        metadata: { ...meta, priceId, subscriptionType: 'preorder' },
-        setup_intent_data: {
+        subscription_data: {
+          trial_end: trialEnd,
           metadata: { ...meta, priceId, subscriptionType: 'preorder' },
         },
         success_url: `${origin}/order-success?session_id={CHECKOUT_SESSION_ID}`,
         cancel_url: `${origin}/shop`,
+        metadata: meta,
         custom_text: {
           submit: {
-            message: `Order summary: ${productName} · ${size} · ${displayPrice} billed ${billingFreq}. No payment is taken today — your card will be charged on 1 October 2026 when your order ships. Cancel any time before dispatch for a full refund.`,
+            message: `Pre-order: no charge today. Your ${billingFreq} subscription starts on 1 October 2026 when your order ships. Cancel before dispatch for a full refund.`,
           },
         },
       });
