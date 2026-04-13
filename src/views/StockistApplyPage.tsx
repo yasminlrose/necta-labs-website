@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from "react";
+import Link from "next/link";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { CheckCircle2, Store, ArrowRight } from "lucide-react";
@@ -78,12 +79,12 @@ const StockistApplyPage = () => {
               You'll hear from us within 3–5 business days. In the meantime, feel free to reach out at{" "}
               <a href="mailto:hello@nectalabs.com" className="underline">hello@nectalabs.com</a>.
             </p>
-            <a
+            <Link
               href="/"
               className="inline-block bg-primary text-white font-semibold px-8 py-3 rounded-xl hover:bg-primary/90 transition-colors"
             >
               Back to NECTA Labs
-            </a>
+            </Link>
           </div>
         </main>
         <Footer />
