@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { Download, QrCode, Instagram, FileText, Copy, CheckCircle2, Mail } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
+import EmailTemplateGenerator from "@/components/stockist/EmailTemplateGenerator";
 
 interface Asset {
   id: string;
@@ -44,21 +46,13 @@ const ASSET_CATEGORIES = [
       { id: "training-bar",   title: "Barista quick-reference",  description: "Quick-reference card for how to serve NECTA", type: "pdf", size: "PDF", url: "/necta_barista_quick_reference.pdf", filename: "NECTA-barista-quick-reference.pdf" },
     ] as Asset[],
   },
-  {
-    id: "email",
-    title: "Email Templates",
-    icon: <FileText className="h-4 w-4" />,
-    color: "#D6EBEA",
-    assets: [
-      { id: "email-announce", title: "Customer announcement email", description: "Announce NECTA to your mailing list", type: "pdf", size: "HTML", url: "/necta_announcement_email.html", filename: "NECTA-announcement-email.html" },
-      { id: "email-promo",    title: "Monthly promotion template",  description: "Promote seasonal flavours & offers",   type: "coming-soon" },
-    ] as Asset[],
-  },
 ];
 
 const MarketingTab = () => {
+  const { user } = useAuth();
   const [copied, setCopied] = useState(false);
-  const qrUrl = "https://www.nectalabs.com?ref=stockist";
+  const stockistRef = user?.id ?? "stockist";
+  const qrUrl = `https://www.nectalabs.com?ref=${stockistRef}`;
 
   const handleCopyQr = () => {
     navigator.clipboard.writeText(qrUrl);
@@ -142,6 +136,20 @@ const MarketingTab = () => {
           </div>
         </div>
       ))}
+
+      {/* Email Templates */}
+      <div className="bg-white border border-border rounded-2xl overflow-hidden">
+        <div className="flex items-center gap-2 p-5 pb-0">
+          <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ backgroundColor: "#D6EBEA" }}>
+            <Mail className="h-4 w-4" />
+          </div>
+          <h3 className="font-semibold text-primary text-sm">Email Templates</h3>
+        </div>
+        <p className="text-xs text-primary/50 px-5 pt-1.5 pb-4">
+          Customise and download a branded email to announce NECTA to your customers.
+        </p>
+        <EmailTemplateGenerator stockistRef={stockistRef} />
+      </div>
 
       {/* Request assets */}
       <div className="bg-muted/50 border border-border rounded-2xl p-5 flex items-start gap-4">
