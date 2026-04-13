@@ -51,20 +51,6 @@ export async function POST(req: NextRequest) {
         },
         success_url: `${origin}/order-success?session_id={CHECKOUT_SESSION_ID}`,
         cancel_url: `${origin}/shop`,
-        line_items: [
-          {
-            price_data: {
-              currency: 'gbp',
-              product_data: {
-                name: productName ?? 'NECTA Infusion',
-                description: size ?? undefined,
-                images: [imageUrl],
-              },
-              unit_amount: unitAmount,
-            },
-            quantity: 1,
-          },
-        ],
         custom_text: {
           submit: {
             message: `${productName} (${size}) — ${displayPrice}/${billingFreq === 'every 2 months' ? '2 months' : 'month'}. No payment taken today. Your first charge will be on 1 October 2026 when your order ships. Cancel any time before dispatch for a full refund.`,
