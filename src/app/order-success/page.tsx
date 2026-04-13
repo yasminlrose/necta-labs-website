@@ -3,6 +3,7 @@
 import { Suspense, useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
+import Image from 'next/image';
 import { Lock, ShoppingBag } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useCart } from '@/contexts/CartContext';
@@ -30,7 +31,7 @@ export default function OrderSuccessPage() {
 function OrderSuccessContent() {
   const searchParams = useSearchParams();
   const sessionId = searchParams?.get('session_id');
-  const { count, openCart } = useCart();
+  const { count, items, openCart } = useCart();
 
   const [order, setOrder] = useState<OrderData | null>(null);
   const [loading, setLoading] = useState(!!sessionId);
@@ -62,7 +63,10 @@ function OrderSuccessContent() {
     const { error } = await supabase.auth.signUp({
       email: order.email,
       password,
-      options: { data: { full_name: order.firstName } },
+      options: {
+        data: { full_name: order.firstName },
+        emailRedirectTo: 'https://nectalabs.com/account',
+      },
     });
 
     setAccountLoading(false);
@@ -171,8 +175,32 @@ function OrderSuccessContent() {
                 You still have {count} item{count !== 1 ? 's' : ''} in your basket
               </p>
             </div>
+            {/* Item thumbnails */}
+            <div className="flex gap-2 mb-4">
+              {items.slice(0, 4).map((item) => (
+                <div key={item.id} className="relative w-14 h-14 rounded-lg bg-muted flex-shrink-0 overflow-hidden flex items-center justify-center">
+                  <Image
+                    src={typeof item.image === 'string' ? item.image : (item.image as unknown as { src: string }).src}
+                    alt={item.name}
+                    fill
+                    className="object-contain p-1"
+                    style={{ mixBlendMode: 'multiply' }}
+                  />
+                  {item.quantity > 1 && (
+                    <span className="absolute -top-1 -right-1 bg-primary text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center">
+                      {item.quantity}
+                    </span>
+                  )}
+                </div>
+              ))}
+              {items.length > 4 && (
+                <div className="w-14 h-14 rounded-lg bg-muted flex-shrink-0 flex items-center justify-center">
+                  <span className="text-xs font-semibold text-primary/50">+{items.length - 4}</span>
+                </div>
+              )}
+            </div>
             <p className="text-xs text-primary/50 mb-4">
-              Your basket was saved. You can checkout those items separately now.
+              Your basket was saved. Checkout these items separately now.
             </p>
             <button
               onClick={openCart}
