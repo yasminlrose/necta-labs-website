@@ -7,9 +7,9 @@ function getProductImageUrl(slug: string, size: string): string {
   if (isSachet) {
     // glow's sachet image is named sachet-beauty
     const imgSlug = slug === 'glow' ? 'beauty' : slug;
-    return `https://nectalabs.com/sachet-${imgSlug}.png`;
+    return `https://www.nectalabs.com/sachet-${imgSlug}.png`;
   }
-  return `https://nectalabs.com/bottle-${slug}.jpeg`;
+  return `https://www.nectalabs.com/bottle-${slug}.jpeg`;
 }
 
 export async function POST(req: NextRequest) {
@@ -53,7 +53,7 @@ export async function POST(req: NextRequest) {
         cancel_url: `${origin}/shop`,
         custom_text: {
           submit: {
-            message: `${productName} (${size}) — ${displayPrice}/${billingFreq === 'every 2 months' ? '2 months' : 'month'}. No payment taken today. Your first charge will be on 1 October 2026 when your order ships. Cancel any time before dispatch for a full refund.`,
+            message: `Order summary: ${productName} · ${size} · ${displayPrice} billed ${billingFreq}. No payment is taken today — your card will be charged on 1 October 2026 when your order ships. Cancel any time before dispatch for a full refund.`,
           },
         },
       });

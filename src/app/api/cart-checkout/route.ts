@@ -15,9 +15,9 @@ function getProductImageUrl(slug: string, size: string): string {
   const isSachet = !size.includes('ml');
   if (isSachet) {
     const imgSlug = slug === 'glow' ? 'beauty' : slug;
-    return `https://nectalabs.com/sachet-${imgSlug}.png`;
+    return `https://www.nectalabs.com/sachet-${imgSlug}.png`;
   }
-  return `https://nectalabs.com/bottle-${slug}.jpeg`;
+  return `https://www.nectalabs.com/bottle-${slug}.jpeg`;
 }
 
 export async function POST(req: NextRequest) {
