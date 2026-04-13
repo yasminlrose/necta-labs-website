@@ -18,9 +18,8 @@ export async function POST(req: NextRequest) {
       frequency: frequency ?? '',
     };
 
-    // Pre-order dispatch date — subscriptions don't charge until stock ships
-    const dispatchDate = new Date('2026-10-01T00:00:00Z');
-    const trialEnd = Math.floor(dispatchDate.getTime() / 1000);
+    // Pre-order: first charge on dispatch date, no trial period (avoids misleading "X days free" copy)
+    const dispatchTimestamp = Math.floor(new Date('2026-10-01T00:00:00Z').getTime() / 1000);
 
     const session = await stripe.checkout.sessions.create({
       mode,
@@ -31,13 +30,14 @@ export async function POST(req: NextRequest) {
       metadata: meta,
       custom_text: {
         submit: {
-          message: 'Pre-order: no payment is taken today. Your card will be charged when your order ships in October 2026. Cancel any time before dispatch for a full refund.',
+          message: 'No payment taken today. Your card will be charged on 1 October 2026 when your order ships. Cancel any time before dispatch for a full refund.',
         },
       },
       ...(mode === 'subscription' && {
         subscription_data: {
           metadata: meta,
-          trial_end: trialEnd,
+          billing_cycle_anchor: dispatchTimestamp,
+          proration_behavior: 'none',
         },
       }),
     });

@@ -3,8 +3,9 @@
 import { Suspense, useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import { Lock } from 'lucide-react';
+import { Lock, ShoppingBag } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
+import { useCart } from '@/contexts/CartContext';
 
 interface OrderData {
   email: string;
@@ -29,6 +30,7 @@ export default function OrderSuccessPage() {
 function OrderSuccessContent() {
   const searchParams = useSearchParams();
   const sessionId = searchParams?.get('session_id');
+  const { count, openCart } = useCart();
 
   const [order, setOrder] = useState<OrderData | null>(null);
   const [loading, setLoading] = useState(!!sessionId);
@@ -158,6 +160,26 @@ function OrderSuccessContent() {
         {accountDone && (
           <div className="bg-green-50 border border-green-200 rounded-2xl p-6 mb-8">
             <p className="text-sm font-medium text-green-700">Account created! Check your email to confirm.</p>
+          </div>
+        )}
+
+        {count > 0 && (
+          <div className="bg-white border border-border rounded-2xl p-5 mb-6 text-left">
+            <div className="flex items-center gap-3 mb-3">
+              <ShoppingBag className="h-5 w-5 text-primary" />
+              <p className="font-semibold text-primary text-sm">
+                You still have {count} item{count !== 1 ? 's' : ''} in your basket
+              </p>
+            </div>
+            <p className="text-xs text-primary/50 mb-4">
+              Your basket was saved. You can checkout those items separately now.
+            </p>
+            <button
+              onClick={openCart}
+              className="w-full bg-primary text-white font-semibold py-3 rounded-lg text-sm hover:bg-primary/90 transition-colors"
+            >
+              View basket & checkout
+            </button>
           </div>
         )}
 

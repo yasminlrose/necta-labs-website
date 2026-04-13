@@ -360,7 +360,7 @@ const ProductPage = ({ slug: slugProp }: { slug?: string } = {}) => {
                       >
                         {checkoutLoading ? "Redirecting…" : `Pre-order & Subscribe — £${subPrice}/mo`}
                       </button>
-                      <p className="text-xs text-center text-primary/40 mt-2">Subscriptions check out directly</p>
+                      <p className="text-xs text-center text-primary/40 mt-2">Subscriptions check out directly · your basket is saved</p>
                     </div>
                   )}
 
@@ -514,7 +514,7 @@ const ProductPage = ({ slug: slugProp }: { slug?: string } = {}) => {
                         >
                           {checkoutLoading ? "Redirecting…" : `Pre-order & Subscribe — £${sachetSub}`}
                         </button>
-                        <p className="text-xs text-center text-primary/40 mt-2">Subscriptions check out directly</p>
+                        <p className="text-xs text-center text-primary/40 mt-2">Subscriptions check out directly · your basket is saved</p>
                       </div>
                     )}
 
