@@ -9,12 +9,15 @@ const PRODUCTS = [
   { name: 'GLOW', flavor: 'Cherry Almond', benefit: 'Skin health & radiance', color: '#B87060' },
 ]
 
-export default function EmailTemplateGenerator({ stockistRef = 'stockist' }: { stockistRef?: string }) {
+export default function EmailTemplateGenerator({ stockistRef = 'stockist', recipientEmail = '' }: { stockistRef?: string; recipientEmail?: string }) {
   const [venueName, setVenueName] = useState('')
   const [senderName, setSenderName] = useState('')
   const [selectedProducts, setSelectedProducts] = useState(['FOCUS', 'IMMUNITY', 'CALM', 'GLOW'])
   const [customLine, setCustomLine] = useState('')
   const [copied, setCopied] = useState(false)
+  const [sending, setSending] = useState(false)
+  const [sent, setSent] = useState(false)
+  const [sendError, setSendError] = useState('')
   const [step, setStep] = useState<'edit' | 'preview'>('edit')
 
   const toggleProduct = (name: string) => {
@@ -117,14 +120,24 @@ export default function EmailTemplateGenerator({ stockistRef = 'stockist' }: { s
     setTimeout(() => setCopied(false), 2500)
   }
 
-  const handleDownload = () => {
-    const blob = new Blob([generateHTML()], { type: 'text/html' })
-    const url = URL.createObjectURL(blob)
-    const a = document.createElement('a')
-    a.href = url
-    a.download = `necta-announcement-${(venueName || 'venue').toLowerCase().replace(/\s+/g, '-')}.html`
-    a.click()
-    URL.revokeObjectURL(url)
+  const handleSendToEmail = async () => {
+    setSending(true)
+    setSendError('')
+    setSent(false)
+    try {
+      const res = await fetch('/api/stockist-send-email-template', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ to: recipientEmail, html: generateHTML(), venueName }),
+      })
+      if (!res.ok) throw new Error('Failed')
+      setSent(true)
+      setTimeout(() => setSent(false), 4000)
+    } catch {
+      setSendError('Could not send. Try copying the HTML instead.')
+    } finally {
+      setSending(false)
+    }
   }
 
   return (
@@ -227,29 +240,34 @@ export default function EmailTemplateGenerator({ stockistRef = 'stockist' }: { s
       {step === 'preview' && (
         <div>
           {/* Action bar */}
-          <div style={{ padding: '14px 24px', background: '#f7f8fa', borderBottom: '1px solid #e4e8ee', display: 'flex', gap: 10, alignItems: 'center' }}>
+          <div style={{ padding: '14px 24px', background: '#f7f8fa', borderBottom: '1px solid #e4e8ee', display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap' }}>
             <button
-              onClick={handleCopy}
+              onClick={handleSendToEmail}
+              disabled={sending || !recipientEmail}
               style={{
                 padding: '9px 20px', background: '#0D1B2A', color: '#fff',
                 border: 'none', borderRadius: 7, fontSize: 12, fontWeight: 600,
-                cursor: 'pointer', fontFamily: 'inherit',
+                cursor: recipientEmail ? 'pointer' : 'not-allowed', fontFamily: 'inherit', opacity: sending ? 0.7 : 1,
               }}
             >
-              {copied ? '✓ Copied!' : 'Copy HTML'}
+              {sent ? '✓ Sent to your email!' : sending ? 'Sending…' : `Send to my email`}
             </button>
             <button
-              onClick={handleDownload}
+              onClick={handleCopy}
               style={{
                 padding: '9px 20px', background: '#fff', color: '#0D1B2A',
                 border: '1px solid #e4e8ee', borderRadius: 7, fontSize: 12, fontWeight: 500,
                 cursor: 'pointer', fontFamily: 'inherit',
               }}
             >
-              Download .html
+              {copied ? '✓ Copied!' : 'Copy HTML'}
             </button>
-            <span style={{ fontSize: 11, color: '#6b7a8f', marginLeft: 4 }}>
-              Paste the HTML into Mailchimp, Klaviyo, or any email platform
+            <span style={{ fontSize: 11, color: '#6b7a8f' }}>
+              {sendError
+                ? <span style={{ color: '#c0392b' }}>{sendError}</span>
+                : sent
+                ? `Sent to ${recipientEmail}`
+                : 'Or copy HTML to paste into Mailchimp / Klaviyo'}
             </span>
           </div>
 

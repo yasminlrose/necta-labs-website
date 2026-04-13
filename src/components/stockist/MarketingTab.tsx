@@ -148,7 +148,7 @@ const MarketingTab = () => {
         <p className="text-xs text-primary/50 px-5 pt-1.5 pb-4">
           Customise and download a branded email to announce NECTA to your customers.
         </p>
-        <EmailTemplateGenerator stockistRef={stockistRef} />
+        <EmailTemplateGenerator stockistRef={stockistRef} recipientEmail={user?.email ?? ''} />
       </div>
 
       {/* Request assets */}
