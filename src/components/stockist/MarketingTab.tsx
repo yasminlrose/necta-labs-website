@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Download, QrCode, Instagram, FileText, Image as ImageIcon, Copy, CheckCircle2, Mail } from "lucide-react";
+import { Download, QrCode, Instagram, FileText, Copy, CheckCircle2, Mail } from "lucide-react";
 
 interface Asset {
   id: string;
@@ -12,22 +12,6 @@ interface Asset {
 }
 
 const ASSET_CATEGORIES = [
-  {
-    id: "product-images",
-    title: "Product Photography",
-    icon: <ImageIcon className="h-4 w-4" />,
-    color: "#D6EBEA",
-    assets: [
-      { id: "img-focus-bottle",    title: "FOCUS — 250ml bottle",    description: "High-res product photo",      type: "image", size: "~200 KB", url: "/bottle-focus.jpeg",    filename: "NECTA-FOCUS-250ml.jpeg" },
-      { id: "img-immunity-bottle", title: "IMMUNITY — 250ml bottle", description: "High-res product photo",      type: "image", size: "~200 KB", url: "/bottle-immunity.jpeg", filename: "NECTA-IMMUNITY-250ml.jpeg" },
-      { id: "img-calm-bottle",     title: "CALM — 250ml bottle",     description: "High-res product photo",      type: "image", size: "~200 KB", url: "/bottle-calm.jpeg",     filename: "NECTA-CALM-250ml.jpeg" },
-      { id: "img-glow-bottle",     title: "GLOW — 250ml bottle",     description: "High-res product photo",      type: "image", size: "~200 KB", url: "/bottle-glow.jpeg",     filename: "NECTA-GLOW-250ml.jpeg" },
-      { id: "img-focus-sachet",    title: "FOCUS — sachet",          description: "High-res sachet photo",       type: "image", size: "~150 KB", url: "/sachet-focus.png",     filename: "NECTA-FOCUS-sachet.png" },
-      { id: "img-immunity-sachet", title: "IMMUNITY — sachet",       description: "High-res sachet photo",       type: "image", size: "~150 KB", url: "/sachet-immunity.png",  filename: "NECTA-IMMUNITY-sachet.png" },
-      { id: "img-calm-sachet",     title: "CALM — sachet",           description: "High-res sachet photo",       type: "image", size: "~150 KB", url: "/sachet-calm.png",      filename: "NECTA-CALM-sachet.png" },
-      { id: "img-glow-sachet",     title: "GLOW — sachet",           description: "High-res sachet photo",       type: "image", size: "~150 KB", url: "/sachet-beauty.png",    filename: "NECTA-GLOW-sachet.png" },
-    ] as Asset[],
-  },
   {
     id: "pos",
     title: "Point-of-Sale Signage",
@@ -131,10 +115,7 @@ const MarketingTab = () => {
             {cat.assets.map((asset) => (
               <div key={asset.id} className="flex items-center justify-between gap-3 py-2.5 border-b border-border last:border-0">
                 <div className="flex items-start gap-2 min-w-0">
-                  {asset.type === "image"
-                    ? <ImageIcon className="h-3.5 w-3.5 text-blue-400 mt-0.5 flex-shrink-0" />
-                    : <FileText className="h-3.5 w-3.5 text-red-400 mt-0.5 flex-shrink-0" />
-                  }
+                  <FileText className="h-3.5 w-3.5 text-red-400 mt-0.5 flex-shrink-0" />
                   <div className="min-w-0">
                     <p className="text-sm font-medium text-primary truncate">{asset.title}</p>
                     <p className="text-xs text-primary/50">
