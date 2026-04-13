@@ -36,8 +36,7 @@ export async function POST(req: NextRequest) {
       ...(mode === 'subscription' && {
         subscription_data: {
           metadata: meta,
-          billing_cycle_anchor: dispatchTimestamp,
-          proration_behavior: 'none',
+          trial_end: dispatchTimestamp,
         },
       }),
     });
