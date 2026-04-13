@@ -3,11 +3,21 @@ import { stripe } from '@/lib/stripe';
 
 interface CartItem {
   id: string;
+  slug: string;
   name: string;
   price: number;
   quantity: number;
   size: string;
   mode: 'subscribe' | 'one-off';
+}
+
+function getProductImageUrl(slug: string, size: string): string {
+  const isSachet = !size.includes('ml');
+  if (isSachet) {
+    const imgSlug = slug === 'glow' ? 'beauty' : slug;
+    return `https://nectalabs.com/sachet-${imgSlug}.png`;
+  }
+  return `https://nectalabs.com/bottle-${slug}.jpeg`;
 }
 
 export async function POST(req: NextRequest) {
@@ -28,6 +38,7 @@ export async function POST(req: NextRequest) {
           product_data: {
             name: item.name,
             description: item.size,
+            images: [getProductImageUrl(item.slug, item.size)],
           },
           unit_amount: Math.round(item.price * 100),
         },
