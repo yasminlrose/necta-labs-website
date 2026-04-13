@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { ShoppingCart, Minus, Plus, AlertCircle, CheckCircle2, RefreshCw, Info } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface Product {
   id: string;
@@ -51,18 +52,17 @@ const QuantityControl = ({
 );
 
 const ReorderTab = () => {
+  const { user } = useAuth();
   const [quantities, setQuantities] = useState<Record<string, number>>(
-    Object.fromEntries(PRODUCTS.map((p) => [p.id, p.suggested]))
+    Object.fromEntries(PRODUCTS.map((p) => [p.id, 0]))
   );
   const [autoReorder, setAutoReorder] = useState(false);
   const [autoFrequency, setAutoFrequency] = useState("monthly");
   const [placed, setPlaced] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [orderError, setOrderError] = useState("");
 
   const setQty = (id: string, qty: number) => setQuantities((prev) => ({ ...prev, [id]: qty }));
-
-  const loadSuggested = () =>
-    setQuantities(Object.fromEntries(PRODUCTS.map((p) => [p.id, p.suggested])));
 
   const totalBottles = Object.values(quantities).reduce((s, q) => s + q, 0);
   const subtotal = PRODUCTS.reduce((s, p) => s + (quantities[p.id] ?? 0) * p.price, 0);
@@ -74,11 +74,30 @@ const ReorderTab = () => {
   const handlePlaceOrder = async () => {
     if (!meetsMinimum) return;
     setLoading(true);
-    // TODO: Submit to Shopify B2B Draft Orders API
-    // https://shopify.dev/docs/api/admin-rest/2024-01/resources/draftorder
-    await new Promise((r) => setTimeout(r, 1200));
-    setLoading(false);
-    setPlaced(true);
+    setOrderError("");
+    try {
+      const orderLines = selectedItems
+        .map((p) => `${p.name} ${p.size} × ${quantities[p.id]} (£${((quantities[p.id] ?? 0) * p.price).toFixed(2)})`)
+        .join("\n");
+      const message = `New wholesale order request:\n\n${orderLines}\n\nSubtotal: £${subtotal.toFixed(2)}\nVAT (20%): £${vat.toFixed(2)}\nTotal inc. VAT: £${total.toFixed(2)}\n\nPlease confirm this order and send an invoice.`;
+
+      const res = await fetch("/api/stockist-message", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          message,
+          senderEmail: user?.email,
+          senderName: (user?.user_metadata?.full_name as string) || user?.email,
+          businessName: (user?.user_metadata?.business_name as string) || "",
+        }),
+      });
+      if (!res.ok) throw new Error("Failed");
+      setPlaced(true);
+    } catch {
+      setOrderError("Couldn't submit order. Please email wholesale@nectalabs.com directly.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const selectedItems = PRODUCTS.filter((p) => (quantities[p.id] ?? 0) > 0);
@@ -97,7 +116,7 @@ const ReorderTab = () => {
           Invoice will be sent upon dispatch · Net 30 payment terms
         </p>
         <button
-          onClick={() => { setPlaced(false); setQuantities(Object.fromEntries(PRODUCTS.map((p) => [p.id, 0]))); }}
+          onClick={() => { setPlaced(false); setQuantities(Object.fromEntries(PRODUCTS.map((p) => [p.id, 0]))); setOrderError(""); }}
           className="px-6 py-3 bg-primary text-white rounded-full text-sm font-semibold hover:bg-primary/90 transition-colors"
         >
           Place another order
@@ -108,20 +127,12 @@ const ReorderTab = () => {
 
   return (
     <div className="space-y-5">
-      {/* Suggested order banner */}
-      <div className="bg-[hsl(var(--necta-focus-card))] rounded-xl px-4 py-3 flex items-center justify-between gap-3">
-        <div className="flex items-center gap-2">
-          <Info className="h-4 w-4 text-[hsl(var(--necta-focus))] flex-shrink-0" />
-          <p className="text-xs text-primary/70">
-            <strong className="text-primary">Suggested reorder</strong> based on your typical monthly order loaded. Edit quantities below.
-          </p>
-        </div>
-        <button
-          onClick={loadSuggested}
-          className="flex-shrink-0 flex items-center gap-1 text-xs font-medium text-primary hover:text-primary/70 transition-colors"
-        >
-          <RefreshCw className="h-3 w-3" /> Reset
-        </button>
+      {/* Info banner */}
+      <div className="bg-muted rounded-xl px-4 py-3 flex items-start gap-2">
+        <Info className="h-4 w-4 text-primary/40 flex-shrink-0 mt-0.5" />
+        <p className="text-xs text-primary/60">
+          Select quantities below and submit — we'll confirm your order by email within 2 hours (Mon–Fri, 9am–5pm). Minimum {MIN_ORDER} bottles.
+        </p>
       </div>
 
       {/* 250ml section */}
@@ -230,13 +241,20 @@ const ReorderTab = () => {
           </div>
         )}
 
+        {orderError && (
+          <div className="mb-3 flex items-center gap-2 px-3 py-2 bg-red-50 rounded-lg">
+            <AlertCircle className="h-3.5 w-3.5 text-red-500 flex-shrink-0" />
+            <p className="text-xs text-red-600">{orderError}</p>
+          </div>
+        )}
+
         <button
           onClick={handlePlaceOrder}
           disabled={!meetsMinimum || loading || totalBottles === 0}
           className="w-full flex items-center justify-center gap-2 py-3.5 bg-primary text-white rounded-xl text-sm font-semibold hover:bg-primary/90 transition-colors disabled:opacity-40"
         >
           <ShoppingCart className="h-4 w-4" />
-          {loading ? "Placing order…" : totalBottles === 0 ? "Select products to order" : `Place order · £${total.toFixed(2)}`}
+          {loading ? "Submitting order…" : totalBottles === 0 ? "Select products to order" : `Place order · £${total.toFixed(2)}`}
         </button>
 
         <p className="text-xs text-center text-primary/30 mt-2">

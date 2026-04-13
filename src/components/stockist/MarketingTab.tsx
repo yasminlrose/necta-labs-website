@@ -1,26 +1,43 @@
 import { useState } from "react";
-import { Download, QrCode, Instagram, FileText, Image as ImageIcon, Video, Copy, CheckCircle2 } from "lucide-react";
+import { Download, QrCode, Instagram, FileText, Image as ImageIcon, Copy, CheckCircle2, Mail } from "lucide-react";
 
 interface Asset {
   id: string;
   title: string;
   description: string;
-  type: "pdf" | "image" | "video" | "zip";
-  size: string;
+  type: "image" | "pdf" | "coming-soon";
+  size?: string;
   url?: string;
+  filename?: string;
 }
 
 const ASSET_CATEGORIES = [
   {
-    id: "pos",
-    title: "Point-of-Sale Signage",
+    id: "product-images",
+    title: "Product Photography",
     icon: <ImageIcon className="h-4 w-4" />,
     color: "#D6EBEA",
     assets: [
-      { id: "a1", title: "Counter card — A5 landscape", description: "NECTA product & pricing overview for counter display", type: "pdf", size: "2.4 MB" },
-      { id: "a2", title: "Menu insert — 100×210mm",      description: "Slim insert to add to your existing drinks menu",   type: "pdf", size: "1.8 MB" },
-      { id: "a3", title: "Table tent — A6",              description: "Two-sided tent card for table top placement",        type: "pdf", size: "2.1 MB" },
-      { id: "a4", title: "Window sticker — 30cm",        description: "Printed vinyl sticker — 'NECTA available here'",    type: "pdf", size: "3.5 MB" },
+      { id: "img-focus-bottle",    title: "FOCUS — 250ml bottle",    description: "High-res product photo",      type: "image", size: "~200 KB", url: "/bottle-focus.jpeg",    filename: "NECTA-FOCUS-250ml.jpeg" },
+      { id: "img-immunity-bottle", title: "IMMUNITY — 250ml bottle", description: "High-res product photo",      type: "image", size: "~200 KB", url: "/bottle-immunity.jpeg", filename: "NECTA-IMMUNITY-250ml.jpeg" },
+      { id: "img-calm-bottle",     title: "CALM — 250ml bottle",     description: "High-res product photo",      type: "image", size: "~200 KB", url: "/bottle-calm.jpeg",     filename: "NECTA-CALM-250ml.jpeg" },
+      { id: "img-glow-bottle",     title: "GLOW — 250ml bottle",     description: "High-res product photo",      type: "image", size: "~200 KB", url: "/bottle-glow.jpeg",     filename: "NECTA-GLOW-250ml.jpeg" },
+      { id: "img-focus-sachet",    title: "FOCUS — sachet",          description: "High-res sachet photo",       type: "image", size: "~150 KB", url: "/sachet-focus.png",     filename: "NECTA-FOCUS-sachet.png" },
+      { id: "img-immunity-sachet", title: "IMMUNITY — sachet",       description: "High-res sachet photo",       type: "image", size: "~150 KB", url: "/sachet-immunity.png",  filename: "NECTA-IMMUNITY-sachet.png" },
+      { id: "img-calm-sachet",     title: "CALM — sachet",           description: "High-res sachet photo",       type: "image", size: "~150 KB", url: "/sachet-calm.png",      filename: "NECTA-CALM-sachet.png" },
+      { id: "img-glow-sachet",     title: "GLOW — sachet",           description: "High-res sachet photo",       type: "image", size: "~150 KB", url: "/sachet-beauty.png",    filename: "NECTA-GLOW-sachet.png" },
+    ] as Asset[],
+  },
+  {
+    id: "pos",
+    title: "Point-of-Sale Signage",
+    icon: <FileText className="h-4 w-4" />,
+    color: "#F2DDD4",
+    assets: [
+      { id: "pos-counter", title: "Counter card — A5",    description: "Product & pricing overview for counter display", type: "pdf", size: "PDF", url: "/necta_counter_card_v2.pdf",  filename: "NECTA-counter-card.pdf" },
+      { id: "pos-menu",    title: "Menu insert — DL size", description: "Slim insert for your existing drinks menu",      type: "pdf", size: "PDF", url: "/necta_menu_insert_v2.pdf",   filename: "NECTA-menu-insert.pdf" },
+      { id: "pos-tent",    title: "Table tent — A6",       description: "Two-sided tent card for table placement",        type: "pdf", size: "PDF", url: "/necta_table_tent.pdf",        filename: "NECTA-table-tent.pdf" },
+      { id: "pos-window",  title: "Window sticker",        description: "'NECTA available here' vinyl sticker",           type: "coming-soon" },
     ] as Asset[],
   },
   {
@@ -29,55 +46,40 @@ const ASSET_CATEGORIES = [
     icon: <Instagram className="h-4 w-4" />,
     color: "#E0DAEF",
     assets: [
-      { id: "b1", title: "Instagram post pack (×12)",   description: "12 branded posts covering all 4 products",    type: "zip", size: "18 MB" },
-      { id: "b2", title: "Instagram story templates",    description: "8 editable Canva story templates",            type: "zip", size: "12 MB" },
-      { id: "b3", title: "TikTok video — FOCUS (30s)",   description: "Short-form video for your venue TikTok",      type: "video", size: "45 MB" },
-      { id: "b4", title: "TikTok video — CALM (30s)",    description: "Short-form video for your venue TikTok",      type: "video", size: "42 MB" },
+      { id: "social-posts",   title: "Instagram post pack",      description: "Branded posts covering all 4 products", type: "coming-soon" },
+      { id: "social-stories", title: "Instagram story templates", description: "Editable Canva story templates",        type: "coming-soon" },
     ] as Asset[],
   },
   {
     id: "training",
     title: "Staff Training",
     icon: <FileText className="h-4 w-4" />,
-    color: "#F2DDD4",
+    color: "#F0DEDA",
     assets: [
-      { id: "c1", title: "Staff training guide",        description: "Product knowledge, preparation & customer FAQs", type: "pdf", size: "4.2 MB" },
-      { id: "c2", title: "How to make NECTA drinks",    description: "Quick-reference card for baristas",              type: "pdf", size: "1.1 MB" },
-      { id: "c3", title: "Ingredient deep-dive",        description: "Full ingredient science for knowledgeable staff", type: "pdf", size: "6.8 MB" },
+      { id: "training-guide", title: "Staff training guide",     description: "Product knowledge, preparation & FAQs",     type: "pdf", size: "PDF", url: "/necta_staff_training_v2.pdf",       filename: "NECTA-staff-training.pdf" },
+      { id: "training-bar",   title: "Barista quick-reference",  description: "Quick-reference card for how to serve NECTA", type: "pdf", size: "PDF", url: "/necta_barista_quick_reference.pdf", filename: "NECTA-barista-quick-reference.pdf" },
     ] as Asset[],
   },
   {
     id: "email",
     title: "Email Templates",
     icon: <FileText className="h-4 w-4" />,
-    color: "#F0DEDA",
+    color: "#D6EBEA",
     assets: [
-      { id: "d1", title: "Customer announcement email", description: "Announce NECTA to your mailing list",           type: "pdf", size: "0.5 MB" },
-      { id: "d2", title: "Monthly promotion template",  description: "Promote seasonal flavours & offers",            type: "pdf", size: "0.5 MB" },
+      { id: "email-announce", title: "Customer announcement email", description: "Announce NECTA to your mailing list", type: "pdf", size: "HTML", url: "/necta_announcement_email.html", filename: "NECTA-announcement-email.html" },
+      { id: "email-promo",    title: "Monthly promotion template",  description: "Promote seasonal flavours & offers",   type: "coming-soon" },
     ] as Asset[],
   },
 ];
 
-const typeIcon = (type: Asset["type"]) => {
-  if (type === "pdf")   return <FileText className="h-3.5 w-3.5 text-red-400" />;
-  if (type === "image") return <ImageIcon className="h-3.5 w-3.5 text-blue-400" />;
-  if (type === "video") return <Video className="h-3.5 w-3.5 text-purple-400" />;
-  return <Download className="h-3.5 w-3.5 text-primary/50" />;
-};
-
 const MarketingTab = () => {
   const [copied, setCopied] = useState(false);
-  const qrUrl = "https://nectalabs.com?ref=stockist";
+  const qrUrl = "https://www.nectalabs.com?ref=stockist";
 
   const handleCopyQr = () => {
     navigator.clipboard.writeText(qrUrl);
     setCopied(true);
     setTimeout(() => setCopied(false), 2500);
-  };
-
-  const handleDownload = (asset: Asset) => {
-    // TODO: Replace with real signed download URLs from Supabase Storage or CDN
-    alert(`Download "${asset.title}" (${asset.size})\n\nConnect your asset storage to enable downloads.`);
   };
 
   return (
@@ -89,13 +91,11 @@ const MarketingTab = () => {
             <QrCode className="h-4 w-4 text-primary" />
           </div>
           <div>
-            <h3 className="font-semibold text-primary text-sm">Your stockist QR code</h3>
-            <p className="text-xs text-primary/50">Direct customers to NECTA — tracks sales to your venue</p>
+            <h3 className="font-semibold text-primary text-sm">Your stockist referral link</h3>
+            <p className="text-xs text-primary/50">Share with customers to direct them to NECTA Labs</p>
           </div>
         </div>
-
         <div className="flex items-center gap-4">
-          {/* Mock QR code visual */}
           <div className="w-20 h-20 rounded-xl bg-muted border border-border flex items-center justify-center flex-shrink-0">
             <div className="grid grid-cols-5 gap-0.5 opacity-40">
               {Array.from({ length: 25 }).map((_, i) => (
@@ -108,17 +108,12 @@ const MarketingTab = () => {
           </div>
           <div className="flex-1">
             <p className="text-xs font-mono text-primary/50 break-all mb-3">{qrUrl}</p>
-            <div className="flex gap-2">
-              <button
-                onClick={handleCopyQr}
-                className="flex items-center gap-1.5 px-3 py-2 bg-primary text-white rounded-lg text-xs font-medium hover:bg-primary/90 transition-colors"
-              >
-                {copied ? <><CheckCircle2 className="h-3.5 w-3.5" /> Copied</> : <><Copy className="h-3.5 w-3.5" /> Copy link</>}
-              </button>
-              <button className="flex items-center gap-1.5 px-3 py-2 border border-border rounded-lg text-xs font-medium text-primary hover:border-primary/30 transition-colors">
-                <Download className="h-3.5 w-3.5" /> Download QR
-              </button>
-            </div>
+            <button
+              onClick={handleCopyQr}
+              className="flex items-center gap-1.5 px-3 py-2 bg-primary text-white rounded-lg text-xs font-medium hover:bg-primary/90 transition-colors"
+            >
+              {copied ? <><CheckCircle2 className="h-3.5 w-3.5" /> Copied</> : <><Copy className="h-3.5 w-3.5" /> Copy link</>}
+            </button>
           </div>
         </div>
       </div>
@@ -136,24 +131,55 @@ const MarketingTab = () => {
             {cat.assets.map((asset) => (
               <div key={asset.id} className="flex items-center justify-between gap-3 py-2.5 border-b border-border last:border-0">
                 <div className="flex items-start gap-2 min-w-0">
-                  {typeIcon(asset.type)}
+                  {asset.type === "image"
+                    ? <ImageIcon className="h-3.5 w-3.5 text-blue-400 mt-0.5 flex-shrink-0" />
+                    : <FileText className="h-3.5 w-3.5 text-red-400 mt-0.5 flex-shrink-0" />
+                  }
                   <div className="min-w-0">
                     <p className="text-sm font-medium text-primary truncate">{asset.title}</p>
-                    <p className="text-xs text-primary/50">{asset.description} · {asset.size}</p>
+                    <p className="text-xs text-primary/50">
+                      {asset.description}{asset.size ? ` · ${asset.size}` : ""}
+                    </p>
                   </div>
                 </div>
-                <button
-                  onClick={() => handleDownload(asset)}
-                  className="flex-shrink-0 flex items-center gap-1 px-3 py-2 border border-border rounded-lg text-xs font-medium text-primary hover:border-primary/30 hover:bg-muted transition-colors"
-                >
-                  <Download className="h-3 w-3" />
-                  Download
-                </button>
+                {asset.type === "coming-soon" ? (
+                  <span className="flex-shrink-0 px-2.5 py-1 bg-muted text-primary/40 rounded-lg text-xs font-medium">
+                    Coming soon
+                  </span>
+                ) : (
+                  <a
+                    href={asset.url}
+                    download={asset.filename}
+                    className="flex-shrink-0 flex items-center gap-1 px-3 py-2 border border-border rounded-lg text-xs font-medium text-primary hover:border-primary/30 hover:bg-muted transition-colors"
+                  >
+                    <Download className="h-3 w-3" />
+                    Download
+                  </a>
+                )}
               </div>
             ))}
           </div>
         </div>
       ))}
+
+      {/* Request assets */}
+      <div className="bg-muted/50 border border-border rounded-2xl p-5 flex items-start gap-4">
+        <div className="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
+          <Mail className="h-4 w-4 text-primary" />
+        </div>
+        <div>
+          <p className="text-sm font-semibold text-primary mb-1">Need something specific?</p>
+          <p className="text-xs text-primary/50 mb-3">
+            POS signage, branded assets, and training materials are being finalised. Email us and we'll send you what you need.
+          </p>
+          <a
+            href="mailto:wholesale@nectalabs.com?subject=Marketing%20assets%20request"
+            className="inline-flex items-center gap-1.5 text-xs font-semibold text-primary underline underline-offset-2 hover:text-primary/70 transition-colors"
+          >
+            wholesale@nectalabs.com
+          </a>
+        </div>
+      </div>
 
       <p className="text-xs text-center text-primary/30">
         All assets are brand-approved. Do not modify logos or colour usage without approval from NECTA Labs.
