@@ -30,6 +30,7 @@ const StockistAuthModal = ({ isOpen, onClose }: StockistAuthModalProps) => {
   const [contactName, setContactName] = useState("");
   const [businessName, setBusinessName] = useState("");
   const [venueType, setVenueType] = useState("");
+  const [whyNecta, setWhyNecta] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
@@ -91,6 +92,7 @@ const StockistAuthModal = ({ isOpen, onClose }: StockistAuthModalProps) => {
         businessType: venueType,
         contactName,
         contactEmail: email,
+        whyNecta,
       }),
     });
 
@@ -185,6 +187,14 @@ const StockistAuthModal = ({ isOpen, onClose }: StockistAuthModalProps) => {
                       {VENUE_TYPES.map((t) => <option key={t} value={t}>{t}</option>)}
                     </select>
                   </div>
+                  <textarea
+                    required
+                    value={whyNecta}
+                    onChange={(e) => setWhyNecta(e.target.value)}
+                    placeholder="Why do you want to stock NECTA? Tell us about your customers and space. *"
+                    rows={3}
+                    className="w-full px-4 py-3 border border-border rounded-lg text-sm text-primary placeholder:text-primary/30 focus:outline-none focus:border-primary/40 transition-colors resize-none"
+                  />
                 </>
               )}
 
