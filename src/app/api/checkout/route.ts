@@ -30,6 +30,7 @@ export async function POST(req: NextRequest) {
 
       const session = await stripe.checkout.sessions.create({
         mode: 'setup',
+        currency: 'gbp',
         customer_email: email ?? undefined,
         metadata: { ...meta, priceId, subscriptionType: 'preorder' },
         setup_intent_data: {
