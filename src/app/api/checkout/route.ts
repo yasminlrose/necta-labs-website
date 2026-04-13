@@ -1,6 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { stripe } from '@/lib/stripe';
 
+function getProductImageUrl(slug: string, size: string): string {
+  const isSachet = !size.includes('ml');
+  if (isSachet) {
+    const imgSlug = slug === 'glow' ? 'beauty' : slug;
+    return `https://www.nectalabs.com/sachet-${imgSlug}.png`;
+  }
+  return `https://www.nectalabs.com/bottle-${slug}.jpeg`;
+}
 
 export async function POST(req: NextRequest) {
   try {
@@ -19,17 +27,41 @@ export async function POST(req: NextRequest) {
       frequency: frequency ?? '',
     };
 
-    // Subscription pre-orders: use subscription mode with trial_end set to the
-    // dispatch date so Stripe shows the proper order summary panel with product
-    // image. Stripe displays "Subscription starts 1 Oct 2026" (specific date),
-    // not "X days free", so the copy is honest. No charge until dispatch.
+    // Subscription pre-orders: subscription mode with trial_end = dispatch date.
+    // Use price_data so we control the product name, image, and interval display
+    // (avoids malformed nicknames on existing Stripe prices like "every2months").
+    // Stripe auto-formats interval_count into "every 2 months" / "every 3 months"
+    // with correct spacing. "X days free" is Stripe-generated and cannot be
+    // overridden in hosted checkout; custom_text clarifies no charge today.
     if (mode === 'subscription') {
-      const billingFreq = frequency === 'every 2 months' ? 'every 2 months' : 'monthly';
       const trialEnd = Math.floor(new Date('2026-10-01T00:00:00Z').getTime() / 1000);
+
+      // Map frequency string → Stripe recurring interval
+      let intervalCount = 1;
+      if (frequency === 'every 2 months') intervalCount = 2;
+      else if (frequency === 'every 3 months') intervalCount = 3;
+
+      const stripePrice = await stripe.prices.retrieve(priceId);
+      const unitAmount = stripePrice.unit_amount ?? 0;
+      const imageUrl = getProductImageUrl(productSlug ?? '', size ?? '');
 
       const session = await stripe.checkout.sessions.create({
         mode: 'subscription',
-        line_items: [{ price: priceId, quantity: 1 }],
+        line_items: [
+          {
+            price_data: {
+              currency: 'gbp',
+              product_data: {
+                name: productName ?? 'NECTA Infusion',
+                description: size ?? undefined,
+                images: [imageUrl],
+              },
+              unit_amount: unitAmount,
+              recurring: { interval: 'month', interval_count: intervalCount },
+            },
+            quantity: 1,
+          },
+        ],
         customer_email: email ?? undefined,
         subscription_data: {
           trial_end: trialEnd,
@@ -40,7 +72,7 @@ export async function POST(req: NextRequest) {
         metadata: meta,
         custom_text: {
           submit: {
-            message: `Pre-order: no charge today. Your ${billingFreq} subscription starts on 1 October 2026 when your order ships. Cancel before dispatch for a full refund.`,
+            message: `You won't be charged until 1 October 2026 when your order ships. Cancel any time before dispatch for a full refund.`,
           },
         },
       });
