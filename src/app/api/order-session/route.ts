@@ -20,9 +20,10 @@ export async function GET(req: NextRequest) {
     const rawName = session.customer_details?.name ?? '';
     const firstName = rawName.trim().split(/\s+/)[0] || '';
     const productName = session.metadata?.productName ?? '';
-    const amountPence = session.amount_total ?? 0;
-    const amount = (amountPence / 100).toFixed(2);
     const mode = session.mode ?? 'payment';
+    // Setup mode = subscription pre-order (card saved, no charge today)
+    const amountPence = mode === 'setup' ? 0 : (session.amount_total ?? 0);
+    const amount = mode === 'setup' ? '0.00' : (amountPence / 100).toFixed(2);
 
     // Save to pre_orders (no dedup — one row per purchase)
     await supabaseAdmin
@@ -31,7 +32,7 @@ export async function GET(req: NextRequest) {
         email,
         product_slug: productName,
         amount_paid: amountPence,
-        status: mode,
+        status: mode === 'setup' ? 'subscription-preorder' : mode,
         stripe_session_id: sessionId,
         size: session.metadata?.size ?? null,
         format: session.metadata?.frequency ?? null,

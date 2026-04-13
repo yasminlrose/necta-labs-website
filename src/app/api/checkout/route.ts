@@ -18,11 +18,38 @@ export async function POST(req: NextRequest) {
       frequency: frequency ?? '',
     };
 
-    // Pre-order: first charge on dispatch date, no trial period (avoids misleading "X days free" copy)
-    const dispatchTimestamp = Math.floor(new Date('2026-10-01T00:00:00Z').getTime() / 1000);
+    // Subscription pre-orders: use setup mode to save card with no charge today.
+    // Stripe's trial mechanism always shows "X days free" which is misleading.
+    // Setup mode collects the payment method cleanly — subscriptions are activated
+    // via Stripe API when stock ships in October 2026.
+    if (mode === 'subscription') {
+      const stripePrice = await stripe.prices.retrieve(priceId);
+      const unitAmount = stripePrice.unit_amount ?? 0;
+      const displayPrice = `£${(unitAmount / 100).toFixed(2)}`;
+      const billingFreq = frequency === 'every 2 months' ? 'every 2 months' : 'monthly';
 
+      const session = await stripe.checkout.sessions.create({
+        mode: 'setup',
+        customer_email: email ?? undefined,
+        metadata: { ...meta, priceId, subscriptionType: 'preorder' },
+        setup_intent_data: {
+          metadata: { ...meta, priceId, subscriptionType: 'preorder' },
+        },
+        success_url: `${origin}/order-success?session_id={CHECKOUT_SESSION_ID}`,
+        cancel_url: `${origin}/shop`,
+        custom_text: {
+          submit: {
+            message: `${productName} (${size}) — ${displayPrice}/${billingFreq === 'every 2 months' ? '2 months' : 'month'}. No payment taken today. Your first charge will be on 1 October 2026 when your order ships. Cancel any time before dispatch for a full refund.`,
+          },
+        },
+      });
+
+      return NextResponse.json({ url: session.url });
+    }
+
+    // One-off payment
     const session = await stripe.checkout.sessions.create({
-      mode,
+      mode: 'payment',
       line_items: [{ price: priceId, quantity: 1 }],
       customer_email: email ?? undefined,
       success_url: `${origin}/order-success?session_id={CHECKOUT_SESSION_ID}`,
@@ -30,15 +57,9 @@ export async function POST(req: NextRequest) {
       metadata: meta,
       custom_text: {
         submit: {
-          message: 'No payment taken today. Your card will be charged on 1 October 2026 when your order ships. Cancel any time before dispatch for a full refund.',
+          message: 'Pre-order: payment taken today. Your order ships in October 2026. Cancel before dispatch for a full refund.',
         },
       },
-      ...(mode === 'subscription' && {
-        subscription_data: {
-          metadata: meta,
-          trial_end: dispatchTimestamp,
-        },
-      }),
     });
 
     return NextResponse.json({ url: session.url });
