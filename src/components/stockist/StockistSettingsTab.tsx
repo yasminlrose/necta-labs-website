@@ -37,10 +37,6 @@ const StockistSettingsTab = () => {
   const [pwdError, setPwdError] = useState("");
   const [pwdSuccess, setPwdSuccess] = useState(false);
 
-  const teamMembers = [
-    { name: "Sarah Johnson", email: "sarah@example-cafe.com", role: "Admin" },
-    { name: "Tom Wilson",    email: "tom@example-cafe.com",   role: "View only" },
-  ];
 
   const handleSaveBusiness = async () => {
     setBizLoading(true);
@@ -181,8 +177,8 @@ const StockistSettingsTab = () => {
           <h3 className="font-semibold text-primary text-sm">Payment terms</h3>
         </div>
         <div className="px-4 py-3 bg-muted rounded-xl">
-          <p className="text-sm font-medium text-primary">Net 30 (Invoice)</p>
-          <p className="text-xs text-primary/50 mt-0.5">Invoice sent upon dispatch · Due within 30 days</p>
+          <p className="text-sm font-medium text-primary">Net 30</p>
+          <p className="text-xs text-primary/50 mt-0.5">Payment due within 30 days of invoice date</p>
         </div>
         <p className="text-xs text-primary/40 mt-3">
           To update payment terms or set up direct debit, contact your account manager.
@@ -196,25 +192,28 @@ const StockistSettingsTab = () => {
             <Users className="h-4 w-4 text-primary/50" />
             <h3 className="font-semibold text-primary text-sm">Team access</h3>
           </div>
-          <button className="text-xs text-primary border border-border px-3 py-1.5 rounded-lg hover:border-primary/30 transition-colors">
+          <a
+            href="mailto:wholesale@nectalabs.com?subject=Team%20access%20request"
+            className="text-xs text-primary border border-border px-3 py-1.5 rounded-lg hover:border-primary/30 transition-colors"
+          >
             + Invite
-          </button>
+          </a>
         </div>
         <div className="space-y-2">
-          {teamMembers.map((member) => (
-            <div key={member.email} className="flex items-center justify-between py-2 border-b border-border last:border-0">
-              <div>
-                <p className="text-sm font-medium text-primary">{member.name}</p>
-                <p className="text-xs text-primary/50">{member.email}</p>
-              </div>
-              <span className={`text-xs px-2 py-1 rounded-full font-medium ${member.role === "Admin" ? "bg-primary/10 text-primary" : "bg-muted text-primary/50"}`}>
-                {member.role}
-              </span>
+          <div className="flex items-center justify-between py-2">
+            <div>
+              <p className="text-sm font-medium text-primary">
+                {(user?.user_metadata?.full_name as string) || user?.email}
+              </p>
+              <p className="text-xs text-primary/50">{user?.email}</p>
             </div>
-          ))}
+            <span className="text-xs px-2 py-1 rounded-full font-medium bg-primary/10 text-primary">
+              Admin
+            </span>
+          </div>
         </div>
         <p className="text-xs text-primary/40 mt-3">
-          View-only users can see orders and invoices but cannot place or edit orders.
+          To add team members, email us at wholesale@nectalabs.com.
         </p>
       </div>
 
@@ -224,14 +223,16 @@ const StockistSettingsTab = () => {
           <FileDown className="h-4 w-4 text-primary/50" />
           <h3 className="font-semibold text-primary text-sm">Invoice archive</h3>
         </div>
-        <p className="text-sm text-primary/60 mb-4">Download all past invoices as a single ZIP file for your accounting records.</p>
-        <button
-          onClick={() => alert("Invoice archive download will be enabled once Shopify B2B is connected.")}
-          className="w-full flex items-center justify-center gap-2 py-3 border border-border rounded-lg text-sm font-medium text-primary hover:border-primary/30 transition-colors"
+        <p className="text-sm text-primary/60 mb-4">
+          Request all invoices for your accounting records. We'll email them to {user?.email} within 1 business day.
+        </p>
+        <a
+          href={`mailto:wholesale@nectalabs.com?subject=Invoice%20archive%20request&body=Hi%2C%0A%0ACould%20you%20please%20send%20me%20all%20invoices%20for%20${encodeURIComponent((user?.user_metadata?.business_name as string) || '')}%20(${encodeURIComponent(user?.email || '')})%20for%20the%20period%202025%E2%80%932026.%0A%0AThank%20you`}
+          className="w-full flex items-center justify-center gap-2 py-3 border border-border rounded-lg text-sm font-medium text-primary hover:border-primary/30 hover:bg-muted transition-colors"
         >
           <FileDown className="h-4 w-4" />
-          Download all invoices (2025–2026)
-        </button>
+          Request invoices (2025–2026)
+        </a>
       </div>
 
       {/* Password */}
