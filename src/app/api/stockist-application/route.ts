@@ -35,7 +35,7 @@ export async function POST(req: NextRequest) {
       monthlyUnits, whyNecta, heardAbout,
     } = body;
 
-    if (!businessName || !businessType || !contactName || !contactEmail || !city || !postcode || !whyNecta) {
+    if (!businessName || !businessType || !contactName || !contactEmail) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
     }
 
@@ -49,11 +49,11 @@ export async function POST(req: NextRequest) {
       contact_name: contactName,
       contact_email: contactEmail,
       contact_phone: contactPhone || null,
-      city,
-      postcode,
+      city: city || null,
+      postcode: postcode || null,
       vat_number: vatNumber || null,
       monthly_units: monthlyUnits || null,
-      why_necta: whyNecta,
+      why_necta: whyNecta || null,
       heard_about: heardAbout || null,
       status: 'pending',
     });

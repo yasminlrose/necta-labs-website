@@ -76,13 +76,26 @@ const StockistAuthModal = ({ isOpen, onClose }: StockistAuthModalProps) => {
           business_name: businessName,
           venue_type: venueType,
           is_stockist: true,
-          stockist_status: "pending", // Requires approval
+          stockist_status: "pending",
         },
       },
     });
+    if (error) { setLoading(false); setError(error.message); return; }
+
+    // Save to stockist_applications table so it appears in admin dashboard
+    await fetch("/api/stockist-application", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        businessName,
+        businessType: venueType,
+        contactName,
+        contactEmail: email,
+      }),
+    });
+
     setLoading(false);
-    if (error) { setError(error.message); return; }
-    setSuccess("Account created! Please check your email to confirm, then our team will activate your portal access within 24 hours.");
+    setSuccess("Application received! Please check your email to confirm your address. We'll review your application and be in touch within 3–5 business days.");
   };
 
   const handleForgotPassword = async (e: React.FormEvent) => {
