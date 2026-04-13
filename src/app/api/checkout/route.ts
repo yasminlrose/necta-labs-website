@@ -61,26 +61,11 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ url: session.url });
     }
 
-    // One-off payment — retrieve price to build price_data with product image
-    const stripePrice = await stripe.prices.retrieve(priceId);
-    const unitAmount = stripePrice.unit_amount ?? 0;
-
+    // One-off payment — reference the existing Stripe price so Stripe uses
+    // the product images already configured in the Stripe dashboard.
     const session = await stripe.checkout.sessions.create({
       mode: 'payment',
-      line_items: [
-        {
-          price_data: {
-            currency: 'gbp',
-            product_data: {
-              name: productName ?? 'NECTA Infusion',
-              description: size ?? undefined,
-              images: [imageUrl],
-            },
-            unit_amount: unitAmount,
-          },
-          quantity: 1,
-        },
-      ],
+      line_items: [{ price: priceId, quantity: 1 }],
       customer_email: email ?? undefined,
       success_url: `${origin}/order-success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${origin}/shop`,
