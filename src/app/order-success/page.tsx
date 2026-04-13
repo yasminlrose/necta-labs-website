@@ -31,7 +31,8 @@ export default function OrderSuccessPage() {
 function OrderSuccessContent() {
   const searchParams = useSearchParams();
   const sessionId = searchParams?.get('session_id');
-  const { count, items, openCart } = useCart();
+  const { count, items, openCart, clearCart } = useCart();
+  const isCartCheckout = searchParams?.get('source') === 'cart';
 
   const [order, setOrder] = useState<OrderData | null>(null);
   const [loading, setLoading] = useState(!!sessionId);
@@ -42,6 +43,10 @@ function OrderSuccessContent() {
   const [accountDone, setAccountDone] = useState(false);
   const [accountError, setAccountError] = useState('');
   const [skipped, setSkipped] = useState(false);
+
+  useEffect(() => {
+    if (isCartCheckout) clearCart();
+  }, [isCartCheckout]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     if (!sessionId) return;
@@ -167,7 +172,7 @@ function OrderSuccessContent() {
           </div>
         )}
 
-        {count > 0 && (
+        {count > 0 && !isCartCheckout && (
           <div className="bg-white border border-border rounded-2xl p-5 mb-6 text-left">
             <div className="flex items-center gap-3 mb-3">
               <ShoppingBag className="h-5 w-5 text-primary" />

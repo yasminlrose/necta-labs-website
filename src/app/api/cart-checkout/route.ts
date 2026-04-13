@@ -44,7 +44,7 @@ export async function POST(req: NextRequest) {
         },
         quantity: item.quantity,
       })),
-      success_url: `${origin}/order-success?session_id={CHECKOUT_SESSION_ID}`,
+      success_url: `${origin}/order-success?session_id={CHECKOUT_SESSION_ID}&source=cart`,
       cancel_url: `${origin}/pick-and-mix`,
     });
 
