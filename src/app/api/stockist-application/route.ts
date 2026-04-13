@@ -13,7 +13,7 @@ function adminClient() {
 }
 
 async function sendEmail(to: string, subject: string, html: string) {
-  if (!RESEND_API_KEY) throw new Error('RESEND_API_KEY not configured');
+  if (!RESEND_API_KEY) { console.error('[stockist] RESEND_API_KEY not set'); return; }
   const res = await fetch('https://api.resend.com/emails', {
     method: 'POST',
     headers: { Authorization: `Bearer ${RESEND_API_KEY}`, 'Content-Type': 'application/json' },
@@ -21,7 +21,7 @@ async function sendEmail(to: string, subject: string, html: string) {
   });
   if (!res.ok) {
     const err = await res.json();
-    throw new Error(`Resend error: ${JSON.stringify(err)}`);
+    console.error('[stockist] Resend error:', JSON.stringify(err));
   }
 }
 
@@ -39,7 +39,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
     }
 
-    // Save to Supabase
+    // Save to Supabase — this is the critical step
     const db = adminClient();
     const { error: dbError } = await db.from('stockist_applications').insert({
       business_name: businessName,
@@ -58,9 +58,14 @@ export async function POST(req: NextRequest) {
       status: 'pending',
     });
 
-    if (dbError) console.error('[stockist-application] db error:', dbError.message);
+    if (dbError) {
+      console.error('[stockist] db error:', dbError.message);
+      return NextResponse.json({ error: 'Failed to save application' }, { status: 500 });
+    }
 
+    // Send emails — non-blocking, don't fail the request if this errors
     const submittedAt = new Date().toLocaleString('en-GB', { timeZone: 'Europe/London' });
+    const whyText = whyNecta ? String(whyNecta).replace(/\n/g, '<br/>') : '—';
 
     const internalHtml = `
       <div style="font-family:sans-serif;max-width:600px;margin:0 auto;color:#1a1a2e">
@@ -70,7 +75,8 @@ export async function POST(req: NextRequest) {
         </div>
         <div style="background:#f9f9fb;padding:24px;border-radius:0 0 12px 12px;border:1px solid #e8e8ed;border-top:none">
           ${row('Business', businessName)} ${row('Type', businessType)}
-          ${row('Location', `${city}, ${postcode}`)} ${row('Website', website || '—')}
+          ${row('Location', [city, postcode].filter(Boolean).join(', ') || '—')}
+          ${row('Website', website || '—')}
           ${row('Instagram', instagram ? `@${instagram.replace('@','')}` : '—')}
           ${row('VAT', vatNumber || '—')} ${row('Contact', contactName)}
           ${row('Email', contactEmail)} ${row('Phone', contactPhone || '—')}
@@ -78,7 +84,7 @@ export async function POST(req: NextRequest) {
           ${row('Heard about', heardAbout || '—')}
           <div style="background:white;border:1px solid #e8e8ed;border-radius:8px;padding:16px;margin:16px 0">
             <p style="margin:0 0 6px;font-size:12px;color:#999;text-transform:uppercase">Why they want to stock NECTA</p>
-            <p style="margin:0;font-size:14px;line-height:1.6">${whyNecta.replace(/\n/g,'<br/>')}</p>
+            <p style="margin:0;font-size:14px;line-height:1.6">${whyText}</p>
           </div>
           <p style="margin:0;font-size:13px;color:#666">
             Review all applications at <a href="https://www.nectalabs.com/admin/stockists">nectalabs.com/admin/stockists</a>
@@ -104,10 +110,11 @@ export async function POST(req: NextRequest) {
         </div>
       </div>`;
 
-    await Promise.all([
-      sendEmail(NOTIFY_EMAIL, `New stockist application: ${businessName} (${city})`, internalHtml),
+    // Fire emails in background — don't await so DB save already returned ok
+    Promise.all([
+      sendEmail(NOTIFY_EMAIL, `New stockist application: ${businessName}${city ? ` (${city})` : ''}`, internalHtml),
       sendEmail(contactEmail, `Your NECTA Labs stockist application`, applicantHtml),
-    ]);
+    ]).catch((err) => console.error('[stockist] email error:', err));
 
     return NextResponse.json({ ok: true });
   } catch (err: unknown) {
