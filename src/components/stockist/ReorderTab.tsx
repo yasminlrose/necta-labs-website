@@ -258,7 +258,7 @@ const ReorderTab = () => {
         </button>
 
         <p className="text-xs text-center text-primary/30 mt-2">
-          Net 30 · Invoice sent upon dispatch · No upfront payment required
+          We'll confirm your order by email within 2 hours (Mon–Fri, 9am–5pm)
         </p>
       </div>
 

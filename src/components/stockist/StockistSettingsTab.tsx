@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Building2, MapPin, CreditCard, Users, FileDown, CheckCircle2, Lock, Eye, EyeOff } from "lucide-react";
+import { Building2, MapPin, Users, FileDown, CheckCircle2, Lock, Eye, EyeOff } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 
@@ -168,21 +168,6 @@ const StockistSettingsTab = () => {
             {addrSuccess ? <><CheckCircle2 className="h-4 w-4" /> Saved</> : addrLoading ? "Saving…" : "Save address"}
           </button>
         </div>
-      </div>
-
-      {/* Payment method */}
-      <div className="bg-white border border-border rounded-2xl p-5">
-        <div className="flex items-center gap-2 mb-4">
-          <CreditCard className="h-4 w-4 text-primary/50" />
-          <h3 className="font-semibold text-primary text-sm">Payment terms</h3>
-        </div>
-        <div className="px-4 py-3 bg-muted rounded-xl">
-          <p className="text-sm font-medium text-primary">Net 30</p>
-          <p className="text-xs text-primary/50 mt-0.5">Payment due within 30 days of invoice date</p>
-        </div>
-        <p className="text-xs text-primary/40 mt-3">
-          To update payment terms or set up direct debit, contact your account manager.
-        </p>
       </div>
 
       {/* Team access */}
