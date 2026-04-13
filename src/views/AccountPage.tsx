@@ -113,19 +113,16 @@ const AccountPage = () => {
             </button>
           </div>
 
-          {/* Quick stats */}
+          {/* Pre-order status */}
           <div className="grid grid-cols-3 gap-3 mt-6">
-            <div className="bg-white/10 rounded-xl p-3">
-              <p className="text-2xl font-bold text-white">2</p>
-              <p className="text-xs text-primary-foreground/50 mt-0.5">Active subs</p>
+            <div className="bg-white/10 rounded-xl p-3 col-span-2">
+              <p className="text-xs text-primary-foreground/50 mb-1">Pre-order status</p>
+              <p className="text-sm font-bold text-white">Confirmed ✓</p>
+              <p className="text-xs text-primary-foreground/40 mt-0.5">Ships October 2026</p>
             </div>
             <div className="bg-white/10 rounded-xl p-3">
-              <p className="text-2xl font-bold text-white">£132</p>
-              <p className="text-xs text-primary-foreground/50 mt-0.5">Saved p/year</p>
-            </div>
-            <div className="bg-white/10 rounded-xl p-3">
-              <p className="text-2xl font-bold text-white">240</p>
-              <p className="text-xs text-primary-foreground/50 mt-0.5">Points</p>
+              <p className="text-xs text-primary-foreground/50 mb-1">Loyalty</p>
+              <p className="text-sm font-bold text-white">Founder</p>
             </div>
           </div>
         </div>
