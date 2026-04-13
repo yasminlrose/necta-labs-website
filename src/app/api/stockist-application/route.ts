@@ -1,8 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { createClient } from '@supabase/supabase-js';
 
 const RESEND_API_KEY = process.env.RESEND_API_KEY;
 const FROM = 'NECTA Labs <hello@nectalabs.com>';
 const NOTIFY_EMAIL = 'hello@nectalabs.com';
+
+function adminClient() {
+  return createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+  );
+}
 
 async function sendEmail(to: string, subject: string, html: string) {
   if (!RESEND_API_KEY) throw new Error('RESEND_API_KEY not configured');
@@ -31,9 +39,29 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
     }
 
+    // Save to Supabase
+    const db = adminClient();
+    const { error: dbError } = await db.from('stockist_applications').insert({
+      business_name: businessName,
+      business_type: businessType,
+      website: website || null,
+      instagram: instagram || null,
+      contact_name: contactName,
+      contact_email: contactEmail,
+      contact_phone: contactPhone || null,
+      city,
+      postcode,
+      vat_number: vatNumber || null,
+      monthly_units: monthlyUnits || null,
+      why_necta: whyNecta,
+      heard_about: heardAbout || null,
+      status: 'pending',
+    });
+
+    if (dbError) console.error('[stockist-application] db error:', dbError.message);
+
     const submittedAt = new Date().toLocaleString('en-GB', { timeZone: 'Europe/London' });
 
-    // Internal notification to NECTA
     const internalHtml = `
       <div style="font-family:sans-serif;max-width:600px;margin:0 auto;color:#1a1a2e">
         <div style="background:#1a1a2e;padding:24px;border-radius:12px 12px 0 0">
@@ -41,76 +69,40 @@ export async function POST(req: NextRequest) {
           <p style="color:rgba(255,255,255,0.6);margin:4px 0 0;font-size:13px">${submittedAt}</p>
         </div>
         <div style="background:#f9f9fb;padding:24px;border-radius:0 0 12px 12px;border:1px solid #e8e8ed;border-top:none">
-
-          <h3 style="margin:0 0 12px;font-size:14px;color:#666;text-transform:uppercase;letter-spacing:0.05em">Business</h3>
-          <table style="width:100%;border-collapse:collapse;margin-bottom:20px">
-            ${row("Business name", businessName)}
-            ${row("Type", businessType)}
-            ${row("Location", `${city}, ${postcode}`)}
-            ${row("Website", website || "—")}
-            ${row("Instagram", instagram ? `@${instagram.replace('@', '')}` : "—")}
-            ${row("VAT number", vatNumber || "—")}
-          </table>
-
-          <h3 style="margin:0 0 12px;font-size:14px;color:#666;text-transform:uppercase;letter-spacing:0.05em">Contact</h3>
-          <table style="width:100%;border-collapse:collapse;margin-bottom:20px">
-            ${row("Name", contactName)}
-            ${row("Email", `<a href="mailto:${contactEmail}">${contactEmail}</a>`)}
-            ${row("Phone", contactPhone || "—")}
-          </table>
-
-          <h3 style="margin:0 0 12px;font-size:14px;color:#666;text-transform:uppercase;letter-spacing:0.05em">Fit</h3>
-          <table style="width:100%;border-collapse:collapse;margin-bottom:20px">
-            ${row("Monthly units", monthlyUnits || "Not specified")}
-            ${row("Heard about NECTA", heardAbout || "—")}
-          </table>
-
-          <div style="background:white;border:1px solid #e8e8ed;border-radius:8px;padding:16px;margin-bottom:20px">
-            <p style="margin:0 0 6px;font-size:12px;color:#999;text-transform:uppercase;letter-spacing:0.05em">Why they want to stock NECTA</p>
-            <p style="margin:0;font-size:14px;color:#1a1a2e;line-height:1.6">${whyNecta.replace(/\n/g, '<br/>')}</p>
+          ${row('Business', businessName)} ${row('Type', businessType)}
+          ${row('Location', `${city}, ${postcode}`)} ${row('Website', website || '—')}
+          ${row('Instagram', instagram ? `@${instagram.replace('@','')}` : '—')}
+          ${row('VAT', vatNumber || '—')} ${row('Contact', contactName)}
+          ${row('Email', contactEmail)} ${row('Phone', contactPhone || '—')}
+          ${row('Monthly units', monthlyUnits || 'Not specified')}
+          ${row('Heard about', heardAbout || '—')}
+          <div style="background:white;border:1px solid #e8e8ed;border-radius:8px;padding:16px;margin:16px 0">
+            <p style="margin:0 0 6px;font-size:12px;color:#999;text-transform:uppercase">Why they want to stock NECTA</p>
+            <p style="margin:0;font-size:14px;line-height:1.6">${whyNecta.replace(/\n/g,'<br/>')}</p>
           </div>
-
-          <div style="display:flex;gap:12px">
-            <a href="mailto:${contactEmail}?subject=Your NECTA Labs stockist application"
-               style="display:inline-block;background:#1a1a2e;color:white;padding:12px 24px;border-radius:8px;text-decoration:none;font-size:13px;font-weight:600">
-              Reply to applicant
-            </a>
-          </div>
+          <p style="margin:0;font-size:13px;color:#666">
+            Review all applications at <a href="https://www.nectalabs.com/admin/stockists">nectalabs.com/admin/stockists</a>
+          </p>
         </div>
-      </div>
-    `;
+      </div>`;
 
-    // Confirmation to applicant
     const applicantHtml = `
       <div style="font-family:sans-serif;max-width:600px;margin:0 auto;color:#1a1a2e">
         <div style="background:#1a1a2e;padding:32px 24px;border-radius:12px 12px 0 0;text-align:center">
-          <h1 style="color:white;margin:0;font-size:24px;font-weight:700">NECTA Labs</h1>
-          <p style="color:rgba(255,255,255,0.5);margin:4px 0 0;font-size:12px;letter-spacing:0.1em;text-transform:uppercase">Stockist Application</p>
+          <h1 style="color:white;margin:0;font-size:24px">NECTA Labs</h1>
+          <p style="color:rgba(255,255,255,0.5);margin:4px 0 0;font-size:12px;text-transform:uppercase;letter-spacing:0.1em">Stockist Application</p>
         </div>
         <div style="background:#f9f9fb;padding:32px 24px;border-radius:0 0 12px 12px;border:1px solid #e8e8ed;border-top:none">
           <p style="font-size:15px;line-height:1.6;margin:0 0 16px">Hi ${contactName.split(' ')[0]},</p>
           <p style="font-size:15px;line-height:1.6;margin:0 0 16px">
             Thank you for applying to stock NECTA Labs at <strong>${businessName}</strong>.
-            We've received your application and will review it personally.
+            We review every application personally and will be in touch within <strong>3–5 business days</strong>.
           </p>
-          <p style="font-size:15px;line-height:1.6;margin:0 0 24px">
-            We review every application to make sure we're the right fit for each other.
-            You'll hear from us within <strong>3–5 business days</strong>.
-          </p>
-          <div style="background:white;border:1px solid #e8e8ed;border-radius:8px;padding:16px;margin-bottom:24px">
-            <p style="margin:0;font-size:13px;color:#666">
-              In the meantime, if you have any questions don't hesitate to reach out directly at{" "}
-              <a href="mailto:hello@nectalabs.com" style="color:#1a1a2e">hello@nectalabs.com</a>
-            </p>
-          </div>
           <p style="font-size:14px;color:#666;margin:0">
-            Warm regards,<br/>
-            <strong style="color:#1a1a2e">Yaz</strong><br/>
-            Founder, NECTA Labs
+            Warm regards,<br/><strong style="color:#1a1a2e">Yaz</strong><br/>Founder, NECTA Labs
           </p>
         </div>
-      </div>
-    `;
+      </div>`;
 
     await Promise.all([
       sendEmail(NOTIFY_EMAIL, `New stockist application: ${businessName} (${city})`, internalHtml),
@@ -125,11 +117,6 @@ export async function POST(req: NextRequest) {
   }
 }
 
-function row(label: string, value: string): string {
-  return `
-    <tr>
-      <td style="padding:6px 12px 6px 0;font-size:12px;color:#999;vertical-align:top;white-space:nowrap">${label}</td>
-      <td style="padding:6px 0;font-size:13px;color:#1a1a2e;font-weight:500">${value}</td>
-    </tr>
-  `;
+function row(label: string, value: string) {
+  return `<p style="font-size:13px;margin:4px 0"><span style="color:#999;margin-right:8px">${label}:</span><strong>${value}</strong></p>`;
 }
