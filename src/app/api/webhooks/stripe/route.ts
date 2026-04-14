@@ -156,13 +156,18 @@ export async function POST(req: NextRequest) {
 
   // ── invoice.payment_succeeded ───────────────────────────────────────────────
   // Fires when a subscription trial ends and the first real payment is collected.
+  // In Stripe SDK v22 (API 2025-03-31.basil), invoice.subscription is removed —
+  // subscription info is now at invoice.parent.subscription_details.subscription.
   } else if (event.type === 'invoice.payment_succeeded') {
     const invoice = event.data.object as Stripe.Invoice;
 
     // Only care about subscription invoices (not one-off invoices)
-    if (!invoice.subscription) {
+    const parentType = invoice.parent?.type;
+    if (parentType !== 'subscription_details') {
       return NextResponse.json({ received: true });
     }
+
+    const subscriptionId = invoice.parent?.subscription_details?.subscription;
 
     // Skip the £0 invoice Stripe creates at subscription start (during trial)
     if ((invoice.amount_paid ?? 0) === 0) {
@@ -170,7 +175,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ received: true });
     }
 
-    console.log('[webhook] invoice.payment_succeeded — subscription:', invoice.subscription, '| amount:', invoice.amount_paid);
+    console.log('[webhook] invoice.payment_succeeded — subscription:', subscriptionId, '| amount:', invoice.amount_paid);
 
     const { email, firstName } = await getCustomerDetails(invoice.customer as string);
     if (!email) {
