@@ -6,12 +6,25 @@
  * The value in .env.local is a placeholder and will cause signature
  * verification to fail locally — use `stripe listen --forward-to localhost:PORT/api/webhooks/stripe`
  * to get a real local webhook secret for local testing.
+ *
+ * Subscribed events (configure in Stripe dashboard → Webhooks):
+ *   checkout.session.completed
+ *   invoice.payment_succeeded
  */
 
 import { NextRequest, NextResponse } from 'next/server';
 import Stripe from 'stripe';
 import { stripe } from '@/lib/stripe';
 import { sendTemplate, RESEND_TEMPLATES } from '@/lib/resendTemplates';
+
+/** Format a Unix timestamp as a human-readable UK date. */
+function formatUnixDate(ts: number): string {
+  return new Date(ts * 1000).toLocaleDateString('en-GB', {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+  });
+}
 
 /** Derive a human-readable delivery frequency from session metadata. */
 function deriveFrequency(size: string, metaFrequency: string): string {
@@ -21,17 +34,18 @@ function deriveFrequency(size: string, metaFrequency: string): string {
   return 'monthly';
 }
 
-/** Calculate next charge date based on billing frequency. */
-function nextChargeDate(frequency: string): string {
-  const d = new Date();
-  if (frequency.includes('2 month') || frequency.includes('2month')) {
-    d.setMonth(d.getMonth() + 2);
-  } else if (frequency.includes('3 month') || frequency.includes('quarter')) {
-    d.setMonth(d.getMonth() + 3);
-  } else {
-    d.setMonth(d.getMonth() + 1);
+/** Fetch a Stripe customer's email and first name. */
+async function getCustomerDetails(customerId: string): Promise<{ email: string | null; firstName: string }> {
+  try {
+    const customer = await stripe.customers.retrieve(customerId);
+    if (customer.deleted) return { email: null, firstName: 'there' };
+    const c = customer as Stripe.Customer;
+    const firstName = (c.name ?? '').trim().split(/\s+/)[0] || 'there';
+    return { email: c.email ?? null, firstName };
+  } catch (err) {
+    console.error('[webhook] getCustomerDetails failed:', err instanceof Error ? err.message : String(err));
+    return { email: null, firstName: 'there' };
   }
-  return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
 }
 
 export async function POST(req: NextRequest) {
@@ -40,91 +54,84 @@ export async function POST(req: NextRequest) {
   const body = await req.text();
   const sig = req.headers.get('stripe-signature');
 
-  console.log('[webhook] stripe-signature present:', !!sig);
-
   if (!sig) {
     console.error('[webhook] missing stripe-signature header');
     return NextResponse.json({ error: 'No signature' }, { status: 400 });
   }
 
-  let event;
+  let event: Stripe.Event;
   try {
     event = stripe.webhooks.constructEvent(body, sig, process.env.STRIPE_WEBHOOK_SECRET!);
-    console.log('[webhook] signature verified — event type:', event.type, '| event id:', event.id);
+    console.log('[webhook] event verified:', event.type, event.id);
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : 'Webhook error';
     console.error('[webhook] signature verification failed:', message);
     return NextResponse.json({ error: `Webhook error: ${message}` }, { status: 400 });
   }
 
+  // ── checkout.session.completed ──────────────────────────────────────────────
   if (event.type === 'checkout.session.completed') {
-    const session = event.data.object;
-    console.log('[webhook] checkout.session.completed — session id:', session.id, '| mode:', session.mode, '| payment_status:', session.payment_status);
-    console.log('[webhook] customer_details raw:', JSON.stringify(session.customer_details));
-    console.log('[webhook] metadata raw:', JSON.stringify(session.metadata));
+    const session = event.data.object as Stripe.Checkout.Session;
+    console.log('[webhook] checkout.session.completed — mode:', session.mode, '| payment_status:', session.payment_status);
 
-    const amountPence = session.amount_total ?? 0;
-    const amount = `£${(amountPence / 100).toFixed(2)}`;
     const productName = session.metadata?.productName ?? 'NECTA Infusion';
     const size = session.metadata?.size ?? '';
     const metaFrequency = session.metadata?.frequency ?? '';
 
     if (session.mode === 'payment') {
+      // ── One-off payment ──────────────────────────────────────────────────────
       const email = session.customer_details?.email ?? null;
-      const rawName = session.customer_details?.name ?? '';
-      const firstName = rawName.trim().split(/\s+/)[0] || 'there';
-      console.log('[webhook] payment — email:', email ?? '(none)', '| firstName:', firstName);
-
       if (!email) {
-        console.warn('[webhook] no email in customer_details for payment — skipping');
+        console.warn('[webhook] no email for payment — skipping');
         return NextResponse.json({ received: true });
       }
+      const rawName = session.customer_details?.name ?? '';
+      const firstName = rawName.trim().split(/\s+/)[0] || 'there';
+      const amountPence = session.amount_total ?? 0;
+      const amount = `£${(amountPence / 100).toFixed(2)}`;
 
       try {
         const resendId = await sendTemplate(
           RESEND_TEMPLATES.ORDER_CONFIRMATION,
           email,
-          {
-            first_name:    firstName,
-            product_name:  productName,
-            order_total:   amount,
-            dispatch_date: 'October 2026',
-          },
+          { first_name: firstName, product_name: productName, order_total: amount, dispatch_date: 'October 2026' },
         );
-        console.log('[webhook] order-confirmation sent — resend id:', resendId);
-      } catch (err: unknown) {
-        console.error('[webhook] failed to send order-confirmation:', err instanceof Error ? err.message : String(err));
-        // Return 200 so Stripe doesn't retry
+        console.log('[webhook] order-confirmation sent — id:', resendId);
+      } catch (err) {
+        console.error('[webhook] order-confirmation failed:', err instanceof Error ? err.message : String(err));
       }
 
     } else if (session.mode === 'subscription') {
-      // For subscriptions, customer_details.email may be empty — retrieve from Stripe
-      console.log('[webhook] subscription — retrieving customer from Stripe, id:', session.customer);
-      let email: string | null = null;
-      let firstName = 'there';
-      try {
-        const customer = await stripe.customers.retrieve(session.customer as string);
-        if (customer.deleted) {
-          console.warn('[webhook] Stripe customer was deleted — cannot get email');
-        } else {
-          const c = customer as Stripe.Customer;
-          email = c.email ?? null;
-          const rawName = c.name ?? session.customer_details?.name ?? '';
-          firstName = rawName.trim().split(/\s+/)[0] || 'there';
-          console.log('[webhook] subscription — email:', email ?? '(none)', '| firstName:', firstName);
-        }
-      } catch (err: unknown) {
-        console.error('[webhook] failed to retrieve Stripe customer:', err instanceof Error ? err.message : String(err));
-      }
+      // ── Subscription pre-order (trial_end = Oct 2026, no charge today) ───────
+      const { email, firstName } = await getCustomerDetails(session.customer as string);
 
       if (!email) {
-        console.warn('[webhook] no email for subscription customer — skipping welcome email');
+        console.warn('[webhook] no email for subscription — skipping welcome email');
         return NextResponse.json({ received: true });
       }
 
+      // Get the actual recurring price amount and first charge date from Stripe
+      let subscriptionAmount = '';
+      let firstChargeDate = 'October 2026'; // safe fallback
+
+      try {
+        const subscription = await stripe.subscriptions.retrieve(
+          session.subscription as string,
+          { expand: ['items.data.price'] },
+        );
+        const price = subscription.items.data[0]?.price as Stripe.Price | undefined;
+        if (price?.unit_amount) {
+          subscriptionAmount = `£${(price.unit_amount / 100).toFixed(2)}`;
+        }
+        if (subscription.trial_end) {
+          firstChargeDate = formatUnixDate(subscription.trial_end);
+        }
+        console.log('[webhook] subscription — amount:', subscriptionAmount, '| first charge:', firstChargeDate);
+      } catch (err) {
+        console.error('[webhook] failed to retrieve subscription details:', err instanceof Error ? err.message : String(err));
+      }
+
       const frequency = deriveFrequency(size, metaFrequency);
-      const chargeDate = nextChargeDate(frequency);
-      console.log('[webhook] subscription — frequency:', frequency, '| next charge:', chargeDate);
 
       try {
         const resendId = await sendTemplate(
@@ -133,21 +140,66 @@ export async function POST(req: NextRequest) {
           {
             first_name:        firstName,
             product_name:      productName,
-            amount,
-            next_billing_date: chargeDate,
+            amount:            subscriptionAmount,
+            next_billing_date: firstChargeDate,
             frequency,
           },
         );
-        console.log('[webhook] subscription-welcome sent — resend id:', resendId);
-      } catch (err: unknown) {
-        console.error('[webhook] failed to send subscription-welcome:', err instanceof Error ? err.message : String(err));
+        console.log('[webhook] subscription-welcome sent — id:', resendId);
+      } catch (err) {
+        console.error('[webhook] subscription-welcome failed:', err instanceof Error ? err.message : String(err));
       }
 
     } else {
       console.warn('[webhook] unhandled session.mode:', session.mode);
     }
+
+  // ── invoice.payment_succeeded ───────────────────────────────────────────────
+  // Fires when a subscription trial ends and the first real payment is collected.
+  } else if (event.type === 'invoice.payment_succeeded') {
+    const invoice = event.data.object as Stripe.Invoice;
+
+    // Only care about subscription invoices (not one-off invoices)
+    if (!invoice.subscription) {
+      return NextResponse.json({ received: true });
+    }
+
+    // Skip the £0 invoice Stripe creates at subscription start (during trial)
+    if ((invoice.amount_paid ?? 0) === 0) {
+      console.log('[webhook] invoice.payment_succeeded — £0 invoice (trial start), skipping');
+      return NextResponse.json({ received: true });
+    }
+
+    console.log('[webhook] invoice.payment_succeeded — subscription:', invoice.subscription, '| amount:', invoice.amount_paid);
+
+    const { email, firstName } = await getCustomerDetails(invoice.customer as string);
+    if (!email) {
+      console.warn('[webhook] invoice.payment_succeeded — no email, skipping');
+      return NextResponse.json({ received: true });
+    }
+
+    const amountPence = invoice.amount_paid ?? 0;
+    const amount = `£${(amountPence / 100).toFixed(2)}`;
+
+    // Use ORDER_CONFIRMATION template for actual charges
+    try {
+      const resendId = await sendTemplate(
+        RESEND_TEMPLATES.ORDER_CONFIRMATION,
+        email,
+        {
+          first_name:    firstName,
+          product_name:  'NECTA Subscription',
+          order_total:   amount,
+          dispatch_date: 'Your subscription is now active',
+        },
+      );
+      console.log('[webhook] invoice payment-confirmation sent — id:', resendId);
+    } catch (err) {
+      console.error('[webhook] invoice payment-confirmation failed:', err instanceof Error ? err.message : String(err));
+    }
+
   } else {
-    console.log('[webhook] unhandled event type:', event.type, '— ignoring');
+    console.log('[webhook] unhandled event:', event.type);
   }
 
   return NextResponse.json({ received: true });

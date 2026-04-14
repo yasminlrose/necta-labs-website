@@ -1,8 +1,7 @@
 /**
  * Resend template IDs and a raw REST API helper.
  *
- * Uses "template" (not "template_id") in the request body — this is the
- * correct Resend API parameter name for template-based sends.
+ * Uses top-level `template_id` and `variables` fields per the Resend API spec.
  */
 
 export const RESEND_TEMPLATES = {
@@ -41,10 +40,8 @@ export async function sendTemplate(
     body: JSON.stringify({
       from: FROM,
       to: [to],
-      template: {
-        id: templateId,
-        variables,
-      },
+      template_id: templateId,
+      variables,
     }),
   });
 
