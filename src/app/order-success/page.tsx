@@ -4,7 +4,7 @@ import { Suspense, useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Lock, ShoppingBag, CheckCircle2, Eye, EyeOff } from 'lucide-react';
+import { Lock, ShoppingBag, CheckCircle2, Eye, EyeOff, Mail } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useCart } from '@/contexts/CartContext';
 
@@ -16,7 +16,11 @@ interface OrderData {
   mode: string;
 }
 
-type AccountState = 'checking' | 'login' | 'signup' | 'done' | 'skipped';
+// 'magic'  = existing account, magic link sent
+// 'signup' = no account, show create-account form
+// 'done'   = already logged in or just signed up
+// 'skipped'= user dismissed the card
+type AccountState = 'checking' | 'magic' | 'signup' | 'done' | 'skipped';
 
 export default function OrderSuccessPage() {
   return (
@@ -39,6 +43,7 @@ function OrderSuccessContent() {
   const [order, setOrder] = useState<OrderData | null>(null);
   const [loading, setLoading] = useState(!!sessionId);
   const [accountState, setAccountState] = useState<AccountState>('checking');
+  const [magicSent, setMagicSent] = useState(false);
 
   const [password, setPassword] = useState('');
   const [showPwd, setShowPwd] = useState(false);
@@ -56,25 +61,44 @@ function OrderSuccessContent() {
       .then(async (data) => {
         if (data.email) {
           setOrder(data);
-          // Check if account already exists for this email
+
+          // If already logged in, nothing to do
+          const { data: { user } } = await supabase.auth.getUser();
+          if (user) {
+            setAccountState('done');
+            return;
+          }
+
+          // Check if account exists for this email
           const res = await fetch(`/api/check-account?email=${encodeURIComponent(data.email)}`);
           const { exists } = await res.json();
-          setAccountState(exists ? 'login' : 'signup');
+
+          if (exists) {
+            // Send magic link — they're already checking their email for the order confirmation
+            await supabase.auth.signInWithOtp({
+              email: data.email,
+              options: { emailRedirectTo: 'https://nectalabs.com/account' },
+            });
+            setMagicSent(true);
+            setAccountState('magic');
+          } else {
+            setAccountState('signup');
+          }
         }
       })
       .catch(() => null)
       .finally(() => setLoading(false));
   }, [sessionId]);
 
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!order?.email || !password) return;
+  const handleResendMagicLink = async () => {
+    if (!order?.email) return;
     setAuthLoading(true);
-    setAuthError('');
-    const { error } = await supabase.auth.signInWithPassword({ email: order.email, password });
+    await supabase.auth.signInWithOtp({
+      email: order.email,
+      options: { emailRedirectTo: 'https://nectalabs.com/account' },
+    });
     setAuthLoading(false);
-    if (error) { setAuthError('Incorrect password. Try again.'); return; }
-    setAccountState('done');
+    setMagicSent(true);
   };
 
   const handleSignup = async (e: React.FormEvent) => {
@@ -122,41 +146,32 @@ function OrderSuccessContent() {
           Thank you for being here at the beginning.
         </p>
 
-        {/* Account card — login or signup depending on whether email is recognised */}
+        {/* Account card */}
         {showAccountCard && (
           <div className="bg-white border border-border rounded-2xl p-6 mb-8 text-left">
-            {accountState === 'login' ? (
+
+            {/* Existing account — magic link sent */}
+            {accountState === 'magic' && (
               <>
-                <h2 className="text-base font-bold text-primary mb-1">Welcome back</h2>
+                <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center mb-4">
+                  <Mail className="h-5 w-5 text-primary" />
+                </div>
+                <h2 className="text-base font-bold text-primary mb-1">Check your email to sign in</h2>
                 <p className="text-xs text-primary/50 mb-4">
-                  We recognised <strong>{order!.email}</strong> — sign in to see your order and subscription details.
+                  We've sent a sign-in link to <strong>{order!.email}</strong>. Click it to access your account and order details — no password needed.
                 </p>
-                <form onSubmit={handleLogin} className="space-y-3">
-                  <div className="relative">
-                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-primary/30" />
-                    <input
-                      type={showPwd ? 'text' : 'password'}
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      placeholder="Your password"
-                      required
-                      className="w-full pl-10 pr-10 py-3 border border-border rounded-lg text-sm text-primary placeholder:text-primary/30 focus:outline-none focus:border-primary/40 transition-colors"
-                    />
-                    <button type="button" onClick={() => setShowPwd(!showPwd)} className="absolute right-3 top-1/2 -translate-y-1/2 text-primary/30">
-                      {showPwd ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                    </button>
-                  </div>
-                  {authError && <p className="text-xs text-red-500">{authError}</p>}
-                  <button
-                    type="submit"
-                    disabled={authLoading}
-                    className="w-full bg-primary text-white font-semibold py-3 rounded-lg text-sm hover:bg-primary/90 transition-colors disabled:opacity-60"
-                  >
-                    {authLoading ? 'Signing in…' : 'Sign in to my account'}
-                  </button>
-                </form>
+                <button
+                  onClick={handleResendMagicLink}
+                  disabled={authLoading}
+                  className="w-full border border-border text-primary font-medium py-3 rounded-lg text-sm hover:bg-muted transition-colors disabled:opacity-50"
+                >
+                  {authLoading ? 'Sending…' : magicSent ? 'Resend link' : 'Send link'}
+                </button>
               </>
-            ) : (
+            )}
+
+            {/* No account — create one */}
+            {accountState === 'signup' && (
               <>
                 <h2 className="text-base font-bold text-primary mb-1">Save your order & subscription details</h2>
                 <p className="text-xs text-primary/50 mb-4">
