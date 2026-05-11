@@ -59,6 +59,13 @@ const WaitlistPage = () => {
       }
       const { data } = await supabase.rpc("get_waitlist_count");
       setMemberNumber(data ?? waitlistCount + 1);
+
+      // Send newsletter-welcome email (fire-and-forget — don't block on failure)
+      fetch('/api/send-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ type: 'newsletter', to: email.trim(), data: { firstName: email.trim().split('@')[0] } }),
+      }).catch(() => {});
     } catch {
       toast({ title: "Something went wrong", description: "Please try again.", variant: "destructive" });
     } finally {

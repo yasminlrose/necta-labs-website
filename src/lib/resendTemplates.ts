@@ -16,7 +16,7 @@ const RESEND_API = 'https://api.resend.com';
 const FROM = 'NECTA Labs <hello@nectalabs.com>';
 
 export const TEMPLATE_ALIASES = {
-  ORDER_CONFIRMATION:   'order-confirmation',
+  ORDER_CONFIRMATION:   'pre-order-confirmation',
   SUBSCRIPTION_WELCOME: 'subscription-welcome',
   NEWSLETTER_WELCOME:   'newsletter-welcome',
   LAUNCH_ANNOUNCEMENT:  'launch-announcement',
@@ -55,9 +55,12 @@ async function fetchTemplate(alias: string, apiKey: string): Promise<ResendTempl
   return t;
 }
 
-/** Replace all {{variable}} placeholders in a string. */
+/** Replace all {{variable}} and {{{variable}}} placeholders in a string. */
 function interpolate(str: string, vars: Record<string, string>): string {
-  return str.replace(/\{\{(\w+)\}\}/g, (_, key) => vars[key] ?? `{{${key}}}`);
+  // Handle triple braces first (Handlebars unescaped), then double braces
+  return str
+    .replace(/\{\{\{(\w+)\}\}\}/g, (_, key) => vars[key] ?? `{{{${key}}}}`)
+    .replace(/\{\{(\w+)\}\}/g, (_, key) => vars[key] ?? `{{${key}}}`);
 }
 
 /** Send an email using a Resend dashboard template. Variables replace {{placeholders}}. */
