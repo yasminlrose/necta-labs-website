@@ -1,382 +1,432 @@
 'use client';
 
-import { useState, useMemo } from "react";
+import { useState } from "react";
 import Image from "next/image";
-import { products, productSlugs, ProductSlug } from "@/data/products";
+import { Star, Truck, RefreshCcw, Leaf, Check, ChevronDown, BadgePercent, Crown, FlaskConical } from "lucide-react";
+import { toast } from "sonner";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import { Lock, Package, X, Gift, Zap, Mail, ShieldCheck, CalendarDays, HeartHandshake } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import ReserveOrderModal from "@/components/ReserveOrderModal";
+import { products, productSlugs, type ProductSlug } from "@/data/products";
 
-const skuColors: Record<ProductSlug, { card: string; accent: string }> = {
-  focus: { card: "#D6EBEA", accent: "#7BADA8" },
-  immunity: { card: "#F2DDD4", accent: "#D4785A" },
-  calm: { card: "#E0DAEF", accent: "#A89BC8" },
-  glow: { card: "#F0DEDA", accent: "#C9897A" },
+/* ─── Brand colours per product ─── */
+const colorMap: Record<ProductSlug, { accent: string; light: string; mid: string; gradient: string }> = {
+  focus:    { accent: "#5B9E99", light: "#D6EBEA", mid: "#B8DDD8", gradient: "radial-gradient(ellipse 120% 100% at 50% 0%, #C8E8E5 0%, #EBF7F6 55%, #f0fafa 100%)" },
+  immunity: { accent: "#C06040", light: "#F2DDD4", mid: "#E8C4A8", gradient: "radial-gradient(ellipse 120% 100% at 50% 0%, #EAC9BB 0%, #F5E5DC 55%, #fef8f5 100%)" },
+  calm:     { accent: "#8878C0", light: "#E0DAEF", mid: "#C8C0DF", gradient: "radial-gradient(ellipse 120% 100% at 50% 0%, #CFC7EC 0%, #E9E4F6 55%, #f7f5fe 100%)" },
+  glow:     { accent: "#B06455", light: "#F0DEDA", mid: "#E0C4BC", gradient: "radial-gradient(ellipse 120% 100% at 50% 0%, #E8C4BD 0%, #F5DDD9 55%, #fef7f6 100%)" },
 };
 
-const skuIngredientLines: Record<ProductSlug, string> = {
-  focus: "Lion's Mane · L-Theanine · Rhodiola · Ginkgo · Bacopa",
-  immunity: "Reishi · Elderberry · Ashwagandha · Echinacea · Zinc",
-  calm: "Chamomile · Lemon Balm · Jujube Seed · Poria Cocos · Magnesium",
-  glow: "Marine Collagen · Hyaluronic Acid · CoQ10 · Resveratrol",
+const heroTaglines: Record<ProductSlug, string> = {
+  focus:    "Sharpen your mind.",
+  immunity: "Strengthen your defences.",
+  calm:     "Find your calm.",
+  glow:     "Glow from within.",
 };
 
-type Format = "bottle" | "sachet";
-type BottleSize = "250ml" | "500ml";
-type SachetSize = 7 | 14 | 30 | 90;
+type Format       = "bottle" | "sachet";
+type BottleSize   = "250ml" | "500ml";
+type SachetDays   = 7 | 14 | 30 | 90;
+type PurchaseType = "one-off" | "subscribe";
 
-interface CardState {
-  imageView: "bottle" | "sachet";
-  format: Format;
-  bottleSize: BottleSize;
-  sachetSize: SachetSize;
-  subscribe: boolean;
-  frequency: string;
-  selected: boolean;
-}
+const SACHET_OPTIONS: { days: SachetDays; label: string; badge?: string }[] = [
+  { days: 7,  label: "7-day trial" },
+  { days: 14, label: "14-day box" },
+  { days: 30, label: "30-day box", badge: "Popular" },
+  { days: 90, label: "90-day box", badge: "Best value" },
+];
+
+const SACHET_SUB_SAVINGS: Partial<Record<SachetDays, { amount: number; badge: string }>> = {
+  14: { amount: 3, badge: "SAVE £3" },
+  30: { amount: 7, badge: "SAVE £7" },
+  90: { amount: 21, badge: "SAVE £21" },
+};
 
 const DEPOSIT = 10;
 
-const sachetLabels: Record<SachetSize, string> = {
-  7: "7-day — £12",
-  14: "14-day — £22",
-  30: "30-day — £45/mo",
-  90: "90-day — £120",
-};
+/* ─── Founding member perks banner ─── */
+function FoundingPerks() {
+  /* Hero gradient: blends all 4 product colours left→right, like image #9 */
+  const heroBg = "linear-gradient(120deg, #C4D9F5 0%, #CFC7EC 30%, #F2DDD4 65%, #F0DEDA 100%)";
 
-const sachetBadges: Partial<Record<SachetSize, string>> = {
-  30: "BEST VALUE",
-  90: "BIGGEST SAVING",
-};
-
-function getPrice(state: CardState, slug: ProductSlug): number {
-  const p = products[slug];
-  if (state.format === "sachet") {
-    return p.sachets[state.sachetSize];
-  }
-  if (state.subscribe) {
-    return state.bottleSize === "250ml" ? p.price250Sub : p.price500Sub;
-  }
-  return state.bottleSize === "250ml" ? p.price250 : p.price500;
-}
-
-function getDisplayPrice(state: CardState, slug: ProductSlug): string {
-  const price = getPrice(state, slug);
-  if (state.format === "sachet" && (state.sachetSize === 30 || state.sachetSize === 90)) {
-    return state.sachetSize === 30 ? `£${price}/mo` : `£${price}/qtr`;
-  }
-  if (state.format === "bottle" && state.subscribe) {
-    return `£${price.toFixed(2)}/delivery`;
-  }
-  return `£${price}`;
-}
-
-const defaultCardState = (): CardState => ({
-  imageView: "bottle",
-  format: "bottle",
-  bottleSize: "250ml",
-  sachetSize: 30,
-  subscribe: true,
-  frequency: "Every month",
-  selected: false,
-});
-
-function Pill({ active, onClick, children, className = "" }: { active: boolean; onClick: () => void; children: React.ReactNode; className?: string }) {
   return (
-    <button
-      onClick={onClick}
-      className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all border ${active ? "bg-[#1E2D3D] text-white border-[#1E2D3D]" : "bg-[#F5F0E6] text-[#1E2D3D] border-[#1E2D3D]/20 hover:border-[#1E2D3D]/40"} ${className}`}
-    >
-      {children}
-    </button>
+    <section style={{ background: heroBg }} className="py-14 px-5">
+      <div className="necta-container max-w-4xl text-center">
+        <p className="text-xs font-semibold uppercase tracking-[0.25em] text-primary/40 mb-3">Founding Members</p>
+        <h2 className="text-3xl md:text-4xl font-bold text-primary mb-3">
+          Be one of our first 100 —<br className="hidden sm:block" /> get exclusive perks for life.
+        </h2>
+        <p className="text-primary/55 text-sm max-w-lg mx-auto mb-10">
+          Reserve your order with a £10 deposit today. Your balance is only charged when your order ships in November 2026.
+        </p>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 mb-8">
+          {[
+            { Icon: BadgePercent, accent: "#5B9E99", light: "#D6EBEA", title: "15% off every order, forever", desc: "Never expires. Never decreases. Locked in at checkout." },
+            { Icon: Crown,        accent: "#8878C0", light: "#E0DAEF", title: "You're Founding Member #1–100", desc: "Your number is yours. You helped build this from the start." },
+            { Icon: FlaskConical, accent: "#C06040", light: "#F2DDD4", title: "First access to new flavours",  desc: "Every new variant we launch, founding members try it first." },
+          ].map(({ Icon, accent, light, title, desc }) => (
+            <div key={title} className="bg-white/70 backdrop-blur-sm rounded-2xl p-6 text-left shadow-sm border border-white">
+              <div className="w-11 h-11 rounded-full flex items-center justify-center mb-4" style={{ backgroundColor: light }}>
+                <Icon className="h-5 w-5" style={{ color: accent }} />
+              </div>
+              <p className="font-semibold text-primary mb-1.5">{title}</p>
+              <p className="text-sm text-primary/45 leading-relaxed">{desc}</p>
+            </div>
+          ))}
+        </div>
+        {/* Trust badges */}
+        <div className="flex flex-wrap items-center justify-center gap-3">
+          {["£10 deposit — balance on dispatch", "Free UK delivery", "Cancel anytime for full refund"].map((t) => (
+            <span key={t} className="flex items-center gap-1.5 bg-white/50 backdrop-blur-sm rounded-full px-4 py-1.5 text-primary/65 text-xs border border-white/60">
+              <Check className="h-3 w-3 text-primary/45" />{t}
+            </span>
+          ))}
+        </div>
+      </div>
+    </section>
   );
 }
 
-function ProductCard({ slug, state, onChange }: { slug: ProductSlug; state: CardState; onChange: (s: CardState) => void }) {
-  const p = products[slug];
-  const colors = skuColors[slug];
-  const price = getPrice(state, slug);
-  const balance = price - DEPOSIT;
-  const [showModal, setShowModal] = useState(false);
+/* ─── Single product column ─── */
+function ProductColumn({ slug }: { slug: ProductSlug }) {
+  const product = products[slug];
+  const colors  = colorMap[slug];
+
+  const [format, setFormat]         = useState<Format>("bottle");
+  const [size, setSize]             = useState<BottleSize>("250ml");
+  const [sachetDays, setSachetDays] = useState<SachetDays>(30);
+  const [purchaseType, setPurchase] = useState<PurchaseType>("one-off");
+  const [frequency, setFrequency]   = useState("monthly");
+  const [freqOpen, setFreqOpen]     = useState(false);
+  const [activeImg, setActiveImg]   = useState(0);
+  const [loading, setLoading]       = useState(false);
+
+  const oneOffPrice = size === "250ml" ? product.price250 : product.price500;
+  const subPrice    = size === "250ml" ? product.price250Sub : product.price500Sub;
+  const sachetPrice = product.sachets[sachetDays];
+  const savings     = sachetDays !== 7 ? SACHET_SUB_SAVINGS[sachetDays] : undefined;
+  const sachetSub   = savings ? sachetPrice - savings.amount : sachetPrice;
+  const savePct     = Math.round(((oneOffPrice - subPrice) / oneOffPrice) * 100);
+
+  const currentPrice = format === "sachet"
+    ? (purchaseType === "subscribe" && savings ? sachetSub : sachetPrice)
+    : (purchaseType === "subscribe" ? subPrice : oneOffPrice);
+
+  const balance    = Math.max(0, currentPrice - DEPOSIT);
+  const sizeLabel  = format === "bottle"
+    ? `${size} bottle`
+    : SACHET_OPTIONS.find(o => o.days === sachetDays)?.label ?? "";
+
+  const images = [
+    { src: product.bottleImage, alt: `NECTA ${product.name} bottle` },
+    { src: product.sachetImage, alt: `NECTA ${product.name} sachet` },
+  ];
+
+  const handleReserve = async () => {
+    setLoading(true);
+    try {
+      const res = await fetch('/api/checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          mode: 'deposit',
+          productName: product.name,
+          size: sizeLabel,
+          productSlug: slug,
+          balance: balance.toString(),
+          purchaseType,
+          frequency: frequency === 'monthly' ? 'monthly' : 'every 2 months',
+        }),
+      });
+      const data: { url?: string; error?: string } = await res.json();
+      if (!res.ok || !data.url) throw new Error(data.error ?? 'Checkout failed');
+      window.location.href = data.url;
+    } catch {
+      toast.error('Something went wrong. Please try again.');
+      setLoading(false);
+    }
+  };
+
+  /* Reusable micro-radio */
+  const Radio = ({ active }: { active: boolean }) => (
+    <div className={`w-3.5 h-3.5 rounded-full border-2 flex items-center justify-center shrink-0 transition-colors`}
+      style={{ borderColor: active ? colors.accent : "#d1d5db" }}>
+      {active && <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: colors.accent }} />}
+    </div>
+  );
 
   return (
-    <>
-      <div className="rounded-[20px] border border-[#1E2D3D]/15 bg-[#F5F0E6] overflow-hidden">
-        <div className="flex flex-col md:flex-row">
-          {/* Left — Image */}
-          <div className="md:w-[45%] p-4 flex flex-col items-center">
-            <div className="w-full aspect-square rounded-2xl flex items-center justify-center p-[10%]" style={{ backgroundColor: colors.card }}>
-              <Image
-                src={state.imageView === "bottle" ? p.bottleImage : p.sachetImage}
-                alt={`${p.name} ${state.imageView}`}
-                width={300}
-                height={300}
-                className="max-h-full max-w-full object-contain"
-                loading="lazy"
-              />
-            </div>
-            <div className="flex gap-2 mt-3">
-              <Pill active={state.imageView === "bottle"} onClick={() => onChange({ ...state, imageView: "bottle" })}>Bottle</Pill>
-              <Pill active={state.imageView === "sachet"} onClick={() => onChange({ ...state, imageView: "sachet" })}>Sachet</Pill>
+      <div className="flex flex-col" style={{ background: colors.gradient }}>
+
+        {/* Product image — clean white card, no blend mode */}
+        <div className="px-5 pt-8 pb-4">
+          <div className="bg-white rounded-2xl overflow-hidden flex items-center justify-center h-52 md:h-60 shadow-sm">
+            <Image
+              src={images[activeImg].src}
+              alt={images[activeImg].alt}
+              width={220}
+              height={220}
+              priority
+              className="h-[88%] w-auto object-contain"
+            />
+          </div>
+          {/* Thumbnail switcher */}
+          <div className="flex gap-2 mt-2.5 justify-center">
+            {images.map((img, i) => (
+              <button
+                key={i}
+                onClick={() => setActiveImg(i)}
+                className={`rounded-xl bg-white overflow-hidden h-10 w-10 flex items-center justify-center border-2 transition-all shadow-sm`}
+                style={{ borderColor: activeImg === i ? colors.accent : "transparent" }}
+              >
+                <Image src={img.src} alt="" width={32} height={32} loading="lazy" className="h-8 object-contain" />
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Purchase module */}
+        <div className="px-5 pb-8 flex flex-col gap-3 flex-1">
+
+          {/* Name + stars */}
+          <div>
+            <p className="text-[9px] text-primary/35 tracking-widest uppercase">NECTA Labs</p>
+            <h3 className="text-lg font-bold text-primary leading-tight">{product.name}</h3>
+            <p className="text-[11px] text-primary/50 italic mb-1.5">{product.flavor}</p>
+            <p className="text-[11px] text-primary/55 mb-2">{heroTaglines[slug]}</p>
+            <div className="flex items-center gap-1">
+              <div className="flex gap-px">
+                {Array.from({ length: 5 }).map((_, i) => (
+                  <Star key={i} className={`h-2.5 w-2.5 ${i < Math.round(product.rating) ? "fill-primary text-primary" : "text-primary/20"}`} />
+                ))}
+              </div>
+              <span className="text-[10px] text-primary/40">{product.rating} ({product.reviewCount})</span>
             </div>
           </div>
 
-          {/* Right — Info */}
-          <div className="md:w-[55%] p-5 md:p-6 flex flex-col gap-3">
-            <div>
-              <h3 className="text-xl font-bold text-[#1E2D3D]">{p.name}</h3>
-              <p className="text-sm italic text-[#1E2D3D]/60">{p.flavor}</p>
-              <p className="text-xs text-[#1E2D3D]/50 mt-1">{skuIngredientLines[slug]}</p>
-            </div>
+          {/* Format toggle */}
+          <div className="flex rounded-lg p-0.5" style={{ backgroundColor: `${colors.mid}60` }}>
+            {(["bottle", "sachet"] as Format[]).map((f) => (
+              <button
+                key={f}
+                onClick={() => { setFormat(f); setActiveImg(f === "sachet" ? 1 : 0); setPurchase("one-off"); }}
+                className={`flex-1 text-[11px] py-2 rounded-md transition-all font-medium ${
+                  format === f ? "bg-white text-primary shadow-sm" : "text-primary/55 hover:text-primary"
+                }`}
+              >
+                {f === "bottle" ? "Pump Bottle" : "Sachet Box"}
+              </button>
+            ))}
+          </div>
 
-            {/* Format selector */}
-            <div>
-              <p className="text-xs text-[#1E2D3D]/50 mb-1.5">Format</p>
-              <div className="flex gap-2">
-                <Pill active={state.format === "bottle"} onClick={() => onChange({ ...state, format: "bottle" })}>Pump Bottle</Pill>
-                <Pill active={state.format === "sachet"} onClick={() => onChange({ ...state, format: "sachet" })}>Sachet Box</Pill>
-              </div>
-            </div>
-
-            {state.format === "bottle" ? (
-              <>
-                {/* Size */}
-                <div>
-                  <p className="text-xs text-[#1E2D3D]/50 mb-1.5">Size</p>
-                  <div className="flex gap-2">
-                    <Pill active={state.bottleSize === "250ml"} onClick={() => onChange({ ...state, bottleSize: "250ml" })}>250ml — £29</Pill>
-                    <Pill active={state.bottleSize === "500ml"} onClick={() => onChange({ ...state, bottleSize: "500ml" })}>500ml — £39</Pill>
-                  </div>
-                </div>
-                {/* Subscribe toggle */}
-                <div>
-                  <div className="flex gap-2">
-                    <Pill active={state.subscribe} onClick={() => onChange({ ...state, subscribe: true })}>Pre-order & Subscribe 15%</Pill>
-                    <Pill active={!state.subscribe} onClick={() => onChange({ ...state, subscribe: false })}>One-off</Pill>
-                  </div>
-                  {state.subscribe && (
-                    <select
-                      value={state.frequency}
-                      onChange={(e) => onChange({ ...state, frequency: e.target.value })}
-                      className="mt-2 w-full rounded-xl border border-[#1E2D3D]/15 bg-[#F5F0E6] text-[#1E2D3D] text-sm px-3 py-2 focus:outline-none"
+          {/* BOTTLE options */}
+          {format === "bottle" && (
+            <>
+              {/* Size */}
+              <div className="flex gap-1.5">
+                {(["250ml", "500ml"] as BottleSize[]).map((s) => {
+                  const p = s === "250ml" ? product.price250 : product.price500;
+                  const active = size === s;
+                  return (
+                    <button
+                      key={s}
+                      onClick={() => setSize(s)}
+                      className="flex-1 rounded-xl border-2 py-2.5 px-2 text-center transition-all bg-white/60"
+                      style={{ borderColor: active ? colors.accent : "rgba(0,0,0,0.08)" }}
                     >
-                      <option>Every month</option>
-                      <option>Every 2 months</option>
-                      <option>Every 3 months</option>
-                    </select>
+                      <p className="text-[11px] font-bold text-primary">{s}</p>
+                      <p className="text-[11px] font-semibold" style={{ color: colors.accent }}>£{p}</p>
+                    </button>
+                  );
+                })}
+              </div>
+
+              {/* Purchase type */}
+              <div className="space-y-1.5">
+                {[
+                  { type: "one-off" as PurchaseType,  label: "One-off",          price: `£${oneOffPrice}` },
+                  { type: "subscribe" as PurchaseType, label: "Subscribe & save", price: `£${subPrice}/mo`, badge: `SAVE ${savePct}%` },
+                ].map(({ type, label, price, badge }) => {
+                  const active = purchaseType === type;
+                  return (
+                    <button
+                      key={type}
+                      onClick={() => setPurchase(type)}
+                      className="w-full flex items-center justify-between px-3 py-2.5 rounded-xl border-2 text-left transition-all bg-white/60"
+                      style={{ borderColor: active ? colors.accent : "rgba(0,0,0,0.08)" }}
+                    >
+                      <div className="flex items-center gap-2">
+                        <Radio active={active} />
+                        <span className="text-[11px] font-semibold text-primary">{label}</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <span className="text-[11px] font-bold text-primary">{price}</span>
+                        {badge && (
+                          <span className="text-[8px] font-bold px-1.5 py-0.5 rounded-full text-white" style={{ backgroundColor: colors.accent }}>{badge}</span>
+                        )}
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+
+              {/* Frequency */}
+              {purchaseType === "subscribe" && (
+                <div className="relative">
+                  <button
+                    onClick={() => setFreqOpen(!freqOpen)}
+                    className="w-full flex items-center justify-between border border-primary/15 rounded-lg px-3 py-2 text-[11px] text-primary bg-white/60 hover:bg-white/80 transition-colors"
+                  >
+                    <span>Deliver {frequency === "monthly" ? "monthly" : "every 2 months"}</span>
+                    <ChevronDown className={`h-3 w-3 text-primary/40 transition-transform ${freqOpen ? "rotate-180" : ""}`} />
+                  </button>
+                  {freqOpen && (
+                    <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-border rounded-lg shadow-lg z-20 overflow-hidden">
+                      {["monthly", "2monthly"].map((v) => (
+                        <button key={v} onClick={() => { setFrequency(v); setFreqOpen(false); }}
+                          className={`w-full text-left px-3 py-2.5 text-[11px] hover:bg-muted transition-colors flex items-center justify-between ${frequency === v ? "text-primary font-medium" : "text-primary/60"}`}>
+                          {v === "monthly" ? "Monthly" : "Every 2 months"}
+                          {frequency === v && <Check className="h-3 w-3" style={{ color: colors.accent }} />}
+                        </button>
+                      ))}
+                    </div>
                   )}
                 </div>
-                <p className="text-sm font-medium text-[#1E2D3D]">{getDisplayPrice(state, slug)}</p>
-              </>
-            ) : (
-              <>
-                <div>
-                  <p className="text-xs text-[#1E2D3D]/50 mb-1.5">Size</p>
-                  <div className="flex flex-wrap gap-2">
-                    {([7, 14, 30, 90] as SachetSize[]).map((s) => (
-                      <Pill key={s} active={state.sachetSize === s} onClick={() => onChange({ ...state, sachetSize: s })}>
-                        {sachetLabels[s]}
-                        {sachetBadges[s] && (
-                          <span className="ml-1.5 inline-block bg-[#1E2D3D] text-white text-[9px] px-1.5 py-0.5 rounded-full">{sachetBadges[s]}</span>
-                        )}
-                      </Pill>
-                    ))}
-                  </div>
+              )}
+            </>
+          )}
+
+          {/* SACHET options */}
+          {format === "sachet" && (
+            <>
+              <div className="space-y-1.5">
+                {SACHET_OPTIONS.map((opt) => {
+                  const active = sachetDays === opt.days;
+                  return (
+                    <button
+                      key={opt.days}
+                      onClick={() => setSachetDays(opt.days)}
+                      className="w-full flex items-center justify-between px-3 py-2.5 rounded-xl border-2 text-left transition-all bg-white/60"
+                      style={{ borderColor: active ? colors.accent : "rgba(0,0,0,0.08)" }}
+                    >
+                      <div className="flex items-center gap-2">
+                        <Radio active={active} />
+                        <span className="text-[11px] font-semibold text-primary">{opt.label}</span>
+                        {opt.badge && <span className="text-[8px] font-bold px-1.5 py-0.5 rounded-full text-white" style={{ backgroundColor: colors.accent }}>{opt.badge}</span>}
+                      </div>
+                      <span className="text-[11px] font-bold text-primary">£{product.sachets[opt.days]}</span>
+                    </button>
+                  );
+                })}
+              </div>
+
+              {sachetDays !== 7 && savings && (
+                <div className="flex rounded-lg p-0.5" style={{ backgroundColor: `${colors.mid}60` }}>
+                  {[
+                    { type: "one-off" as PurchaseType, label: `One-off £${sachetPrice}` },
+                    { type: "subscribe" as PurchaseType, label: `Sub £${sachetSub}`, badge: savings.badge },
+                  ].map(({ type, label, badge }) => (
+                    <button
+                      key={type}
+                      onClick={() => setPurchase(type)}
+                      className={`flex-1 text-[10px] py-2 rounded-md transition-all font-medium flex items-center justify-center gap-1 ${purchaseType === type ? "bg-white text-primary shadow-sm" : "text-primary/55 hover:text-primary"}`}
+                    >
+                      {label}
+                      {badge && <span className="text-[7px] font-bold px-1 py-0.5 rounded-full text-white" style={{ backgroundColor: colors.accent }}>{badge}</span>}
+                    </button>
+                  ))}
                 </div>
-                <p className="text-xs text-[#1E2D3D]/50 italic">Sachets are available on subscription only. Cancel or pause anytime.</p>
-                <p className="text-sm font-medium text-[#1E2D3D]">{getDisplayPrice(state, slug)}</p>
-              </>
-            )}
+              )}
+            </>
+          )}
 
-            {/* Deposit box */}
-            <div className="rounded-xl p-3 text-sm" style={{ backgroundColor: colors.card }}>
-              <p className="text-[#1E2D3D] font-medium">Today you pay: £{DEPOSIT} deposit</p>
-              <p className="text-[#1E2D3D]/60 text-xs mt-0.5">Remaining balance of £{balance < 0 ? 0 : balance} charged when your order ships.</p>
+          {/* Deposit summary */}
+          <div className="rounded-xl px-3.5 py-3 border border-white/60 bg-white/40">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-semibold text-primary">Today: £{DEPOSIT} deposit</span>
+              <span className="text-[9px] bg-white/70 rounded-full px-2 py-0.5 text-primary/50">Refundable</span>
             </div>
+            <p className="text-[10px] text-primary/50 mt-0.5">Balance £{balance} on dispatch · Nov 2026</p>
+          </div>
 
-            {/* CTA */}
-            <button
-              onClick={() => onChange({ ...state, selected: !state.selected })}
-              className={`w-full py-3 rounded-full text-sm font-medium transition-all ${state.selected ? "bg-[#1E2D3D]/80 text-white" : "bg-[#1E2D3D] text-white hover:bg-[#1E2D3D]/90"}`}
-            >
-              {state.selected ? "✓ Added to Pre-Order" : "Reserve with £10 Deposit →"}
-            </button>
+          {/* CTA */}
+          <button
+            onClick={handleReserve}
+            disabled={loading}
+            className="w-full py-3.5 rounded-xl font-semibold text-sm text-white transition-all hover:opacity-90 disabled:opacity-60"
+            style={{ backgroundColor: colors.accent }}
+          >
+            {loading ? 'Redirecting to checkout…' : `Reserve with £${DEPOSIT} deposit →`}
+          </button>
 
-            <p className="text-[10px] text-[#1E2D3D]/40 text-center">Your card is saved securely. We'll notify you by email before your balance is charged.</p>
+          {/* Trust */}
+          <div className="flex items-center justify-center gap-3 text-primary/35">
+            {[{ Icon: Truck, label: "Free delivery" }, { Icon: RefreshCcw, label: "Cancel anytime" }, { Icon: Leaf, label: "Natural" }].map(({ Icon, label }) => (
+              <div key={label} className="flex items-center gap-1">
+                <Icon className="h-2.5 w-2.5" />
+                <span className="text-[9px]">{label}</span>
+              </div>
+            ))}
           </div>
         </div>
       </div>
-
-      <ReserveOrderModal
-        open={showModal}
-        onClose={() => setShowModal(false)}
-        productName={p.name}
-        productSlug={slug}
-        format={state.format}
-        size={state.format === "bottle" ? state.bottleSize : `${state.sachetSize}-day`}
-        price={getDisplayPrice(state, slug)}
-      />
-    </>
   );
 }
 
-const faqItems = [
-  { q: "Why a deposit instead of full payment?", a: "We're in final production and want to reward early supporters without asking for full payment upfront. Your £10 deposit secures your place and your early-backer discount. The balance is only charged when your order is ready to ship." },
-  { q: "When will my order ship?", a: "We're targeting dispatch in Summer 2026. We'll email you with an update if anything changes — and we'll always notify you before charging your balance." },
-  { q: "Can I pre-order more than one product?", a: "Yes — add as many SKUs as you like. Each costs a £10 deposit, and all will ship together in one order." },
-  { q: "What if I want to change my format or size before dispatch?", a: "Easy. Email hello@nectalabs.com before dispatch and we'll update your order. No charge for changes." },
-];
-
-const accentRotation = ["#7BADA8", "#D4785A", "#A89BC8", "#C9897A"];
-
-export default function PreOrderPage() {
-  const [cards, setCards] = useState<Record<ProductSlug, CardState>>(
-    Object.fromEntries(productSlugs.map((s) => [s, defaultCardState()])) as Record<ProductSlug, CardState>
-  );
-  const [openFaq, setOpenFaq] = useState<number | null>(null);
-
-  const selectedSlugs = productSlugs.filter((s) => cards[s].selected);
-  const depositTotal = selectedSlugs.length * DEPOSIT;
-  const balanceTotal = selectedSlugs.reduce((sum, s) => sum + getPrice(cards[s], s) - DEPOSIT, 0);
-
+/* ─── FAQ ─── */
+function FaqItem({ q, a }: { q: string; a: string }) {
+  const [open, setOpen] = useState(false);
   return (
-    <div className="min-h-screen" style={{ backgroundColor: "#F5F0E6" }}>
+    <div className="rounded-xl bg-[#fafafa] border border-border overflow-hidden">
+      <button onClick={() => setOpen(!open)} className="w-full flex items-center justify-between px-5 py-4 text-left">
+        <span className="text-sm font-medium text-primary">{q}</span>
+        <ChevronDown className={`h-4 w-4 text-primary/40 transition-transform shrink-0 ml-4 ${open ? "rotate-180" : ""}`} />
+      </button>
+      {open && <div className="px-5 pb-4 text-sm text-primary/55 leading-relaxed">{a}</div>}
+    </div>
+  );
+}
+
+/* ─── Page ─── */
+export default function PreOrderPage() {
+  return (
+    <div className="min-h-screen bg-background">
       <Header />
 
-      {/* HERO */}
-      <section className="pt-28 pb-16 px-4" style={{ background: "linear-gradient(135deg, #B8DDD8 0%, #F2C4A8 50%, #C8C0DF 100%)" }}>
-        <div className="max-w-4xl mx-auto text-center">
-          <h1 className="text-4xl md:text-5xl font-bold text-[#1E2D3D] mb-4">Be First. Pre-Order Necta.</h1>
-          <p className="text-[#1E2D3D]/70 text-lg md:text-xl max-w-2xl mx-auto mb-8">
-            We're in final production. Reserve your first order now with a £10 deposit — your balance is only charged when your order ships.
+      {/* Hero + founding perks — one unified section */}
+      <FoundingPerks />
+
+      {/* 4-column product grid — each column fills with its product colour */}
+      <section>
+        <div className="necta-container max-w-7xl py-8 pb-4">
+          <h2 className="text-3xl md:text-4xl font-bold text-primary text-center mb-2">
+            4 moods. One pump.
+          </h2>
+          <p className="text-center text-primary/50 text-base mb-6">
+            Add to whatever you're drinking. Feel whatever you need.
           </p>
-
-          <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
-            {[
-              { icon: Lock, text: "Secure £10 deposit — balance charged on dispatch" },
-              { icon: Package, text: "Free UK delivery on all pre-orders" },
-              { icon: X, text: "Cancel anytime before dispatch for a full refund" },
-            ].map(({ icon: Icon, text }, i) => (
-              <div key={i} className="flex items-center gap-3 bg-white/40 rounded-2xl px-4 py-3">
-                <Icon className="h-5 w-5 text-[#1E2D3D] shrink-0" />
-                <span className="text-sm text-[#1E2D3D] text-left">{text}</span>
-              </div>
-            ))}
-          </div>
-
-          <div className="inline-block bg-[#1E2D3D] text-white text-sm font-medium px-5 py-2.5 rounded-full">
-            Estimated dispatch: Summer 2026
-          </div>
         </div>
-      </section>
-
-      {/* PRODUCT CARDS */}
-      <section className="max-w-5xl mx-auto px-4 py-16">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Edge-to-edge colour strips */}
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 divide-x divide-white/40">
           {productSlugs.map((slug) => (
-            <ProductCard
-              key={slug}
-              slug={slug}
-              state={cards[slug]}
-              onChange={(s) => setCards((prev) => ({ ...prev, [slug]: s }))}
-            />
-          ))}
-        </div>
-      </section>
-
-      {/* EARLY BACKER BANNER */}
-      <section className="px-4 py-14" style={{ background: "linear-gradient(135deg, #D6EBEA 0%, #F2DDD4 100%)" }}>
-        <div className="max-w-4xl mx-auto text-center">
-          <h2 className="text-2xl md:text-3xl font-bold text-[#1E2D3D] mb-3">Early backer reward: 20% off your first subscription</h2>
-          <p className="text-[#1E2D3D]/60 text-sm md:text-base max-w-xl mx-auto mb-8">
-            Pre-order customers receive 20% off their first recurring charge — better than our standard 15% launch offer. Automatically applied at dispatch.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            {[
-              { icon: Gift, text: "Early backer discount" },
-              { icon: Zap, text: "First to receive stock" },
-              { icon: Mail, text: "Priority dispatch" },
-            ].map(({ icon: Icon, text }, i) => (
-              <div key={i} className="flex items-center gap-2 bg-white rounded-full px-5 py-2.5">
-                <Icon className="h-4 w-4 text-[#1E2D3D]" />
-                <span className="text-sm text-[#1E2D3D] font-medium">{text}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* REASSURANCE */}
-      <section className="max-w-5xl mx-auto px-4 py-16">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {[
-            { icon: ShieldCheck, title: "Your deposit is protected", desc: "If we can't fulfil your order for any reason, your £10 deposit is refunded in full, no questions asked." },
-            { icon: CalendarDays, title: "We'll keep you updated", desc: "Email confirmation now, a production update, and a dispatch notification before your balance is charged." },
-            { icon: HeartHandshake, title: "Change your mind? No problem.", desc: "Cancel before dispatch for a full deposit refund. Email hello@nectalabs.com or manage via your account." },
-          ].map(({ icon: Icon, title, desc }, i) => (
-            <div key={i} className="bg-white rounded-2xl p-6 shadow-sm">
-              <Icon className="h-6 w-6 text-[#1E2D3D] mb-3" />
-              <h3 className="font-bold text-[#1E2D3D] mb-2">{title}</h3>
-              <p className="text-sm text-[#1E2D3D]/60">{desc}</p>
-            </div>
+            <ProductColumn key={slug} slug={slug} />
           ))}
         </div>
       </section>
 
       {/* FAQ */}
-      <section className="max-w-5xl mx-auto px-4 pb-16">
-        <h2 className="text-2xl font-bold text-[#1E2D3D] mb-6 text-center">Pre-Order FAQ</h2>
-        <div className="space-y-3">
-          {faqItems.map((item, i) => {
-            const isOpen = openFaq === i;
-            const accent = accentRotation[i % accentRotation.length];
-            return (
-              <div
-                key={i}
-                className="rounded-xl bg-white overflow-hidden transition-all"
-                style={{ borderLeft: isOpen ? `3px solid ${accent}` : "3px solid transparent" }}
-              >
-                <button
-                  onClick={() => setOpenFaq(isOpen ? null : i)}
-                  className="w-full flex items-center justify-between px-5 py-4 text-left"
-                >
-                  <span className="text-sm font-medium text-[#1E2D3D]">{item.q}</span>
-                  <svg className={`h-4 w-4 text-[#1E2D3D] transition-transform ${isOpen ? "rotate-180" : ""}`} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
-                </button>
-                {isOpen && (
-                  <div className="px-5 pb-4 text-sm text-[#1E2D3D]/60">{item.a}</div>
-                )}
-              </div>
-            );
-          })}
-        </div>
-      </section>
-
-      {/* STICKY ORDER SUMMARY */}
-      {selectedSlugs.length > 0 && (
-        <div className="fixed bottom-0 left-0 right-0 z-40 bg-[#F5F0E6] border-t border-[#1E2D3D]/15 px-4 py-3 md:py-4">
-          <div className="max-w-5xl mx-auto flex flex-col md:flex-row items-center justify-between gap-3">
-            <div className="flex flex-wrap gap-2 items-center">
-              {selectedSlugs.map((s) => (
-                <span key={s} className="text-xs bg-white rounded-full px-3 py-1 text-[#1E2D3D] font-medium">
-                  {products[s].name} · {cards[s].format === "bottle" ? cards[s].bottleSize : `${cards[s].sachetSize}-day`}
-                </span>
-              ))}
-            </div>
-            <div className="flex items-center gap-4">
-              <div className="text-right">
-                <p className="text-xs text-[#1E2D3D]/50">Deposit now: <span className="font-bold text-[#1E2D3D]">£{depositTotal}</span></p>
-                <p className="text-[10px] text-[#1E2D3D]/40">Est. balance: £{balanceTotal.toFixed(2)}</p>
-              </div>
-              <button className="bg-[#1E2D3D] text-white text-sm font-medium px-6 py-3 rounded-full hover:bg-[#1E2D3D]/90 transition-colors whitespace-nowrap">
-                Complete Pre-Order — Pay £{depositTotal} Deposit
-              </button>
-            </div>
+      <section className="py-14 px-5 bg-white border-t border-border">
+        <div className="necta-container max-w-2xl">
+          <h2 className="text-2xl font-bold text-primary mb-8 text-center">Pre-order questions</h2>
+          <div className="space-y-3">
+            {[
+              { q: "Why a deposit instead of full payment?", a: "Your £10 deposit secures your place and your founding member perks. The balance is only charged when your order ships in November 2026." },
+              { q: "When will my order ship?", a: "We're targeting November 2026. We'll always email you before charging your balance — you'll have full notice." },
+              { q: "Can I pre-order more than one product?", a: "Yes — reserve as many as you like. Each costs a £10 deposit and they'll all ship together in one order." },
+              { q: "What if I want to cancel?", a: "Email hello@nectalabs.com any time before dispatch and we'll cancel your reservation and refund your deposit in full. No questions asked." },
+            ].map((item) => <FaqItem key={item.q} {...item} />)}
           </div>
         </div>
-      )}
+      </section>
 
       <Footer />
     </div>

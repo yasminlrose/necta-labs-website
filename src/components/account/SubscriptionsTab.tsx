@@ -57,7 +57,7 @@ const SubscriptionsTab = () => {
       {/* Add more */}
       <div className="text-center">
         <Link
-          href="/shop"
+          href="/pre-order"
           className="inline-flex items-center gap-2 bg-primary text-white text-sm font-semibold px-5 py-2.5 rounded-full hover:bg-primary/90 transition-colors"
         >
           Add another subscription

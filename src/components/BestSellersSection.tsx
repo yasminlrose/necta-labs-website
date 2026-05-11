@@ -13,7 +13,7 @@ const BestSellersSection = () => {
         <div className="flex items-center justify-between mb-10">
           <h2 className="text-2xl md:text-3xl font-bold text-primary">Best Sellers</h2>
           <Link
-            href="/shop"
+            href="/pre-order"
             className="text-sm font-medium text-primary/60 hover:text-primary transition-colors underline underline-offset-4"
           >
             View all
@@ -41,7 +41,7 @@ const ProductCard = ({ slug }: { slug: string }) => {
   return (
     <div className="group flex flex-col">
       {/* Image area */}
-      <Link href={`/shop/${slug}`} className="block">
+      <Link href="/pre-order" className="block">
         <div className="relative aspect-square flex items-center justify-center mb-4 overflow-hidden rounded-lg bg-white">
           <Image
             src={product.bottleImage}
@@ -61,7 +61,7 @@ const ProductCard = ({ slug }: { slug: string }) => {
 
       {/* Info */}
       <div className="flex-1 flex flex-col">
-        <Link href={`/shop/${slug}`}>
+        <Link href="/pre-order">
           <p className="text-xs font-medium text-primary/50 uppercase tracking-wider mb-0.5">NECTA Labs</p>
           <h3 className="font-bold text-primary text-sm md:text-base mb-1">{product.name} Infusion</h3>
           <p className="text-xs text-primary/60 mb-2 line-clamp-1">{product.tagline}</p>
@@ -114,10 +114,10 @@ const ProductCard = ({ slug }: { slug: string }) => {
             <span className="text-xs text-primary/40 block">/250ml</span>
           </div>
           <Link
-            href={`/shop/${slug}`}
+            href="/pre-order"
             className="bg-primary text-primary-foreground text-xs font-semibold px-4 py-2.5 rounded-md hover:bg-primary/90 transition-colors"
           >
-            Buy Now
+            Pre-order
           </Link>
         </div>
       </div>

@@ -55,8 +55,8 @@ const HowItWorksPage = () => {
                 <li className="flex items-start gap-2"><Check className="h-4 w-4 text-foreground/40 mt-0.5 shrink-0" />250ml (17 servings) or 500ml (33 servings)</li>
                 <li className="flex items-start gap-2"><Check className="h-4 w-4 text-foreground/40 mt-0.5 shrink-0" />From £25/mo on subscription</li>
               </ul>
-              <Link href="/shop">
-                <Button className="w-full">Shop Bottles</Button>
+              <Link href="/pre-order">
+                <Button className="w-full">Pre-order Bottles</Button>
               </Link>
             </div>
 
@@ -72,8 +72,8 @@ const HowItWorksPage = () => {
                 <li className="flex items-start gap-2"><Check className="h-4 w-4 text-foreground/40 mt-0.5 shrink-0" />Tear, pour, done. Perfect for travel, office, gym.</li>
                 <li className="flex items-start gap-2"><Check className="h-4 w-4 text-foreground/40 mt-0.5 shrink-0" />7, 14, 30, or 90-day boxes from £12</li>
               </ul>
-              <Link href="/shop">
-                <Button className="w-full">Shop Sachets</Button>
+              <Link href="/pre-order">
+                <Button className="w-full">Pre-order Sachets</Button>
               </Link>
             </div>
           </div>
@@ -140,8 +140,8 @@ const HowItWorksPage = () => {
           <p className={`text-foreground/50 mb-8 scroll-fade-in ${cta.isVisible ? "visible" : ""}`}>
             Start with a 7-day trial sachet box — just £12.
           </p>
-          <Link href="/shop">
-            <Button size="lg">Shop Now</Button>
+          <Link href="/pre-order">
+            <Button size="lg">Pre-order Now</Button>
           </Link>
         </div>
       </section>

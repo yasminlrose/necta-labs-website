@@ -73,11 +73,11 @@ const CartDrawer = () => {
               <p className="text-primary/50 font-medium">Your basket is empty</p>
               <p className="text-sm text-primary/35">Add a infusion to get started.</p>
               <Link
-                href="/shop"
+                href="/pre-order"
                 onClick={closeCart}
                 className="mt-2 inline-flex items-center gap-2 bg-primary text-white text-sm font-semibold px-6 py-3 rounded-md hover:bg-primary/90 transition-colors"
               >
-                Shop now <ArrowRight className="h-4 w-4" />
+                Pre-order now <ArrowRight className="h-4 w-4" />
               </Link>
             </div>
           ) : (

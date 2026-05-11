@@ -284,10 +284,10 @@ function OrderSuccessContent() {
         )}
 
         <Link
-          href="/shop"
+          href="/pre-order"
           className="inline-block bg-primary text-white font-semibold px-8 py-3 rounded-xl hover:bg-primary/90 transition-colors"
         >
-          Back to shop
+          Back to pre-order
         </Link>
       </div>
     </main>

@@ -22,7 +22,7 @@ const Hero = () => {
           </p>
 
           <Button asChild size="lg">
-            <Link href="/shop">Shop Now</Link>
+            <Link href="/pre-order">Pre-order Now</Link>
           </Button>
 
           <p className="text-sm text-foreground/35 mt-6">

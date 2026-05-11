@@ -16,6 +16,14 @@ import { NextRequest, NextResponse } from 'next/server';
 import Stripe from 'stripe';
 import { stripe } from '@/lib/stripe';
 import { sendTemplate, RESEND_TEMPLATES } from '@/lib/resendTemplates';
+import { createClient } from '@supabase/supabase-js';
+
+function getSupabase() {
+  return createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+  );
+}
 
 /** Format a Unix timestamp as a human-readable UK date. */
 function formatUnixDate(ts: number): string {
@@ -78,7 +86,64 @@ export async function POST(req: NextRequest) {
     const size = session.metadata?.size ?? '';
     const metaFrequency = session.metadata?.frequency ?? '';
 
-    if (session.mode === 'payment') {
+    if (session.metadata?.checkoutType === 'deposit') {
+      // ── £10 deposit pre-order ────────────────────────────────────────────────
+      const email = session.customer_details?.email ?? null;
+      if (!email) {
+        console.warn('[webhook] no email for deposit — skipping');
+        return NextResponse.json({ received: true });
+      }
+      const rawName = session.customer_details?.name ?? '';
+      const firstName = rawName.trim().split(/\s+/)[0] || 'there';
+      const balance = session.metadata?.balance ?? '';
+      const purchaseType = session.metadata?.purchaseType ?? 'one-off';
+      const productSlug = session.metadata?.productSlug ?? '';
+      const size = session.metadata?.size ?? '';
+      const freq = session.metadata?.frequency ?? '';
+
+      // Save to pre_orders table
+      try {
+        const supabase = getSupabase();
+        await supabase.from('pre_orders').insert({
+          email,
+          product_slug: productSlug,
+          format: purchaseType === 'subscribe' ? 'subscription' : 'one-off',
+          size,
+          quantity: 1,
+          status: 'deposit_paid',
+        });
+        // Also add to email_signups
+        await supabase.from('email_signups').insert({
+          email,
+          source: `deposit-${productSlug}`,
+        });
+        console.log('[webhook] deposit saved to pre_orders — email:', email);
+      } catch (err) {
+        console.error('[webhook] failed to save deposit to pre_orders:', err instanceof Error ? err.message : String(err));
+      }
+
+      // Send confirmation email
+      const orderDesc = [size, purchaseType === 'subscribe' ? `Subscribe (${freq || 'monthly'})` : 'One-off'].filter(Boolean).join(' · ');
+      const balanceText = balance ? `£${balance}` : 'your remaining balance';
+      try {
+        const resendId = await sendTemplate(
+          RESEND_TEMPLATES.ORDER_CONFIRMATION,
+          email,
+          {
+            first_name:    firstName,
+            product_name:  `NECTA ${productName} — ${orderDesc}`,
+            order_total:   `£10 deposit (${balanceText} due on dispatch)`,
+            dispatch_date: 'November 2026',
+          },
+        );
+        console.log('[webhook] deposit confirmation sent — id:', resendId);
+      } catch (err) {
+        console.error('[webhook] deposit confirmation email failed:', err instanceof Error ? err.message : String(err));
+      }
+
+      return NextResponse.json({ received: true });
+
+    } else if (session.mode === 'payment') {
       // ── One-off payment ──────────────────────────────────────────────────────
       const email = session.customer_details?.email ?? null;
       if (!email) {
@@ -94,7 +159,7 @@ export async function POST(req: NextRequest) {
         const resendId = await sendTemplate(
           RESEND_TEMPLATES.ORDER_CONFIRMATION,
           email,
-          { first_name: firstName, product_name: productName, order_total: amount, dispatch_date: 'October 2026' },
+          { first_name: firstName, product_name: productName, order_total: amount, dispatch_date: 'November 2026' },
         );
         console.log('[webhook] order-confirmation sent — id:', resendId);
       } catch (err) {
@@ -112,7 +177,7 @@ export async function POST(req: NextRequest) {
 
       // Get the actual recurring price amount and first charge date from Stripe
       let subscriptionAmount = '';
-      let firstChargeDate = 'October 2026'; // safe fallback
+      let firstChargeDate = 'November 2026'; // safe fallback
 
       try {
         const subscription = await stripe.subscriptions.retrieve(

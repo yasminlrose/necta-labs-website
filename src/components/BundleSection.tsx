@@ -123,10 +123,10 @@ const BundleSection = () => {
               )}
               <p className="text-3xl font-bold text-primary mb-4">£{finalPrice}</p>
               <Link
-                href="/shop"
+                href="/pre-order"
                 className="block w-full bg-primary text-primary-foreground font-semibold py-3 rounded-md text-sm hover:bg-primary/90 transition-colors"
               >
-                Shop Bundle
+                Pre-order Bundle
               </Link>
             </>
           )}

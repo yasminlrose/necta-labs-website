@@ -126,7 +126,7 @@ const ProductPage = ({ slug: slugProp }: { slug?: string } = {}) => {
   useEffect(() => { if (sachetDays === 7) setPurchaseType("one-off"); }, [sachetDays]);
 
   if (!product || !colors) {
-    if (typeof window !== 'undefined') window.location.replace('/shop');
+    if (typeof window !== 'undefined') window.location.replace('/pre-order');
     return null;
   }
 
@@ -155,7 +155,7 @@ const ProductPage = ({ slug: slugProp }: { slug?: string } = {}) => {
           <nav className="flex items-center gap-2 text-xs text-primary/40 mb-6">
             <Link href="/" className="hover:text-primary transition-colors">Home</Link>
             <span>/</span>
-            <Link href="/shop" className="hover:text-primary transition-colors">Shop</Link>
+            <Link href="/pre-order" className="hover:text-primary transition-colors">Pre-order</Link>
             <span>/</span>
             <span className="text-primary/70">{product.name}</span>
           </nav>
@@ -718,7 +718,7 @@ const ProductPage = ({ slug: slugProp }: { slug?: string } = {}) => {
               Reserve your order
             </button>
             <Link
-              href="/shop"
+              href="/pre-order"
               className="px-8 py-3.5 rounded-lg font-medium text-primary text-sm border border-primary/25 hover:border-primary/50 transition-colors"
             >
               Browse all products

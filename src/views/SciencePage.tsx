@@ -488,7 +488,7 @@ function IngredientModal({ ingredient, onClose }: { ingredient: Ingredient; onCl
               {ingredient.foundIn.map((p) => (
                 <Link
                   key={p.slug}
-                  href={`/shop/${p.slug}`}
+                  href="/pre-order"
                   onClick={onClose}
                   className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-semibold text-primary border border-primary/20 hover:bg-primary hover:text-white transition-colors"
                   style={{ backgroundColor: PRODUCT_COLORS[p.name] }}
@@ -676,10 +676,10 @@ const SciencePage = () => {
           </h2>
           <div className="flex flex-wrap items-center justify-center gap-4">
             <Link
-              href="/shop"
+              href="/pre-order"
               className="inline-flex items-center gap-2 bg-primary text-white font-semibold px-8 py-3.5 rounded-full hover:bg-primary/90 transition-colors text-sm"
             >
-              Shop all products
+              Pre-order now
               <ArrowUpRight className="h-4 w-4" />
             </Link>
             <Link

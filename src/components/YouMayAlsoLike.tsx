@@ -44,7 +44,7 @@ const ProductCard = ({ product }: { product: ProductData }) => {
 
   return (
     <Link
-      href={`/shop/${product.slug}`}
+      href="/pre-order"
       className="group block rounded-2xl border border-border overflow-hidden hover:shadow-md transition-all duration-200"
     >
       {/* Image */}
@@ -82,7 +82,7 @@ const ProductCard = ({ product }: { product: ProductData }) => {
             className="text-xs font-semibold px-3 py-1.5 rounded-md"
             style={{ backgroundColor: colors.light, color: colors.accent }}
           >
-            Shop now
+            Pre-order
           </span>
         </div>
       </div>

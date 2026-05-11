@@ -21,7 +21,7 @@ const spotlights = [
       { name: "L-Theanine", dose: "80mg", note: "Calm focus" },
       { name: "Bacopa Monnieri", dose: "300mg", note: "Memory & recall" },
     ],
-    link: "/shop/focus",
+    link: "/pre-order",
   },
   {
     product: "IMMUNITY",
@@ -34,7 +34,7 @@ const spotlights = [
       { name: "Ashwagandha", dose: "300mg", note: "Cortisol balance" },
       { name: "Vitamin C", dose: "200mg", note: "Immune support" },
     ],
-    link: "/shop/immunity",
+    link: "/pre-order",
   },
   {
     product: "CALM",
@@ -47,7 +47,7 @@ const spotlights = [
       { name: "Jujube Seed", dose: "200mg", note: "Sleep quality" },
       { name: "Poria Cocos", dose: "200mg", note: "CNS calming" },
     ],
-    link: "/shop/calm",
+    link: "/pre-order",
   },
   {
     product: "GLOW",
@@ -60,7 +60,7 @@ const spotlights = [
       { name: "CoQ10", dose: "80mg", note: "Cellular energy" },
       { name: "Trans-Resveratrol", dose: "100mg", note: "Antioxidant" },
     ],
-    link: "/shop/glow",
+    link: "/pre-order",
   },
 ];
 
@@ -142,7 +142,7 @@ const IngredientSpotlightsSection = () => {
                 href={spot.link}
                 className="inline-block bg-primary text-primary-foreground font-semibold px-7 py-3 rounded-md text-sm hover:bg-primary/90 transition-colors"
               >
-                Shop {spot.product}
+                Pre-order {spot.product}
               </Link>
             </div>
           </div>

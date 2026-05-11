@@ -68,10 +68,10 @@ const AboutPage = () => {
 
               <div className="flex flex-wrap gap-3 mt-10">
                 <Link
-                  href="/shop"
+                  href="/pre-order"
                   className="inline-flex items-center gap-2 bg-primary text-white font-semibold px-6 py-3 rounded-full text-sm hover:bg-primary/90 transition-colors"
                 >
-                  Try NECTA →
+                  Pre-order NECTA →
                 </Link>
                 <Link
                   href="/science"

@@ -65,7 +65,7 @@ const ProductShowcase = () => {
           {productCards.map((product, i) => (
             <Link
               key={product.slug}
-              href={`/shop/${product.slug}`}
+              href="/pre-order"
               className={`group rounded-2xl overflow-hidden product-card-hover cursor-pointer scroll-fade-in ${isVisible ? "visible" : ""}`}
               style={{ transitionDelay: `${i * 100}ms` }}
             >

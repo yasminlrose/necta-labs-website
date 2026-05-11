@@ -23,7 +23,7 @@ const SachetProductPage = ({ slug: slugProp }: { slug?: string } = {}) => {
   const product = getProduct(baseSlug);
 
   if (!product) {
-    if (typeof window !== 'undefined') window.location.replace('/shop');
+    if (typeof window !== 'undefined') window.location.replace('/pre-order');
     return null;
   }
 
@@ -300,7 +300,7 @@ function SachetHero({ product }: { product: NonNullable<ReturnType<typeof getPro
               Add to Pick &amp; Mix <ArrowRight className="h-3.5 w-3.5" />
             </Link>
 
-            <Link href={`/shop/${product.slug}`} className="flex items-center justify-center gap-1 text-sm font-bold text-secondary hover:underline">
+            <Link href="/pre-order" className="flex items-center justify-center gap-1 text-sm font-bold text-secondary hover:underline">
               Prefer pump bottles? View {product.name} Pump <ArrowRight className="h-3 w-3" />
             </Link>
           </div>
@@ -384,7 +384,7 @@ function RelatedSachets({ currentSlug }: { currentSlug: ProductSlug }) {
           {related.map((slug) => {
             const p = products[slug];
             return (
-              <Link key={slug} href={`/shop/${slug}-sachets`} className="group product-card-hover rounded-2xl overflow-hidden border border-border bg-background">
+              <Link key={slug} href="/pre-order" className="group product-card-hover rounded-2xl overflow-hidden border border-border bg-background">
                 <div className="bg-background p-4 flex items-center justify-center aspect-square">
                   <Image src={p.sachetImage} alt={`${p.name} sachets`} width={160} height={160} loading="lazy" className="h-40 w-auto object-contain group-hover:scale-110 transition-transform duration-500" />
                 </div>

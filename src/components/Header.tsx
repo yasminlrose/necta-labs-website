@@ -12,13 +12,13 @@ import { useAuth } from "@/contexts/AuthContext";
 
 const announcements = [
   "Free delivery on orders over £35",
-  "Pre-order now — ships October 2026",
+  "Pre-order now — get your order November 2026",
   "Clinically-dosed ingredients, third-party tested",
   "New: GLOW — skin health from the inside out",
 ];
 
 const navLinks = [
-  { href: "/shop", label: "Shop" },
+  { href: "/pre-order", label: "Pre-Order", badge: true },
   { href: "/science", label: "Ingredients" },
   { href: "/about", label: "About" },
   { href: "/stockist", label: "Stockists" },
@@ -62,24 +62,19 @@ const Header = () => {
 
             {/* Desktop nav */}
             <div className="hidden md:flex items-center gap-8">
-              {navLinks.map(({ href, label }) => (
+              {navLinks.map(({ href, label, badge }) => (
                 <Link
                   key={href}
                   href={href}
-                  className="text-sm font-medium text-foreground/70 hover:text-foreground transition-colors"
+                  className="relative text-sm font-medium text-foreground/70 hover:text-foreground transition-colors"
                 >
                   {label}
+                  {badge && (
+                    <span className="absolute -top-1 -right-2.5 w-1.5 h-1.5 bg-necta-immunity rounded-full" />
+                  )}
                 </Link>
               ))}
             </div>
-
-            {/* Pick & Mix button (desktop only) */}
-            <Link
-              href="/pick-and-mix"
-              className="hidden md:inline-flex items-center gap-1.5 bg-primary text-white text-sm font-semibold px-4 py-2 rounded-full hover:bg-primary/90 transition-colors"
-            >
-              Pick &amp; Mix
-            </Link>
 
             {/* Icon group */}
             <div className="flex items-center gap-1">
@@ -166,11 +161,11 @@ const Header = () => {
               </button>
             )}
             <Link
-              href="/shop"
+              href="/pre-order"
               onClick={() => setMenuOpen(false)}
               className="block w-full bg-primary text-primary-foreground text-center font-medium py-3 rounded-md text-sm"
             >
-              Shop Now
+              Pre-order Now
             </Link>
           </div>
         </div>

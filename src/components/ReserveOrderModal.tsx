@@ -60,7 +60,7 @@ const ReserveOrderModal = ({ open, onClose, productName, productSlug, format, si
             productName: `NECTA ${productName}`,
             size,
             amount: price,
-            dispatchDate: "Summer 2026",
+            dispatchDate: "November 2026",
           },
         }),
       });
@@ -138,7 +138,7 @@ const ReserveOrderModal = ({ open, onClose, productName, productSlug, format, si
               </Button>
 
               <p className="text-xs text-foreground/35 text-center">
-                Ships Summer 2026 · No charge until dispatch · Cancel anytime
+                Ships November 2026 · No charge until dispatch · Cancel anytime
               </p>
             </form>
           </>

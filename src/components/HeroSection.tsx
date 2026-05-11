@@ -14,8 +14,8 @@ const slides = [
     label: "BEST SELLER",
     headline: "Mental clarity,\nwithout the crash.",
     sub: "Lion's Mane · Rhodiola · L-Theanine · Bacopa",
-    cta: "Shop FOCUS",
-    ctaLink: "/shop/focus",
+    cta: "Pre-order FOCUS",
+    ctaLink: "/pre-order",
     image: bottleFocus.src,
     imageAlt: "NECTA FOCUS bottle",
     // Pastel gradient — sage
@@ -26,8 +26,8 @@ const slides = [
     label: "BEST FOR CALM",
     headline: "Stress relief,\nnaturally.",
     sub: "Chamomile · Lemon Balm · Jujube Seed · Poria",
-    cta: "Shop CALM",
-    ctaLink: "/shop/calm",
+    cta: "Pre-order CALM",
+    ctaLink: "/pre-order",
     image: bottleCalm.src,
     imageAlt: "NECTA CALM bottle",
     // Pastel gradient — lavender
@@ -38,8 +38,8 @@ const slides = [
     label: "DAILY IMMUNITY",
     headline: "Daily defence,\ninside out.",
     sub: "Reishi · Elderberry · Ashwagandha · Vitamin C",
-    cta: "Shop IMMUNITY",
-    ctaLink: "/shop/immunity",
+    cta: "Pre-order IMMUNITY",
+    ctaLink: "/pre-order",
     image: bottleImmunity.src,
     imageAlt: "NECTA IMMUNITY bottle",
     // Pastel gradient — peach
@@ -50,8 +50,8 @@ const slides = [
     label: "NEW FORMULA",
     headline: "Radiant skin,\nfrom the inside.",
     sub: "Marine Collagen · Hyaluronic Acid · CoQ10 · Fisetin",
-    cta: "Shop GLOW",
-    ctaLink: "/shop/glow",
+    cta: "Pre-order GLOW",
+    ctaLink: "/pre-order",
     image: bottleGlow.src,
     imageAlt: "NECTA GLOW bottle",
     // Pastel gradient — warm rose
@@ -116,7 +116,7 @@ const HeroSection = () => {
               {slide.cta}
             </Link>
             <Link
-              href="/shop"
+              href="/pre-order"
               className="inline-block border border-primary/25 text-primary font-medium px-8 py-3.5 rounded-md text-sm hover:border-primary/50 transition-colors"
             >
               View All

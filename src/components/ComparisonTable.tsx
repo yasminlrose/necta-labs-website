@@ -125,8 +125,8 @@ const ComparisonTable = ({ product }: ComparisonTableProps) => {
         {/* CTA */}
         <div className="text-center mt-10">
           <Button size="lg" className="rounded-full gap-2" asChild>
-            <Link href={`/shop/${product.slug}`}>
-              Add {product.name} to your ritual <ArrowRight className="h-4 w-4" />
+            <Link href="/pre-order">
+              Pre-order {product.name} <ArrowRight className="h-4 w-4" />
             </Link>
           </Button>
         </div>

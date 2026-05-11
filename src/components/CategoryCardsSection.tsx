@@ -20,9 +20,9 @@ const CategoryCardsSection = () => {
     <section className="py-16 md:py-20 bg-white">
       <div className="necta-container">
         <div className="flex items-center justify-between mb-10">
-          <h2 className="text-2xl md:text-3xl font-bold text-primary">Shop by goal</h2>
+          <h2 className="text-2xl md:text-3xl font-bold text-primary">Pre-order by goal</h2>
           <Link
-            href="/shop"
+            href="/pre-order"
             className="flex items-center gap-1.5 text-sm font-medium text-primary/60 hover:text-primary transition-colors"
           >
             View all <ArrowRight className="h-4 w-4" />
@@ -33,7 +33,7 @@ const CategoryCardsSection = () => {
           {categories.map(({ slug, name, desc, image }) => (
             <Link
               key={slug}
-              href={`/shop/${slug}`}
+              href="/pre-order"
               className="group block rounded-xl overflow-hidden border border-border hover:border-primary/20 transition-all duration-200 hover:shadow-md bg-white"
             >
               {/* Image */}

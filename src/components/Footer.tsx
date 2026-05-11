@@ -156,13 +156,13 @@ const Footer = () => {
             <h4 className="text-sm font-semibold mb-4">Shop</h4>
             <ul className="space-y-3">
               {[
-                { href: "/shop", label: "All Products" },
-                { href: "/shop/focus", label: "FOCUS" },
-                { href: "/shop/immunity", label: "IMMUNITY" },
-                { href: "/shop/calm", label: "CALM" },
-                { href: "/shop/glow", label: "GLOW" },
+                { href: "/pre-order", label: "All Products" },
+                { href: "/pre-order", label: "FOCUS" },
+                { href: "/pre-order", label: "IMMUNITY" },
+                { href: "/pre-order", label: "CALM" },
+                { href: "/pre-order", label: "GLOW" },
               ].map(({ href, label }) => (
-                <li key={href}>
+                <li key={label}>
                   <Link
                     href={href}
                     className="text-sm text-primary-foreground/50 hover:text-primary-foreground transition-colors"

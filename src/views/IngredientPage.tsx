@@ -73,7 +73,7 @@ const IngredientPage = () => {
             {ingredient.foundIn.map(({ product, slug: pSlug }) => (
               <Link
                 key={pSlug}
-                href={`/shop/${pSlug}`}
+                href="/pre-order"
                 className="inline-flex items-center gap-1.5 text-xs font-medium text-foreground/60 bg-white/70 rounded-full px-3 py-1.5 hover:text-foreground transition-colors"
               >
                 <span
@@ -184,7 +184,7 @@ const IngredientPage = () => {
               return (
                 <Link
                   key={pSlug}
-                  href={`/shop/${pSlug}`}
+                  href="/pre-order"
                   className="flex items-center gap-4 rounded-xl bg-white border border-border p-4 hover:border-foreground/20 transition-colors group"
                 >
                   <div
@@ -253,7 +253,7 @@ const IngredientPage = () => {
               <Link href="/science">View the Science Library</Link>
             </Button>
             <Button variant="outline" size="lg" className="rounded-full" asChild>
-              <Link href="/shop">Shop NECTA</Link>
+              <Link href="/pre-order">Pre-order NECTA</Link>
             </Button>
           </div>
         </div>

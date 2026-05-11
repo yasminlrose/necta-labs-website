@@ -12,10 +12,10 @@ function getProductImageUrl(slug: string, size: string): string {
 
 export async function POST(req: NextRequest) {
   try {
-    const { priceId, email, mode, productName, size, productSlug, frequency } = await req.json();
+    const { priceId, email, mode, productName, size, productSlug, frequency, balance, purchaseType } = await req.json();
 
-    if (!priceId || !mode) {
-      return NextResponse.json({ error: 'Missing priceId or mode' }, { status: 400 });
+    if (!mode) {
+      return NextResponse.json({ error: 'Missing mode' }, { status: 400 });
     }
 
     const origin = req.headers.get('origin') ?? 'https://nectalabs.com';
@@ -27,16 +27,59 @@ export async function POST(req: NextRequest) {
       frequency: frequency ?? '',
     };
 
-    // Subscription pre-orders: subscription mode with trial_end = dispatch date.
-    // Use price_data so we control the product name, image, and interval display
-    // (avoids malformed nicknames on existing Stripe prices like "every2months").
-    // Stripe auto-formats interval_count into "every 2 months" / "every 3 months"
-    // with correct spacing. "X days free" is Stripe-generated and cannot be
-    // overridden in hosted checkout; custom_text clarifies no charge today.
-    if (mode === 'subscription') {
-      const trialEnd = Math.floor(new Date('2026-10-01T00:00:00Z').getTime() / 1000);
+    // ── £10 deposit pre-order ─────────────────────────────────────────────────
+    // Charges £10 now. Balance is charged manually on dispatch (November 2026).
+    if (mode === 'deposit') {
+      const imageUrl = getProductImageUrl(productSlug ?? '', size ?? '');
+      const balanceFormatted = balance ? `£${balance}` : '';
 
-      // Map frequency string → Stripe recurring interval
+      const session = await stripe.checkout.sessions.create({
+        mode: 'payment',
+        line_items: [
+          {
+            price_data: {
+              currency: 'gbp',
+              product_data: {
+                name: `NECTA ${productName ?? 'Infusion'} — Pre-order Deposit`,
+                description: [
+                  size,
+                  purchaseType === 'subscribe' ? `Subscribe (${frequency || 'monthly'})` : 'One-off',
+                  balanceFormatted ? `Balance ${balanceFormatted} due on dispatch` : undefined,
+                ].filter(Boolean).join(' · '),
+                images: [imageUrl],
+              },
+              unit_amount: 1000, // £10 in pence
+            },
+            quantity: 1,
+          },
+        ],
+        customer_email: email ?? undefined,
+        success_url: `${origin}/order-success?session_id={CHECKOUT_SESSION_ID}`,
+        cancel_url: `${origin}/pre-order`,
+        metadata: {
+          ...meta,
+          checkoutType: 'deposit',
+          balance: balance ?? '',
+          purchaseType: purchaseType ?? '',
+        },
+        custom_text: {
+          submit: {
+            message: `This £10 deposit secures your founding member pre-order. The remaining balance${balanceFormatted ? ` of ${balanceFormatted}` : ''} is only charged when your order ships in November 2026. Cancel any time before dispatch for a full refund.`,
+          },
+        },
+      });
+
+      return NextResponse.json({ url: session.url });
+    }
+
+    if (!priceId) {
+      return NextResponse.json({ error: 'Missing priceId' }, { status: 400 });
+    }
+
+    // ── Subscription pre-order (trial_end = dispatch date, no charge today) ───
+    if (mode === 'subscription') {
+      const trialEnd = Math.floor(new Date('2026-11-01T00:00:00Z').getTime() / 1000);
+
       let intervalCount = 1;
       if (frequency === 'every 2 months') intervalCount = 2;
       else if (frequency === 'every 3 months') intervalCount = 3;
@@ -68,11 +111,11 @@ export async function POST(req: NextRequest) {
           metadata: { ...meta, priceId, subscriptionType: 'preorder' },
         },
         success_url: `${origin}/order-success?session_id={CHECKOUT_SESSION_ID}`,
-        cancel_url: `${origin}/shop`,
+        cancel_url: `${origin}/pre-order`,
         metadata: meta,
         custom_text: {
           submit: {
-            message: `You won't be charged until 1 October 2026 when your order ships. Cancel any time before dispatch for a full refund.`,
+            message: `You won't be charged until November 2026 when your order ships. Cancel any time before dispatch for a full refund.`,
           },
         },
       });
@@ -80,18 +123,17 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ url: session.url });
     }
 
-    // One-off payment — reference the existing Stripe price so Stripe uses
-    // the product images already configured in the Stripe dashboard.
+    // ── One-off payment ───────────────────────────────────────────────────────
     const session = await stripe.checkout.sessions.create({
       mode: 'payment',
       line_items: [{ price: priceId, quantity: 1 }],
       customer_email: email ?? undefined,
       success_url: `${origin}/order-success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${origin}/shop`,
+      cancel_url: `${origin}/pre-order`,
       metadata: meta,
       custom_text: {
         submit: {
-          message: 'Pre-order: payment taken today. Your order ships in October 2026. Cancel before dispatch for a full refund.',
+          message: 'Pre-order: payment taken today. Your order ships in November 2026. Cancel before dispatch for a full refund.',
         },
       },
     });

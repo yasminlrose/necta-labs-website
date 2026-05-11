@@ -32,10 +32,10 @@ const OrderHistoryTab = () => {
 
       <div className="text-center">
         <Link
-          href="/shop"
+          href="/pre-order"
           className="text-sm font-medium text-primary/50 hover:text-primary transition-colors underline"
         >
-          Browse the shop
+          Browse pre-orders
         </Link>
       </div>
     </div>

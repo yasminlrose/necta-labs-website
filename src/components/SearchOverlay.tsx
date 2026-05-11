@@ -91,7 +91,7 @@ const SearchOverlay = ({ isOpen, onClose }: SearchOverlayProps) => {
                   return (
                     <Link
                       key={slug}
-                      href={`/shop/${slug}`}
+                      href="/pre-order"
                       onClick={onClose}
                       className="group flex gap-3 items-center p-3 rounded-lg hover:bg-muted transition-colors"
                     >
