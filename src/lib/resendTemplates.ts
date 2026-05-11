@@ -103,8 +103,8 @@ export async function sendEmail(
   variables: Record<string, string>,
 ): Promise<string> {
   const aliasMap: Record<EmailType, TemplateAlias> = {
-    deposit:      'order-confirmation',
-    preorder:     'order-confirmation',
+    deposit:      'pre-order-confirmation',
+    preorder:     'pre-order-confirmation',
     subscription: 'subscription-welcome',
     newsletter:   'newsletter-welcome',
     launch:       'launch-announcement',
