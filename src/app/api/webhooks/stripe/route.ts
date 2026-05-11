@@ -15,7 +15,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import Stripe from 'stripe';
 import { stripe } from '@/lib/stripe';
-import { sendTemplate, RESEND_TEMPLATES } from '@/lib/resendTemplates';
+import { sendEmail } from '@/lib/resendTemplates';
 import { createClient } from '@supabase/supabase-js';
 
 function getSupabase() {
@@ -126,16 +126,12 @@ export async function POST(req: NextRequest) {
       const orderDesc = [size, purchaseType === 'subscribe' ? `Subscribe (${freq || 'monthly'})` : 'One-off'].filter(Boolean).join(' · ');
       const balanceText = balance ? `£${balance}` : 'your remaining balance';
       try {
-        const resendId = await sendTemplate(
-          RESEND_TEMPLATES.ORDER_CONFIRMATION,
-          email,
-          {
+        const resendId = await sendEmail('deposit', email, {
             first_name:    firstName,
             product_name:  `NECTA ${productName} — ${orderDesc}`,
             order_total:   `£10 deposit (${balanceText} due on dispatch)`,
             dispatch_date: 'November 2026',
-          },
-        );
+          });
         console.log('[webhook] deposit confirmation sent — id:', resendId);
       } catch (err) {
         console.error('[webhook] deposit confirmation email failed:', err instanceof Error ? err.message : String(err));
@@ -156,11 +152,9 @@ export async function POST(req: NextRequest) {
       const amount = `£${(amountPence / 100).toFixed(2)}`;
 
       try {
-        const resendId = await sendTemplate(
-          RESEND_TEMPLATES.ORDER_CONFIRMATION,
-          email,
-          { first_name: firstName, product_name: productName, order_total: amount, dispatch_date: 'November 2026' },
-        );
+        const resendId = await sendEmail('deposit', email, {
+          first_name: firstName, product_name: productName, order_total: amount, dispatch_date: 'November 2026',
+        });
         console.log('[webhook] order-confirmation sent — id:', resendId);
       } catch (err) {
         console.error('[webhook] order-confirmation failed:', err instanceof Error ? err.message : String(err));
@@ -199,17 +193,13 @@ export async function POST(req: NextRequest) {
       const frequency = deriveFrequency(size, metaFrequency);
 
       try {
-        const resendId = await sendTemplate(
-          RESEND_TEMPLATES.SUBSCRIPTION_WELCOME,
-          email,
-          {
-            first_name:        firstName,
-            product_name:      productName,
-            amount:            subscriptionAmount,
-            next_billing_date: firstChargeDate,
-            frequency,
-          },
-        );
+        const resendId = await sendEmail('subscription', email, {
+          first_name:        firstName,
+          product_name:      productName,
+          amount:            subscriptionAmount,
+          next_billing_date: firstChargeDate,
+          frequency,
+        });
         console.log('[webhook] subscription-welcome sent — id:', resendId);
       } catch (err) {
         console.error('[webhook] subscription-welcome failed:', err instanceof Error ? err.message : String(err));
@@ -253,10 +243,7 @@ export async function POST(req: NextRequest) {
 
     // Use ORDER_CONFIRMATION template for actual charges
     try {
-      const resendId = await sendTemplate(
-        RESEND_TEMPLATES.ORDER_CONFIRMATION,
-        email,
-        {
+      const resendId = await sendEmail('deposit', email, {
           first_name:    firstName,
           product_name:  'NECTA Subscription',
           order_total:   amount,

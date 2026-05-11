@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
@@ -64,16 +64,16 @@ const HeroSection = () => {
   const [current, setCurrent] = useState(0);
   const [fading, setFading] = useState(false);
 
+  const advance = useCallback((idx: number) => {
+    if (idx === current) return;
+    setFading(true);
+    setTimeout(() => { setCurrent(idx); setFading(false); }, 350);
+  }, [current]);
+
   useEffect(() => {
     const timer = setInterval(() => advance((current + 1) % slides.length), 5500);
     return () => clearInterval(timer);
-  }, [current, advance]); // eslint-disable-line react-hooks/exhaustive-deps
-
-  const advance = (idx: number) => {
-    if (fading || idx === current) return;
-    setFading(true);
-    setTimeout(() => { setCurrent(idx); setFading(false); }, 350);
-  };
+  }, [current, advance]);
 
   const prev = () => advance((current - 1 + slides.length) % slides.length);
   const next = () => advance((current + 1) % slides.length);

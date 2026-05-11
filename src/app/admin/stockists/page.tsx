@@ -53,7 +53,7 @@ export default function AdminStockistsPage() {
   useEffect(() => {
     const saved = sessionStorage.getItem('admin_pwd');
     if (saved) fetchApps(saved);
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, []);
 
   const handleAction = async (id: string, status: 'approved' | 'denied') => {
     setActing(id);
