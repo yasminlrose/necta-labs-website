@@ -29,7 +29,7 @@ export default function ReviewSection({ product }: { product: string }) {
 
   useEffect(() => {
     fetchReviews();
-  }, [product]);
+  }, [product]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const fetchReviews = async () => {
     const { data } = await supabase

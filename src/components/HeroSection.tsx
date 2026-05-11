@@ -67,7 +67,7 @@ const HeroSection = () => {
   useEffect(() => {
     const timer = setInterval(() => advance((current + 1) % slides.length), 5500);
     return () => clearInterval(timer);
-  }, [current]);
+  }, [current, advance]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const advance = (idx: number) => {
     if (fading || idx === current) return;

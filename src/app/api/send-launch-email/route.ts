@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { sendTemplate, RESEND_TEMPLATES } from '@/lib/resendTemplates';
+import { sendEmail } from '@/lib/resendTemplates';
 
 export async function POST(req: NextRequest) {
   console.log('[send-launch-email] POST received');
@@ -29,11 +29,7 @@ export async function POST(req: NextRequest) {
       batch.map(async ({ email, firstName }) => {
         try {
           console.log('[send-launch-email] sending to:', email, '| firstName:', firstName ?? 'there');
-          const id = await sendTemplate(
-            RESEND_TEMPLATES.LAUNCH_ANNOUNCEMENT,
-            email,
-            { first_name: firstName ?? 'there' },
-          );
+          const id = await sendEmail('launch', email, { first_name: firstName ?? 'there' });
           console.log('[send-launch-email] sent to:', email, '| resend id:', id);
           sent++;
         } catch (err) {
