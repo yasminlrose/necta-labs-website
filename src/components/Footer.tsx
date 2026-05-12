@@ -228,9 +228,14 @@ const Footer = () => {
           <p className="text-xs text-primary-foreground/25">
             © 2026 NECTA GROUP LTD — Registered in England & Wales
           </p>
-          <p className="text-xs text-primary-foreground/25">
-            Organic functional infusions
-          </p>
+          <div className="flex items-center gap-5">
+            <Link href="/privacy" className="text-xs text-primary-foreground/25 hover:text-primary-foreground/50 transition-colors">
+              Privacy Policy
+            </Link>
+            <Link href="/terms" className="text-xs text-primary-foreground/25 hover:text-primary-foreground/50 transition-colors">
+              Terms & Conditions
+            </Link>
+          </div>
         </div>
       </div>
     </footer>

@@ -422,7 +422,7 @@ export default function PreOrderPage() {
               { q: "Why a deposit instead of full payment?", a: "Your £10 deposit secures your place and your founding member perks. The remaining balance is charged on 1 November 2026 — orders dispatch from 17 November 2026." },
               { q: "When will my order ship?", a: "Orders dispatch from 17 November 2026. We charge your balance on 1 November to give us time to process everything and ensure all orders are fulfilled together." },
               { q: "Can I pre-order more than one product?", a: "Yes — reserve as many as you like. Each costs a £10 deposit and they'll all ship together in one order." },
-              { q: "What if I want to cancel?", a: "Email hello@nectalabs.com any time before dispatch and we'll cancel your reservation and refund your deposit in full. No questions asked." },
+              { q: "What if I want to cancel?", a: "You can cancel any time before dispatch directly from your account. Sign in using the same email you used to pre-order, go to Order History or Subscriptions, and hit cancel. Your £10 deposit will be refunded in full — no questions asked." },
             ].map((item) => <FaqItem key={item.q} {...item} />)}
           </div>
         </div>
