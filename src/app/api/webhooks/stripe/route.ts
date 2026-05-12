@@ -149,7 +149,7 @@ export async function POST(req: NextRequest) {
 
       // Create founding member coupon + personal promo code in Stripe
       const FOUNDING_COUPON_ID = 'founding-member-15pct';
-      let couponCode = memberNumber ? `FOUNDING${memberNumber}` : '';
+      const couponCode = memberNumber ? `FOUNDING${memberNumber}` : '';
       if (memberNumber && session.customer) {
         try {
           // Ensure the base coupon exists
