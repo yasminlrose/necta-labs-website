@@ -73,14 +73,9 @@ function OrderSuccessContent() {
           const res = await fetch(`/api/check-account?email=${encodeURIComponent(data.email)}`);
           const { exists } = await res.json();
 
+          // Whether or not they have an account, the webhook confirmation email
+          // already contains a sign-in link — don't send a second email here.
           if (exists) {
-            // Send magic link via our own API (routes through Resend, bypasses Supabase SMTP)
-            await fetch('/api/send-magic-link', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ email: data.email }),
-            });
-            setMagicSent(true);
             setAccountState('magic');
           } else {
             setAccountState('signup');
@@ -152,23 +147,27 @@ function OrderSuccessContent() {
         {showAccountCard && (
           <div className="bg-white border border-border rounded-2xl p-6 mb-8 text-left">
 
-            {/* Existing account — magic link sent */}
+            {/* Existing account — sign-in link is in the confirmation email */}
             {accountState === 'magic' && (
               <>
                 <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center mb-4">
                   <Mail className="h-5 w-5 text-primary" />
                 </div>
-                <h2 className="text-base font-bold text-primary mb-1">Check your email to sign in</h2>
+                <h2 className="text-base font-bold text-primary mb-1">Check your confirmation email</h2>
                 <p className="text-xs text-primary/50 mb-4">
-                  We've sent a sign-in link to <strong>{order!.email}</strong>. Click it to access your account and order details — no password needed.
+                  Your order confirmation has been sent to <strong>{order!.email}</strong>. It includes a button to sign in to your account — no password needed.
                 </p>
-                <button
-                  onClick={handleResendMagicLink}
-                  disabled={authLoading}
-                  className="w-full border border-border text-primary font-medium py-3 rounded-lg text-sm hover:bg-muted transition-colors disabled:opacity-50"
-                >
-                  {authLoading ? 'Sending…' : magicSent ? 'Resend link' : 'Send link'}
-                </button>
+                {!magicSent ? (
+                  <button
+                    onClick={handleResendMagicLink}
+                    disabled={authLoading}
+                    className="w-full border border-border text-primary font-medium py-3 rounded-lg text-sm hover:bg-muted transition-colors disabled:opacity-50"
+                  >
+                    {authLoading ? 'Sending…' : "Didn't get it? Resend sign-in link"}
+                  </button>
+                ) : (
+                  <p className="text-xs text-green-600 text-center">Sign-in link sent — check your inbox.</p>
+                )}
               </>
             )}
 
