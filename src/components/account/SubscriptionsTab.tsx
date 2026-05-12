@@ -1,7 +1,9 @@
 'use client';
 
+import { useState } from "react";
 import Link from "next/link";
-import { Package, Clock, CheckCircle2, Calendar, RefreshCw } from "lucide-react";
+import { Package, Clock, CheckCircle2, Calendar, RefreshCw, X, AlertTriangle } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 
 interface PreOrder {
   id: string;
@@ -45,7 +47,39 @@ function isSubscription(format: string | null): boolean {
 }
 
 const SubscriptionsTab = ({ orders }: Props) => {
-  const subscriptionOrders = orders.filter((o) => isSubscription(o.format));
+  const [liveOrders, setLiveOrders] = useState(orders);
+  const [confirmingId, setConfirmingId] = useState<string | null>(null);
+  const [cancellingId, setCancellingId] = useState<string | null>(null);
+  const [cancelError, setCancelError] = useState<string | null>(null);
+
+  const subscriptionOrders = liveOrders.filter((o) => isSubscription(o.format) && o.status !== 'cancelled');
+
+  const handleCancel = async (orderId: string) => {
+    setCancellingId(orderId);
+    setCancelError(null);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      const res = await fetch('/api/cancel-order', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session?.access_token ?? ''}`,
+        },
+        body: JSON.stringify({ orderId }),
+      });
+      const data = await res.json() as { ok?: boolean; error?: string };
+      if (!res.ok || !data.ok) {
+        setCancelError(data.error ?? 'Something went wrong. Please contact hello@nectalabs.com');
+      } else {
+        setLiveOrders((prev) => prev.map((o) => o.id === orderId ? { ...o, status: 'cancelled' } : o));
+      }
+    } catch {
+      setCancelError('Could not connect. Please try again or contact hello@nectalabs.com');
+    } finally {
+      setCancellingId(null);
+      setConfirmingId(null);
+    }
+  };
 
   if (subscriptionOrders.length === 0) {
     return (
@@ -124,6 +158,16 @@ const SubscriptionsTab = ({ orders }: Props) => {
                 <p>{new Date(order.created_at).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}</p>
               </div>
             </div>
+
+            {order.status === 'deposit_paid' && (
+              <button
+                onClick={() => setConfirmingId(order.id)}
+                disabled={!!cancellingId}
+                className="mt-3 w-full flex items-center justify-center gap-1.5 py-2 border border-red-200 text-red-500 rounded-xl text-xs font-medium hover:bg-red-50 transition-colors disabled:opacity-50"
+              >
+                <X className="h-3.5 w-3.5" /> Cancel subscription
+              </button>
+            )}
           </div>
         );
       })}
@@ -151,15 +195,45 @@ const SubscriptionsTab = ({ orders }: Props) => {
         </div>
       </div>
 
-      {/* Cancel note */}
-      <div className="border border-dashed border-primary/20 rounded-xl p-4 text-center">
-        <p className="text-xs text-primary/50 mb-2">
-          Need to cancel before dispatch? Email us and we'll sort it immediately.
-        </p>
-        <a href="mailto:hello@nectalabs.com?subject=Pre-order cancellation" className="text-xs font-semibold text-primary hover:underline">
-          hello@nectalabs.com
-        </a>
-      </div>
+      {cancelError && (
+        <div className="bg-red-50 border border-red-200 rounded-xl px-4 py-3 text-sm text-red-700">
+          {cancelError}
+        </div>
+      )}
+
+      {/* Confirm dialog */}
+      {confirmingId && (() => {
+        const order = liveOrders.find((o) => o.id === confirmingId)!;
+        return (
+          <div className="fixed inset-0 z-50 flex items-center justify-center px-4" onClick={() => setConfirmingId(null)}>
+            <div className="absolute inset-0 bg-black/40" />
+            <div className="relative bg-white rounded-2xl p-6 max-w-sm w-full shadow-xl" onClick={(e) => e.stopPropagation()}>
+              <div className="w-10 h-10 rounded-full bg-red-50 flex items-center justify-center mb-4">
+                <AlertTriangle className="h-5 w-5 text-red-500" />
+              </div>
+              <h3 className="font-bold text-primary text-base mb-2">Cancel this subscription?</h3>
+              <p className="text-sm text-primary/55 leading-relaxed mb-1">
+                <strong>{productName(order.product_slug)}</strong>{order.size ? ` · ${order.size}` : ""}
+              </p>
+              <p className="text-sm text-primary/55 leading-relaxed mb-5">
+                Your subscription will be cancelled and no charge will be taken on 1 November 2026. This cannot be undone.
+              </p>
+              <div className="flex gap-3">
+                <button onClick={() => setConfirmingId(null)} className="flex-1 py-2.5 border border-border rounded-xl text-sm font-medium text-primary/60 hover:text-primary transition-colors">
+                  Keep it
+                </button>
+                <button
+                  onClick={() => handleCancel(confirmingId)}
+                  disabled={cancellingId === confirmingId}
+                  className="flex-1 py-2.5 bg-red-500 text-white rounded-xl text-sm font-semibold hover:bg-red-600 transition-colors disabled:opacity-60"
+                >
+                  {cancellingId === confirmingId ? "Cancelling…" : "Yes, cancel"}
+                </button>
+              </div>
+            </div>
+          </div>
+        );
+      })()}
 
       {/* Add more */}
       <div className="text-center">
