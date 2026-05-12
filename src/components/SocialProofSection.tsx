@@ -1,10 +1,10 @@
-import { Star, Users, BadgeCheck, Leaf } from "lucide-react";
+import { Leaf, FlaskConical, Droplets, ShieldCheck } from "lucide-react";
 
 const stats = [
-  { Icon: Users, value: "500+", label: "Daily Customers" },
-  { Icon: Star, value: "4.8★", label: "Average Rating" },
-  { Icon: BadgeCheck, value: "460+", label: "Verified Reviews" },
   { Icon: Leaf, value: "100%", label: "Natural Ingredients" },
+  { Icon: FlaskConical, value: "4", label: "Clinically-Dosed Blends" },
+  { Icon: Droplets, value: "1 drop", label: "Into Any Drink" },
+  { Icon: ShieldCheck, value: "UK Made", label: "Organic Certified" },
 ];
 
 const SocialProofSection = () => {

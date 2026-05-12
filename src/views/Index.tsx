@@ -8,7 +8,6 @@ import SocialProofSection from "@/components/SocialProofSection";
 import BundleSection from "@/components/BundleSection";
 import FeatureIconsSection from "@/components/FeatureIconsSection";
 import BenefitTabsSection from "@/components/BenefitTabsSection";
-import ReviewsSection from "@/components/ReviewsSection";
 import IngredientSpotlightsSection from "@/components/IngredientSpotlightsSection";
 import CategoryCardsSection from "@/components/CategoryCardsSection";
 import Footer from "@/components/Footer";
@@ -26,7 +25,6 @@ const Index = () => {
         <BundleSection />
         <FeatureIconsSection />
         <BenefitTabsSection />
-        <ReviewsSection />
         <IngredientSpotlightsSection />
         <CategoryCardsSection />
       </main>
