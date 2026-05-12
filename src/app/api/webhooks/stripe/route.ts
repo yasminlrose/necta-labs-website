@@ -163,7 +163,8 @@ export async function POST(req: NextRequest) {
             });
           }
           // Create a unique promo code tied to this customer
-          await stripe.promotionCodes.create({
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          await (stripe.promotionCodes.create as any)({
             coupon: FOUNDING_COUPON_ID,
             code: couponCode,
             customer: session.customer as string,
