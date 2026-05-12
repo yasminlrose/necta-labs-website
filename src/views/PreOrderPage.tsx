@@ -56,7 +56,7 @@ function FoundingPerks() {
           Be one of our first 100 —<br className="hidden sm:block" /> get exclusive perks for life.
         </h2>
         <p className="text-primary/55 text-sm max-w-lg mx-auto mb-10">
-          Reserve your order with a £10 deposit today. Your balance is only charged when your order ships in November 2026.
+          Reserve your order with a £10 deposit today. Your balance is charged on 1 November 2026 — orders dispatch from 17 November 2026.
         </p>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 mb-8">
           {[
@@ -345,7 +345,7 @@ function ProductColumn({ slug }: { slug: ProductSlug }) {
               <span className="text-xs font-semibold text-primary">Today: £{DEPOSIT} deposit</span>
               <span className="text-[9px] bg-white/70 rounded-full px-2 py-0.5 text-primary/50">Refundable</span>
             </div>
-            <p className="text-[10px] text-primary/50 mt-0.5">Balance £{balance} on dispatch · Nov 2026</p>
+            <p className="text-[10px] text-primary/50 mt-0.5">Balance £{balance} charged 1 Nov · Ships from 17 Nov 2026</p>
           </div>
 
           {/* CTA */}
@@ -419,8 +419,8 @@ export default function PreOrderPage() {
           <h2 className="text-2xl font-bold text-primary mb-8 text-center">Pre-order questions</h2>
           <div className="space-y-3">
             {[
-              { q: "Why a deposit instead of full payment?", a: "Your £10 deposit secures your place and your founding member perks. The balance is only charged when your order ships in November 2026." },
-              { q: "When will my order ship?", a: "We're targeting November 2026. We'll always email you before charging your balance — you'll have full notice." },
+              { q: "Why a deposit instead of full payment?", a: "Your £10 deposit secures your place and your founding member perks. The remaining balance is charged on 1 November 2026 — orders dispatch from 17 November 2026." },
+              { q: "When will my order ship?", a: "Orders dispatch from 17 November 2026. We charge your balance on 1 November to give us time to process everything and ensure all orders are fulfilled together." },
               { q: "Can I pre-order more than one product?", a: "Yes — reserve as many as you like. Each costs a £10 deposit and they'll all ship together in one order." },
               { q: "What if I want to cancel?", a: "Email hello@nectalabs.com any time before dispatch and we'll cancel your reservation and refund your deposit in full. No questions asked." },
             ].map((item) => <FaqItem key={item.q} {...item} />)}

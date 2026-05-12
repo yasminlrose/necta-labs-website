@@ -200,7 +200,7 @@ export async function POST(req: NextRequest) {
             first_name:    firstName,
             product_name:  `NECTA ${productName} — ${orderDesc}`,
             order_total:   `£10 deposit (${balanceText} due on dispatch)`,
-            dispatch_date: 'November 2026',
+            dispatch_date: 'From 17 November 2026',
             sign_in_url:   signInUrl,
             member_number: memberNumber ? String(memberNumber) : '',
             coupon_code:   couponCode,
@@ -226,7 +226,7 @@ export async function POST(req: NextRequest) {
 
       try {
         const resendId = await sendEmail('deposit', email, {
-          first_name: firstName, product_name: productName, order_total: amount, dispatch_date: 'November 2026',
+          first_name: firstName, product_name: productName, order_total: amount, dispatch_date: 'From 17 November 2026',
         });
         console.log('[webhook] order-confirmation sent — id:', resendId);
       } catch (err) {

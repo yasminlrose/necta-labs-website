@@ -407,7 +407,7 @@ const AccountPage = () => {
               ) : orders.length > 0 ? (
                 <>
                   <p className="text-sm font-bold text-white">Confirmed ✓</p>
-                  <p className="text-xs text-primary-foreground/40 mt-0.5">Ships November 2026</p>
+                  <p className="text-xs text-primary-foreground/40 mt-0.5">Charged 1 Nov · Ships from 17 Nov 2026</p>
                 </>
               ) : (
                 <>

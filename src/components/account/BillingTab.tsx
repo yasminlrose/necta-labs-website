@@ -38,7 +38,7 @@ const BillingTab = () => {
         </div>
         <p className="text-2xl font-bold">1 November 2026</p>
         <p className="text-sm text-primary-foreground/70 mt-1">
-          No payment is taken today. Your card will be charged when your order ships.
+          Your card is charged on 1 November. Orders are dispatched from 17 November 2026.
         </p>
       </div>
 

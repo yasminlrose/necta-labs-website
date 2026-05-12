@@ -103,7 +103,7 @@ const OrderHistoryTab = ({ email }: Props) => {
               </div>
               <div>
                 <p className="font-medium text-primary/70 mb-0.5">Expected dispatch</p>
-                <p>November 2026</p>
+                <p>From 17 November 2026</p>
               </div>
             </div>
           </div>
