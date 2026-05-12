@@ -187,11 +187,12 @@ export async function POST(req: NextRequest) {
       // Send confirmation email (with magic sign-in link embedded)
       const orderDesc = [size, purchaseType === 'subscribe' ? `Subscribe (${freq || 'monthly'})` : 'One-off'].filter(Boolean).join(' · ');
       const balanceText = balance ? `£${balance}` : 'your remaining balance';
-      // On production use the canonical domain; on preview use the deployment URL
+      // Use stable URLs only — VERCEL_URL changes every deploy and can't be
+      // whitelisted in Supabase. VERCEL_BRANCH_URL is stable per branch.
       const origin = process.env.VERCEL_ENV === 'production'
         ? 'https://nectalabs.com'
-        : process.env.VERCEL_URL
-          ? `https://${process.env.VERCEL_URL}`
+        : process.env.VERCEL_BRANCH_URL
+          ? `https://${process.env.VERCEL_BRANCH_URL}`
           : 'https://nectalabs.com';
       const signInUrl = await generateMagicLink(email, origin);
       try {
