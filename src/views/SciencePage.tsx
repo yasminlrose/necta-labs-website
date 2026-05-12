@@ -408,8 +408,8 @@ const pillars = [
     body: "Every ingredient at a proven therapeutic level. No underdosing. No proprietary blends.",
   },
   {
-    label: "70% organic",
-    body: "Certified organic botanicals. No synthetic pesticides, no GMOs.",
+    label: "Organic",
+    body: "Organic botanicals. No synthetic pesticides, no GMOs.",
   },
   {
     label: "Full transparency",

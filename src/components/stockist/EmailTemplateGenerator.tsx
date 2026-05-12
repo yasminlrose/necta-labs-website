@@ -75,7 +75,7 @@ export default function EmailTemplateGenerator({ stockistRef = 'stockist', recip
     <hr style="border:none;border-top:1px solid #E8E4DE;margin:24px 0;">
     <div style="background:#F0F9F5;border-left:3px solid #2A9D82;border-radius:0 4px 4px 0;padding:16px 20px;margin:0 0 24px;">
       <p style="font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;font-size:13px;color:#1A4030;line-height:1.6;margin:0;">
-        Each formula is clinically dosed with adaptogens, nootropics and botanicals. 70%+ organic. No sugar. No artificial flavours. Just 2 pumps into any drink.
+        Each formula is clinically dosed with adaptogens, nootropics and botanicals. Organic. No sugar. No artificial flavours. Just 2 pumps into any drink.
       </p>
     </div>
     <p style="font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;font-size:10px;font-weight:bold;letter-spacing:2px;text-transform:uppercase;color:#2A9D82;margin:0 0 14px;">How it works</p>

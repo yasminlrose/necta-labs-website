@@ -16,7 +16,7 @@ const rows: {
 }[] = [
   { feature: "Clinically relevant doses", necta: "yes", powders: "partial", gummies: "no", infusions: "no" },
   { feature: "Adds to drinks you already make", necta: "yes", powders: "partial", gummies: "no", infusions: "yes" },
-  { feature: "Organic certified (70%+ by weight)", necta: "yes", powders: "partial", gummies: "no", infusions: "no" },
+  { feature: "Organic certified", necta: "yes", powders: "partial", gummies: "no", infusions: "no" },
   { feature: "No mixing, blending, or shaking", necta: "yes", powders: "no", gummies: "yes", infusions: "yes" },
   { feature: "Covers Focus, Immunity, Calm & Glow", necta: "yes", powders: "no", gummies: "no", infusions: "no" },
   { feature: "Works in hot and cold drinks", necta: "yes", powders: "partial", gummies: "no", infusions: "yes" },

@@ -507,7 +507,7 @@ const StockistPage = () => {
                 A product your customers are proud to be seen with — and that positions your venue as wellness-forward.
               </p>
               {[
-                "70% organic by weight",
+                "Organic ingredients",
                 "Made in the UK",
                 "No proprietary blends",
                 "Every ingredient &amp; dose on label",

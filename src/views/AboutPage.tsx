@@ -59,7 +59,7 @@ const AboutPage = () => {
                   I just wanted Lion's Mane in my morning coffee. Reishi in my matcha. Collagen in my smoothie. Without the texture, without the taste, and without the faff of swallowing a handful of capsules every morning.
                 </p>
                 <p>
-                  So I built it. Two pumps. All your supplements. Into any drink — coffee, matcha, smoothie, cocktail, or straight from the bottle when you're on the go. Clinically dosed, 70% organic, and it actually tastes amazing.
+                  So I built it. Two pumps. All your supplements. Into any drink — coffee, matcha, smoothie, cocktail, or straight from the bottle when you're on the go. Clinically dosed, organic, and it actually tastes amazing.
                 </p>
                 <p className="font-semibold text-foreground">
                   That's the whole idea. That's NECTA.
