@@ -12,7 +12,7 @@ const SubscriptionsTab = () => {
         <div>
           <p className="font-semibold text-green-800 text-sm">Your pre-order subscription is confirmed</p>
           <p className="text-xs text-green-700 mt-1">
-            Your subscription will activate and your first charge will be taken on <strong>1 October 2026</strong> when your order ships.
+            Your subscription will activate and your first charge will be taken on <strong>1 November 2026</strong> when your order ships.
             You'll receive an email when it's on its way.
           </p>
         </div>
@@ -25,7 +25,7 @@ const SubscriptionsTab = () => {
           {[
             { icon: <CheckCircle2 className="h-4 w-4 text-green-500" />, label: "Pre-order confirmed", sub: "Your spot is reserved", done: true },
             { icon: <Clock className="h-4 w-4 text-primary/30" />, label: "Production & fulfilment", sub: "Summer – Autumn 2026", done: false },
-            { icon: <Calendar className="h-4 w-4 text-primary/30" />, label: "First charge & dispatch", sub: "1 October 2026", done: false },
+            { icon: <Calendar className="h-4 w-4 text-primary/30" />, label: "First charge & dispatch", sub: "1 November 2026", done: false },
             { icon: <Package className="h-4 w-4 text-primary/30" />, label: "Subscription begins", sub: "Regular deliveries start", done: false },
           ].map((step, i) => (
             <div key={i} className="flex items-start gap-3">
