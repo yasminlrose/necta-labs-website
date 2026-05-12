@@ -124,19 +124,23 @@ export async function POST(req: NextRequest) {
       const size = session.metadata?.size ?? '';
       const freq = session.metadata?.frequency ?? '';
 
-      // Save to pre_orders table and get member number
+      // Save to pre_orders table and get member number (count after insert)
       let memberNumber = 0;
       try {
         const supabase = getSupabase();
-        const { data: inserted } = await supabase.from('pre_orders').insert({
+        await supabase.from('pre_orders').insert({
           email,
           product_slug: productSlug,
           format: purchaseType === 'subscribe' ? 'subscription' : 'one-off',
           size,
           quantity: 1,
           status: 'deposit_paid',
-        }).select('id').single();
-        memberNumber = inserted?.id ?? 0;
+        });
+        const { count } = await supabase
+          .from('pre_orders')
+          .select('*', { count: 'exact', head: true })
+          .eq('status', 'deposit_paid');
+        memberNumber = count ?? 0;
         // Also add to email_signups
         await supabase.from('email_signups').insert({
           email,
@@ -183,7 +187,12 @@ export async function POST(req: NextRequest) {
       // Send confirmation email (with magic sign-in link embedded)
       const orderDesc = [size, purchaseType === 'subscribe' ? `Subscribe (${freq || 'monthly'})` : 'One-off'].filter(Boolean).join(' · ');
       const balanceText = balance ? `£${balance}` : 'your remaining balance';
-      const origin = process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'https://nectalabs.com';
+      // On production use the canonical domain; on preview use the deployment URL
+      const origin = process.env.VERCEL_ENV === 'production'
+        ? 'https://nectalabs.com'
+        : process.env.VERCEL_URL
+          ? `https://${process.env.VERCEL_URL}`
+          : 'https://nectalabs.com';
       const signInUrl = await generateMagicLink(email, origin);
       try {
         const resendId = await sendEmail('deposit', email, {
