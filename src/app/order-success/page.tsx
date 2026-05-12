@@ -140,7 +140,7 @@ function OrderSuccessContent() {
 
         <h1 className="text-3xl font-bold text-primary mb-3">Your pre-order is confirmed.</h1>
         <p className="text-base text-primary/60 mb-2">
-          Your product ships in October 2026. Check your email for your confirmation.
+          Your product ships in November 2026. Check your email for your confirmation.
         </p>
         <p className="text-sm text-primary/40 mb-8">
           Thank you for being here at the beginning.
