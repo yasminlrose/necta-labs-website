@@ -5,7 +5,6 @@ import WhatIsNectaSection from "@/components/WhatIsNectaSection";
 import HeroSection from "@/components/HeroSection";
 import BestSellersSection from "@/components/BestSellersSection";
 import SocialProofSection from "@/components/SocialProofSection";
-import BundleSection from "@/components/BundleSection";
 import FeatureIconsSection from "@/components/FeatureIconsSection";
 import BenefitTabsSection from "@/components/BenefitTabsSection";
 import IngredientSpotlightsSection from "@/components/IngredientSpotlightsSection";
@@ -22,7 +21,6 @@ const Index = () => {
         <HeroSection />
         <BestSellersSection />
         <SocialProofSection />
-        <BundleSection />
         <FeatureIconsSection />
         <BenefitTabsSection />
         <IngredientSpotlightsSection />
