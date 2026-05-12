@@ -54,6 +54,10 @@ export async function POST(req: NextRequest) {
           },
         ],
         customer_email: email ?? undefined,
+        payment_intent_data: {
+          // Save card for off-session charge when order dispatches (Nov 2026)
+          setup_future_usage: 'off_session',
+        },
         success_url: `${origin}/order-success?session_id={CHECKOUT_SESSION_ID}`,
         cancel_url: `${origin}/pre-order`,
         metadata: {
