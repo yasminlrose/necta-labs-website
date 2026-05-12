@@ -87,8 +87,8 @@ const WaitlistPage = () => {
               <span className="w-1.5 h-1.5 rounded-full bg-necta-immunity animate-pulse" />
               <span className="text-xs text-primary/70 font-medium">
                 {spotsRemaining > 0
-                  ? `${spotsRemaining} founding member spot${spotsRemaining === 1 ? "" : "s"} remaining`
-                  : "Founding spots full — join the free waitlist below"}
+                  ? `${spotsRemaining} of 100 founding member pre-order spot${spotsRemaining === 1 ? "" : "s"} remaining`
+                  : "Founding pre-order spots full — join Early Access below"}
               </span>
             </div>
             <div className="w-52 h-1.5 bg-primary/10 rounded-full overflow-hidden">
@@ -97,7 +97,7 @@ const WaitlistPage = () => {
                 style={{ width: `${progressPct}%` }}
               />
             </div>
-            <p className="text-[10px] text-primary/35">{waitlistCount} of {FOUNDING_LIMIT} founding spots claimed</p>
+            <p className="text-[10px] text-primary/35">{waitlistCount} of {FOUNDING_LIMIT} founding pre-orders placed</p>
           </div>
 
           <p className="text-xs font-semibold uppercase tracking-[0.25em] text-primary/35 mb-5">
@@ -125,20 +125,20 @@ const WaitlistPage = () => {
           {/* CTAs */}
           {submitted ? (
             <div className="max-w-sm mx-auto bg-white/80 backdrop-blur-sm rounded-3xl p-8 text-center shadow-sm border border-primary/8">
-              <div className="w-14 h-14 rounded-full flex items-center justify-center mx-auto mb-4 text-xl font-bold text-white bg-primary">
-                #{memberNumber}
+              <div className="w-14 h-14 rounded-full flex items-center justify-center mx-auto mb-4 bg-green-100">
+                <svg className="h-7 w-7 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                </svg>
               </div>
-              <h2 className="text-xl font-bold text-primary mb-2">
-                You're Founding Member #{memberNumber}
-              </h2>
+              <h2 className="text-xl font-bold text-primary mb-2">You're on the Early Access list</h2>
               <p className="text-sm text-primary/50 leading-relaxed mb-5">
-                We'll email you before launch with your 15% discount and first access to new flavours. Welcome to the founding crew.
+                We'll email you the moment NECTA launches. Want 15% off every order forever and a founding member number? Secure your pre-order with a £10 deposit.
               </p>
               <Link
                 href="/pre-order"
                 className="inline-flex items-center gap-1.5 text-sm font-semibold text-primary hover:opacity-70 transition-opacity"
               >
-                Secure your order with a £10 deposit <ArrowRight className="h-3.5 w-3.5" />
+                Become a Founding Member — £10 deposit <ArrowRight className="h-3.5 w-3.5" />
               </Link>
             </div>
           ) : (
@@ -156,7 +156,7 @@ const WaitlistPage = () => {
                   onClick={() => setShowForm(true)}
                   className="w-full py-4 px-6 bg-white/60 border border-primary/20 text-primary rounded-full font-medium text-sm hover:bg-white/80 transition-colors"
                 >
-                  Join Free Waitlist Instead
+                  Just get launch updates instead
                 </button>
               ) : (
                 <form onSubmit={handleSubmit} className="flex flex-col gap-2 pt-1">
@@ -173,7 +173,7 @@ const WaitlistPage = () => {
                     disabled={isSubmitting}
                     className="w-full py-3.5 px-6 bg-primary text-primary-foreground rounded-full font-medium text-sm hover:bg-primary/90 transition-colors disabled:opacity-60"
                   >
-                    {isSubmitting ? "Claiming your spot..." : "Claim My Founding Member Spot"}
+                    {isSubmitting ? "Adding you to the list..." : "Get Early Access Updates"}
                   </button>
                   <p className="text-[10px] text-primary/30 text-center pt-0.5">
                     No spam · Unsubscribe anytime · UK delivery only at launch
@@ -188,30 +188,33 @@ const WaitlistPage = () => {
       {/* FOUNDING MEMBER PERKS */}
       <section className="py-16 px-5 max-w-4xl mx-auto">
         <p className="text-center text-xs font-semibold uppercase tracking-[0.25em] text-primary/35 mb-3">
-          Founding Members Only
+          Pre-order customers only
         </p>
-        <h2 className="text-2xl md:text-3xl font-bold text-primary text-center mb-8">
-          What you unlock as a founding member
+        <h2 className="text-2xl md:text-3xl font-bold text-primary text-center mb-3">
+          What Founding Members get
         </h2>
+        <p className="text-center text-sm text-primary/45 mb-8 max-w-md mx-auto">
+          These perks are exclusive to the first 100 people who pre-order — not just join the list.
+        </p>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           {[
             {
               icon: Star,
               bg: "#D6EBEA",
               title: "15% off every order, forever",
-              desc: "Locked in at signup. Never expires, never decreases. You earned it for being early.",
+              desc: "Locked in when you pre-order. Never expires, never decreases. You earned it for being early.",
             },
             {
               icon: Sparkles,
               bg: "#E0DAEF",
-              title: "You get a founding member number",
-              desc: "After signing up you'll see your number — #1 through #100. You helped build this.",
+              title: "Your founding member number",
+              desc: "Pre-order and you'll receive your number — #1 through #100. Yours for life.",
             },
             {
               icon: FlaskConical,
               bg: "#F2DDD4",
               title: "First access to new flavours",
-              desc: "Every new variant we launch, founding members try it before the public. Always.",
+              desc: "Every new variant we launch, Founding Members try it before the public. Always.",
             },
           ].map(({ icon: Icon, bg, title, desc }) => (
             <div key={title} className="bg-white rounded-2xl p-6 border border-primary/6 shadow-sm">
@@ -222,6 +225,14 @@ const WaitlistPage = () => {
               <p className="text-sm text-primary/45 leading-relaxed">{desc}</p>
             </div>
           ))}
+        </div>
+        <div className="text-center mt-8">
+          <Link
+            href="/pre-order"
+            className="inline-flex items-center gap-2 bg-primary text-white font-semibold px-7 py-3.5 rounded-full hover:bg-primary/90 transition-colors text-sm"
+          >
+            Become a Founding Member — £10 deposit <ArrowRight className="h-4 w-4" />
+          </Link>
         </div>
       </section>
 

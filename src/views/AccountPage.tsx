@@ -399,8 +399,8 @@ const AccountPage = () => {
           </div>
 
           {/* Pre-order status */}
-          <div className="grid grid-cols-3 gap-3 mt-6">
-            <div className="bg-white/10 rounded-xl p-3 col-span-2">
+          <div className={`grid gap-3 mt-6 ${!ordersLoading && orders.length > 0 ? "grid-cols-3" : "grid-cols-1"}`}>
+            <div className={`bg-white/10 rounded-xl p-3 ${!ordersLoading && orders.length > 0 ? "col-span-2" : ""}`}>
               <p className="text-xs text-primary-foreground/50 mb-1">Pre-order status</p>
               {ordersLoading ? (
                 <div className="w-4 h-4 border-2 border-white/40 border-t-transparent rounded-full animate-spin mt-1" />
@@ -418,16 +418,13 @@ const AccountPage = () => {
                 </>
               )}
             </div>
-            <div className="bg-white/10 rounded-xl p-3">
-              <p className="text-xs text-primary-foreground/50 mb-1">Loyalty</p>
-              {ordersLoading ? (
-                <div className="w-4 h-4 border-2 border-white/40 border-t-transparent rounded-full animate-spin mt-1" />
-              ) : orders.length > 0 ? (
+            {!ordersLoading && orders.length > 0 && (
+              <div className="bg-white/10 rounded-xl p-3">
+                <p className="text-xs text-primary-foreground/50 mb-1">Loyalty</p>
                 <p className="text-sm font-bold text-white">Founder</p>
-              ) : (
-                <p className="text-sm font-bold text-white/40">—</p>
-              )}
-            </div>
+                <p className="text-xs text-primary-foreground/40 mt-0.5">First 100</p>
+              </div>
+            )}
           </div>
         </div>
       </div>
