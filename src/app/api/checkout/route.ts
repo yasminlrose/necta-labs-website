@@ -10,6 +10,10 @@ function getProductImageUrl(slug: string, size: string): string {
   return `https://www.nectalabs.com/bottle-${slug}.jpeg`;
 }
 
+// Promotion codes (e.g. FOUNDING16) become available at checkout from launch date onwards.
+const LAUNCH_DATE = new Date('2026-11-17T00:00:00Z');
+const promoCodesEnabled = () => new Date() >= LAUNCH_DATE;
+
 export async function POST(req: NextRequest) {
   try {
     const { priceId, email, mode, productName, size, productSlug, frequency, balance, purchaseType } = await req.json();
@@ -66,6 +70,7 @@ export async function POST(req: NextRequest) {
           balance: balance ?? '',
           purchaseType: purchaseType ?? '',
         },
+        ...(promoCodesEnabled() && { allow_promotion_codes: true }),
         custom_text: {
           submit: {
             message: `This £10 deposit secures your founding member pre-order. The remaining balance${balanceFormatted ? ` of ${balanceFormatted}` : ''} is charged on 1 November 2026 — orders dispatch from 17 November 2026. Cancel any time before dispatch for a full refund.`,
@@ -117,6 +122,7 @@ export async function POST(req: NextRequest) {
         success_url: `${origin}/order-success?session_id={CHECKOUT_SESSION_ID}`,
         cancel_url: `${origin}/pre-order`,
         metadata: meta,
+        ...(promoCodesEnabled() && { allow_promotion_codes: true }),
         custom_text: {
           submit: {
             message: `Your first charge is 1 November 2026 — orders dispatch from 17 November 2026. Cancel any time before dispatch for a full refund.`,
@@ -135,6 +141,7 @@ export async function POST(req: NextRequest) {
       success_url: `${origin}/order-success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${origin}/pre-order`,
       metadata: meta,
+      ...(promoCodesEnabled() && { allow_promotion_codes: true }),
       custom_text: {
         submit: {
           message: 'Pre-order: payment taken today. Your order ships in November 2026. Cancel before dispatch for a full refund.',
