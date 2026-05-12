@@ -21,16 +21,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // onAuthStateChange fires INITIAL_SESSION immediately on subscribe with the
-    // current session, AND fires SIGNED_IN when a magic link token is exchanged.
-    // This replaces getSession() so we never set loading=false before the magic
-    // link token has been processed.
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+    // getSession() resolves immediately with any cached session.
+    // onAuthStateChange then handles SIGNED_IN when a magic link is exchanged.
+    supabase.auth.getSession().then(({ data: { session } }) => {
       setUser(session?.user ?? null);
-      if (event === 'INITIAL_SESSION' || event === 'SIGNED_IN' ||
-          event === 'SIGNED_OUT'      || event === 'USER_UPDATED') {
-        setLoading(false);
-      }
+      setLoading(false);
+    });
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
+      setLoading(false);
     });
 
     return () => subscription.unsubscribe();
