@@ -121,10 +121,10 @@ const ProductTabs = ({ product }: ProductTabsProps) => {
             <div className="space-y-8">
               <div className="space-y-4 text-base text-foreground/55 leading-[1.8]">
                 <p>
-                  Add 15ml (one pump or one sachet) to your coffee, tea, matcha, smoothie, or cocktail.
+                  Add 30ml (two pumps or one sachet) to your coffee, tea, matcha, smoothie, or cocktail.
                 </p>
                 <p>
-                  One pump delivers a full clinical dose of every active ingredient.
+                  Two pumps delivers a full clinical dose of every active ingredient.
                 </p>
               </div>
 
@@ -148,7 +148,7 @@ const ProductTabs = ({ product }: ProductTabsProps) => {
               </div>
 
               <p className="text-base text-foreground/55 leading-[1.8]">
-                Start with one pump. Build to two if desired. No stimulants, no crash.
+                Two pumps per serving. No stimulants, no crash.
               </p>
             </div>
           )}

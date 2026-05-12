@@ -48,7 +48,7 @@ const AboutPage = () => {
               </p>
 
               <h1 className="text-3xl md:text-4xl font-bold text-foreground leading-snug mb-8">
-                Pills, powders, capsules — I condensed 20 supplements into one pump.
+                Pills, powders, capsules — I condensed 20 supplements into two pumps.
               </h1>
 
               <div className="space-y-5 text-[15px] text-foreground/65 leading-relaxed">

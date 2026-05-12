@@ -18,7 +18,7 @@ const announcements = [
 ];
 
 const navLinks = [
-  { href: "/pre-order", label: "Pre-Order", badge: true },
+  { href: "/pre-order", label: "Pre-Order" },
   { href: "/science", label: "Ingredients" },
   { href: "/about", label: "About" },
   { href: "/stockist", label: "Stockists" },
@@ -62,16 +62,13 @@ const Header = () => {
 
             {/* Desktop nav */}
             <div className="hidden md:flex items-center gap-8">
-              {navLinks.map(({ href, label, badge }) => (
+              {navLinks.map(({ href, label }) => (
                 <Link
                   key={href}
                   href={href}
-                  className="relative text-sm font-medium text-foreground/70 hover:text-foreground transition-colors"
+                  className="text-sm font-medium text-foreground/70 hover:text-foreground transition-colors"
                 >
                   {label}
-                  {badge && (
-                    <span className="absolute -top-1 -right-2.5 w-1.5 h-1.5 bg-necta-immunity rounded-full" />
-                  )}
                 </Link>
               ))}
             </div>
