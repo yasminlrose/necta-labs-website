@@ -67,9 +67,9 @@ const ProductTabs = ({ product }: ProductTabsProps) => {
 
   const avgRating = reviews.length > 0
     ? (reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length).toFixed(1)
-    : product.rating.toFixed(1);
+    : '0.0';
 
-  const reviewCount = reviews.length > 0 ? reviews.length : product.reviewCount;
+  const reviewCount = reviews.length;
 
   const filteredReviews = starFilter
     ? reviews.filter((r) => r.rating === starFilter)

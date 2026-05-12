@@ -14,6 +14,7 @@ import { getPriceId, getStripeMode } from "@/lib/stripePrices";
 import type { ProductSlug as StripePriceSlug } from "@/lib/stripePrices";
 import { useScrollAnimation } from "@/hooks/use-scroll-animation";
 import ReviewSection from "@/components/ReviewSection";
+import WriteReviewForm from "@/components/WriteReviewForm";
 import { useCart } from "@/contexts/CartContext";
 
 const SachetProductPage = ({ slug: slugProp }: { slug?: string } = {}) => {
@@ -36,6 +37,7 @@ const SachetProductPage = ({ slug: slugProp }: { slug?: string } = {}) => {
         <HowToUse />
         <LifestyleSection />
         <ReviewSection product={product.slug} />
+        <WriteReviewForm product={product.slug} onSubmitted={() => window.location.reload()} />
         <RelatedSachets currentSlug={product.slug} />
       </div>
       <Footer />
@@ -52,8 +54,8 @@ const SACHET_SAVINGS = {
 
 function SachetHero({ product }: { product: NonNullable<ReturnType<typeof getProduct>> }) {
   const [duration, setDuration] = useState<7 | 14 | 30 | 90>(30);
-  const [liveRating, setLiveRating] = useState(product.rating);
-  const [liveCount, setLiveCount] = useState(product.reviewCount);
+  const [liveRating, setLiveRating] = useState(0);
+  const [liveCount, setLiveCount] = useState(0);
   const [checkoutLoading, setCheckoutLoading] = useState(false);
   const [purchaseType, setPurchaseType] = useState<"one-off" | "subscribe">("one-off");
 

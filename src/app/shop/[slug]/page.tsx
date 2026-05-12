@@ -40,13 +40,6 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     name: `NECTA ${product?.name} ${isSachet ? 'Sachets' : 'Pump Bottle'}`,
     description: meta.description,
     brand: { '@type': 'Brand', name: 'NECTA Labs' },
-    aggregateRating: product ? {
-      '@type': 'AggregateRating',
-      ratingValue: product.rating,
-      reviewCount: product.reviewCount,
-      bestRating: 5,
-      worstRating: 1,
-    } : undefined,
     offers: product ? {
       '@type': 'Offer',
       priceCurrency: 'GBP',

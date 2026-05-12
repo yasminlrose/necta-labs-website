@@ -66,13 +66,6 @@ const ProductCard = ({ product }: { product: ProductData }) => {
         <h3 className="font-bold text-primary mb-0.5">{product.name}</h3>
         <p className="text-xs text-primary/50 italic mb-3">{product.flavor}</p>
 
-        <div className="flex items-center gap-1 mb-3">
-          {Array.from({ length: 5 }).map((_, i) => (
-            <Star key={i} className={`h-3 w-3 ${i < Math.round(product.rating) ? "fill-primary text-primary" : "text-primary/20"}`} />
-          ))}
-          <span className="text-xs text-primary/40 ml-1">({product.reviewCount})</span>
-        </div>
-
         <div className="flex items-center justify-between">
           <div>
             <span className="text-sm font-bold text-primary">£{product.price250Sub}/mo</span>

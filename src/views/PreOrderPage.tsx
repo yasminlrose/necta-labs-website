@@ -193,14 +193,6 @@ function ProductColumn({ slug }: { slug: ProductSlug }) {
             <h3 className="text-lg font-bold text-primary leading-tight">{product.name}</h3>
             <p className="text-[11px] text-primary/50 italic mb-1.5">{product.flavor}</p>
             <p className="text-[11px] text-primary/55 mb-2">{heroTaglines[slug]}</p>
-            <div className="flex items-center gap-1">
-              <div className="flex gap-px">
-                {Array.from({ length: 5 }).map((_, i) => (
-                  <Star key={i} className={`h-2.5 w-2.5 ${i < Math.round(product.rating) ? "fill-primary text-primary" : "text-primary/20"}`} />
-                ))}
-              </div>
-              <span className="text-[10px] text-primary/40">{product.rating} ({product.reviewCount})</span>
-            </div>
           </div>
 
           {/* Format toggle */}

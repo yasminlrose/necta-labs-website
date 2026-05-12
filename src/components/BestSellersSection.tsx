@@ -1,7 +1,6 @@
 'use client';
 
 import { useState } from "react";
-import { Star } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import { products, productSlugs } from "@/data/products";
@@ -66,19 +65,6 @@ const ProductCard = ({ slug }: { slug: string }) => {
           <h3 className="font-bold text-primary text-sm md:text-base mb-1">{product.name} Infusion</h3>
           <p className="text-xs text-primary/60 mb-2 line-clamp-1">{product.tagline}</p>
         </Link>
-
-        {/* Stars */}
-        <div className="flex items-center gap-1 mb-3">
-          {Array.from({ length: 5 }).map((_, i) => (
-            <Star
-              key={i}
-              className="h-3 w-3"
-              fill={i < Math.round(product.rating) ? "hsl(var(--primary))" : "none"}
-              stroke="hsl(var(--primary))"
-            />
-          ))}
-          <span className="text-xs text-primary/50 ml-1">({product.reviewCount})</span>
-        </div>
 
         {/* Subscription toggle */}
         <div className="flex gap-2 mb-3">
