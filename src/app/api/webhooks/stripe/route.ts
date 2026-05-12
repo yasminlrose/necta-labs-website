@@ -234,12 +234,33 @@ export async function POST(req: NextRequest) {
       }
 
     } else if (session.mode === 'subscription') {
-      // ── Subscription pre-order (trial_end = Oct 2026, no charge today) ───────
+      // ── Subscription pre-order (trial_end = Nov 2026, no charge today) ────────
       const { email, firstName } = await getCustomerDetails(session.customer as string);
 
       if (!email) {
         console.warn('[webhook] no email for subscription — skipping welcome email');
         return NextResponse.json({ received: true });
+      }
+
+      // Save to pre_orders so Order History shows this order
+      try {
+        const supabaseClient = getSupabase();
+        await supabaseClient.from('pre_orders').insert({
+          email,
+          product_slug: session.metadata?.productSlug ?? productName.toLowerCase().replace(/\s+/g, '-'),
+          format: 'subscription',
+          size: size || null,
+          quantity: 1,
+          status: 'deposit_paid',
+        });
+        // Also add to email_signups
+        await supabaseClient.from('email_signups').insert({
+          email,
+          source: `subscription-${session.metadata?.productSlug ?? 'unknown'}`,
+        });
+        console.log('[webhook] subscription saved to pre_orders — email:', email);
+      } catch (err) {
+        console.error('[webhook] failed to save subscription to pre_orders:', err instanceof Error ? err.message : String(err));
       }
 
       // Get the actual recurring price amount and first charge date from Stripe

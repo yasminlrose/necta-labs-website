@@ -3,7 +3,45 @@
 import Link from "next/link";
 import { Package, Clock, CheckCircle2, Calendar } from "lucide-react";
 
-const SubscriptionsTab = () => {
+interface PreOrder {
+  id: string;
+  product_slug: string;
+  format: string | null;
+  size: string | null;
+  quantity: number;
+  status: string;
+  created_at: string;
+}
+
+interface Props {
+  orders: PreOrder[];
+}
+
+const SubscriptionsTab = ({ orders }: Props) => {
+  const subscriptionOrders = orders.filter((o) => o.format === "subscription");
+
+  if (subscriptionOrders.length === 0) {
+    return (
+      <div className="space-y-5">
+        <div className="text-center py-16 bg-white border border-border rounded-2xl">
+          <div className="w-14 h-14 rounded-full bg-muted flex items-center justify-center mx-auto mb-4">
+            <Package className="h-7 w-7 text-primary/30" />
+          </div>
+          <h3 className="font-semibold text-primary mb-2">No subscriptions yet</h3>
+          <p className="text-sm text-primary/50 max-w-xs mx-auto">
+            You haven't pre-ordered a subscription. Subscribe now to lock in your founding member rate.
+          </p>
+          <Link
+            href="/pre-order"
+            className="mt-5 inline-flex items-center gap-2 bg-primary text-white text-sm font-semibold px-5 py-2.5 rounded-full hover:bg-primary/90 transition-colors"
+          >
+            Pre-order a subscription
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       {/* Pre-order confirmed banner */}

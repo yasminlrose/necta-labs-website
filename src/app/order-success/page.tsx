@@ -74,10 +74,11 @@ function OrderSuccessContent() {
           const { exists } = await res.json();
 
           if (exists) {
-            // Send magic link — they're already checking their email for the order confirmation
-            await supabase.auth.signInWithOtp({
-              email: data.email,
-              options: { emailRedirectTo: `${window.location.origin}/account` },
+            // Send magic link via our own API (routes through Resend, bypasses Supabase SMTP)
+            await fetch('/api/send-magic-link', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ email: data.email }),
             });
             setMagicSent(true);
             setAccountState('magic');
@@ -93,9 +94,10 @@ function OrderSuccessContent() {
   const handleResendMagicLink = async () => {
     if (!order?.email) return;
     setAuthLoading(true);
-    await supabase.auth.signInWithOtp({
-      email: order.email,
-      options: { emailRedirectTo: `${window.location.origin}/account` },
+    await fetch('/api/send-magic-link', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: order.email }),
     });
     setAuthLoading(false);
     setMagicSent(true);

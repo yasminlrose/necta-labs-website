@@ -36,7 +36,7 @@ const BillingTab = () => {
           <Calendar className="h-4 w-4 text-primary-foreground/60" />
           <p className="text-sm text-primary-foreground/60">First charge date</p>
         </div>
-        <p className="text-2xl font-bold">1 October 2026</p>
+        <p className="text-2xl font-bold">1 November 2026</p>
         <p className="text-sm text-primary-foreground/70 mt-1">
           No payment is taken today. Your card will be charged when your order ships.
         </p>
@@ -58,7 +58,7 @@ const BillingTab = () => {
         <div className="flex items-center gap-3 p-4 bg-muted rounded-xl">
           <CreditCard className="h-5 w-5 text-primary/40" />
           <div>
-            <p className="text-sm text-primary/70">Card saved for October 2026 charge</p>
+            <p className="text-sm text-primary/70">Card saved for November 2026 charge</p>
             <p className="text-xs text-primary/40 mt-0.5">
               Click "Manage card" to update or remove your payment method.
             </p>

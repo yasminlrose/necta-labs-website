@@ -18,6 +18,16 @@ import { supabase } from "@/integrations/supabase/client";
 
 type TabId = "subscriptions" | "billing" | "orders" | "settings" | "loyalty";
 
+interface PreOrder {
+  id: string;
+  product_slug: string;
+  format: string | null;
+  size: string | null;
+  quantity: number;
+  status: string;
+  created_at: string;
+}
+
 const tabs: { id: TabId; label: string; icon: React.ReactNode; mobileLabel: string }[] = [
   { id: "subscriptions", label: "My Subscriptions", mobileLabel: "Subscriptions", icon: <Package className="h-4 w-4" /> },
   { id: "billing",       label: "Billing & Payment", mobileLabel: "Billing",        icon: <CreditCard className="h-4 w-4" /> },
@@ -100,12 +110,17 @@ function SignInView() {
   const handleMagicLink = async () => {
     if (!siEmail.trim()) { setSiError("Enter your email first."); return; }
     setSiLoading(true); setSiError("");
-    const { error } = await supabase.auth.signInWithOtp({
-      email: siEmail.trim(),
-      options: { emailRedirectTo: `${window.location.origin}/account` },
+    const res = await fetch("/api/send-magic-link", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email: siEmail.trim() }),
     });
     setSiLoading(false);
-    if (error) { setSiError(error.message); return; }
+    if (!res.ok) {
+      const data = await res.json() as { error?: string };
+      setSiError(data.error ?? "Failed to send link. Try again.");
+      return;
+    }
     setMagicSent(true);
   };
 
@@ -311,6 +326,22 @@ const AccountPage = () => {
     tabs.some((t) => t.id === tabFromUrl) ? tabFromUrl : "subscriptions"
   );
 
+  const [orders, setOrders] = useState<PreOrder[]>([]);
+  const [ordersLoading, setOrdersLoading] = useState(true);
+
+  useEffect(() => {
+    if (!user?.email) return;
+    supabase
+      .from("pre_orders")
+      .select("*")
+      .eq("email", user.email)
+      .order("created_at", { ascending: false })
+      .then(({ data }) => {
+        setOrders(data ?? []);
+        setOrdersLoading(false);
+      });
+  }, [user?.email]);
+
   const handleTabChange = (id: TabId) => {
     setActiveTab(id);
     router.push(`/account?tab=${id}`);
@@ -371,12 +402,31 @@ const AccountPage = () => {
           <div className="grid grid-cols-3 gap-3 mt-6">
             <div className="bg-white/10 rounded-xl p-3 col-span-2">
               <p className="text-xs text-primary-foreground/50 mb-1">Pre-order status</p>
-              <p className="text-sm font-bold text-white">Confirmed ✓</p>
-              <p className="text-xs text-primary-foreground/40 mt-0.5">Ships November 2026</p>
+              {ordersLoading ? (
+                <div className="w-4 h-4 border-2 border-white/40 border-t-transparent rounded-full animate-spin mt-1" />
+              ) : orders.length > 0 ? (
+                <>
+                  <p className="text-sm font-bold text-white">Confirmed ✓</p>
+                  <p className="text-xs text-primary-foreground/40 mt-0.5">Ships November 2026</p>
+                </>
+              ) : (
+                <>
+                  <p className="text-sm font-bold text-white/60">No pre-order yet</p>
+                  <p className="text-xs text-primary-foreground/40 mt-0.5">
+                    <a href="/pre-order" className="underline hover:text-white transition-colors">Pre-order now →</a>
+                  </p>
+                </>
+              )}
             </div>
             <div className="bg-white/10 rounded-xl p-3">
               <p className="text-xs text-primary-foreground/50 mb-1">Loyalty</p>
-              <p className="text-sm font-bold text-white">Founder</p>
+              {ordersLoading ? (
+                <div className="w-4 h-4 border-2 border-white/40 border-t-transparent rounded-full animate-spin mt-1" />
+              ) : orders.length > 0 ? (
+                <p className="text-sm font-bold text-white">Founder</p>
+              ) : (
+                <p className="text-sm font-bold text-white/40">—</p>
+              )}
             </div>
           </div>
         </div>
@@ -416,7 +466,7 @@ const AccountPage = () => {
               <h2 className="text-lg font-bold text-primary">{currentTabConfig.label}</h2>
             </div>
 
-            {activeTab === "subscriptions" && <SubscriptionsTab />}
+            {activeTab === "subscriptions" && <SubscriptionsTab orders={orders} />}
             {activeTab === "billing"       && <BillingTab />}
             {activeTab === "orders"        && <OrderHistoryTab email={user.email ?? ""} />}
             {activeTab === "settings"      && <AccountSettingsTab />}
