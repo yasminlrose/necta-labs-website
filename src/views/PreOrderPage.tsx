@@ -64,8 +64,8 @@ function FoundingPerks() {
             { Icon: Crown,        accent: "#8878C0", light: "#E0DAEF", title: "You're Founding Member #1–100", desc: "Your number is yours. You helped build this from the start." },
             { Icon: FlaskConical, accent: "#C06040", light: "#F2DDD4", title: "First access to new flavours",  desc: "Every new variant we launch, founding members try it first." },
           ].map(({ Icon, accent, light, title, desc }) => (
-            <div key={title} className="bg-white/70 backdrop-blur-sm rounded-2xl p-6 text-left shadow-sm border border-white">
-              <div className="w-11 h-11 rounded-full flex items-center justify-center mb-4" style={{ backgroundColor: light }}>
+            <div key={title} className="bg-white/70 backdrop-blur-sm rounded-2xl p-6 text-center shadow-sm border border-white">
+              <div className="w-11 h-11 rounded-full flex items-center justify-center mb-4 mx-auto" style={{ backgroundColor: light }}>
                 <Icon className="h-5 w-5" style={{ color: accent }} />
               </div>
               <p className="font-semibold text-primary mb-1.5">{title}</p>
