@@ -50,10 +50,16 @@ const AccountPage = () => {
     tabs.some((t) => t.id === tabFromUrl) ? tabFromUrl : "subscriptions"
   );
 
-  // Redirect unauthenticated users
+  // Redirect unauthenticated users — but not if Supabase is still processing a
+  // magic link token in the URL (access_token hash or PKCE code param).
   useEffect(() => {
     if (!loading && !user) {
-      router.replace("/");
+      const urlHasAuth =
+        window.location.hash.includes('access_token') ||
+        new URLSearchParams(window.location.search).has('code');
+      if (!urlHasAuth) {
+        router.replace("/");
+      }
     }
   }, [user, loading, router]);
 
@@ -118,7 +124,7 @@ const AccountPage = () => {
             <div className="bg-white/10 rounded-xl p-3 col-span-2">
               <p className="text-xs text-primary-foreground/50 mb-1">Pre-order status</p>
               <p className="text-sm font-bold text-white">Confirmed ✓</p>
-              <p className="text-xs text-primary-foreground/40 mt-0.5">Ships October 2026</p>
+              <p className="text-xs text-primary-foreground/40 mt-0.5">Ships November 2026</p>
             </div>
             <div className="bg-white/10 rounded-xl p-3">
               <p className="text-xs text-primary-foreground/50 mb-1">Loyalty</p>
