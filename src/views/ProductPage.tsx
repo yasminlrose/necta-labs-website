@@ -13,6 +13,8 @@ import YouMayAlsoLike from "@/components/YouMayAlsoLike";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import ReserveOrderModal from "@/components/ReserveOrderModal";
+import ReviewSection from "@/components/ReviewSection";
+import WriteReviewForm from "@/components/WriteReviewForm";
 import { products } from "@/data/products";
 import type { ProductSlug } from "@/data/products";
 import { useCart } from "@/contexts/CartContext";
@@ -200,15 +202,7 @@ const ProductPage = ({ slug: slugProp }: { slug?: string } = {}) => {
                 Pre-order — ships from 17 November 2026. Cancel any time before dispatch for a full refund.
               </p>
 
-              {/* Stars */}
-              <div className="flex items-center gap-2 mb-5">
-                <div className="flex gap-0.5">
-                  {Array.from({ length: 5 }).map((_, i) => (
-                    <Star key={i} className={`h-4 w-4 ${i < Math.round(product.rating) ? "fill-primary text-primary" : "text-primary/20"}`} />
-                  ))}
-                </div>
-                <span className="text-sm text-primary/55">{product.rating} ({product.reviewCount} reviews)</span>
-              </div>
+
 
               <p className="text-base text-primary/70 mb-6 leading-relaxed">{heroTaglines[product.slug]}</p>
 
@@ -726,6 +720,10 @@ const ProductPage = ({ slug: slugProp }: { slug?: string } = {}) => {
           </div>
         </div>
       </section>
+
+      {/* ── REVIEWS ── */}
+      <ReviewSection key={slug} product={product.slug} />
+      <WriteReviewForm product={product.slug} onSubmitted={() => window.location.reload()} />
 
       <Footer />
 

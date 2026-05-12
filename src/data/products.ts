@@ -22,8 +22,6 @@ export interface ProductData {
   flavor: string;
   flavorNotes: string;
   heroIngredientsSummary: string;
-  rating: number;
-  reviewCount: number;
   /** D2C retail pricing */
   price250: number;       // one-off
   price500: number;       // one-off
@@ -61,8 +59,7 @@ export const products: Record<ProductSlug, ProductData> = {
     flavor: "Vanilla Bean",
     flavorNotes: "Rich vanilla with subtle earthy undertones",
     heroIngredientsSummary: "Lion's Mane 500mg • L-Theanine 80mg • Rhodiola 200mg",
-    rating: 4.8,
-    reviewCount: 127,
+
     price250: 29,
     price500: 39,
     price250Sub: 25,
@@ -104,8 +101,6 @@ export const products: Record<ProductSlug, ProductData> = {
     flavor: "Hazelnut & Orange",
     flavorNotes: "Creamy hazelnut with bright citrus",
     heroIngredientsSummary: "Reishi 2g • Elderberry 500mg • Ashwagandha 300mg",
-    rating: 4.9,
-    reviewCount: 94,
     price250: 29,
     price500: 39,
     price250Sub: 25,
@@ -145,8 +140,6 @@ export const products: Record<ProductSlug, ProductData> = {
     flavor: "Honey Caramel",
     flavorNotes: "Warm caramel with floral honey",
     heroIngredientsSummary: "Chamomile 150mg • Lemon Balm 150mg • Jujube Seed 200mg",
-    rating: 4.7,
-    reviewCount: 86,
     price250: 29,
     price500: 39,
     price250Sub: 25,
@@ -183,8 +176,6 @@ export const products: Record<ProductSlug, ProductData> = {
     flavor: "Cherry Almond",
     flavorNotes: "Sweet cherry with almond cream",
     heroIngredientsSummary: "Marine Collagen 2.5g • Hyaluronic Acid 120mg • CoQ10 80mg",
-    rating: 4.9,
-    reviewCount: 153,
     price250: 29,
     price500: 39,
     price250Sub: 25,

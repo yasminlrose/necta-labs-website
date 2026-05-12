@@ -1,7 +1,6 @@
 'use client';
 
 import Link from "next/link";
-import { Star } from "lucide-react";
 import Image from "next/image";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -17,8 +16,6 @@ interface ShopCard {
   name: string;
   tagline: string;
   flavor: string;
-  rating: number;
-  reviewCount: number;
   sizes: string[];
   fromPrice: number;
 }
@@ -34,8 +31,6 @@ const buildCards = (): ShopCard[] => {
       name: p.name,
       tagline: p.tagline,
       flavor: p.flavor,
-      rating: p.rating,
-      reviewCount: p.reviewCount,
       sizes: ["250ml", "500ml"],
       fromPrice: p.price250Sub,
     };
@@ -51,8 +46,6 @@ const buildCards = (): ShopCard[] => {
       name: p.name,
       tagline: p.tagline,
       flavor: p.flavor,
-      rating: p.rating,
-      reviewCount: p.reviewCount,
       sizes: ["7-day", "14-day", "30-day", "90-day"],
       fromPrice: p.sachets[7],
     };
@@ -168,25 +161,6 @@ function ProductCard({ card }: { card: ShopCard }) {
         <h3 className="text-sm font-bold text-foreground leading-snug mb-2 group-hover:underline underline-offset-2">
           {card.name}
         </h3>
-
-        {/* Stars */}
-        <div className="flex items-center gap-1.5 mb-2.5">
-          <div className="flex items-center gap-0.5">
-            {Array.from({ length: 5 }).map((_, i) => (
-              <Star
-                key={i}
-                className={`h-2.5 w-2.5 ${
-                  i < Math.floor(card.rating)
-                    ? "fill-amber-400 text-amber-400"
-                    : "fill-amber-200 text-amber-200"
-                }`}
-              />
-            ))}
-          </div>
-          <span className="text-[10px] text-muted-foreground">
-            {card.rating} ({card.reviewCount})
-          </span>
-        </div>
 
         {/* Size pills */}
         <div className="flex flex-wrap gap-1">

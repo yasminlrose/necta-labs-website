@@ -33,13 +33,6 @@ const productSchema = {
     availability: 'https://schema.org/PreOrder',
     url: canonical,
   },
-  aggregateRating: {
-    '@type': 'AggregateRating',
-    ratingValue: 4.9,
-    reviewCount: 94,
-    bestRating: 5,
-    worstRating: 1,
-  },
 };
 
 const breadcrumbSchema = {
