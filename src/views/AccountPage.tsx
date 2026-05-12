@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
   LayoutDashboard, Package, CreditCard, History,
-  Settings, Star, LogOut, ShieldCheck, Lock, Mail, ArrowRight
+  Settings, Star, LogOut, ShieldCheck, Lock, Mail, ArrowRight, Eye, EyeOff
 } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -41,25 +41,62 @@ function getMemberSince(dateStr: string | undefined): string {
   return new Date(dateStr).toLocaleDateString("en-GB", { month: "long", year: "numeric" });
 }
 
-// ── Sign-in form shown when user is not authenticated ──────────────────────
+// ── Sign-in / create account form ─────────────────────────────────────────
 function SignInView() {
-  const [email, setEmail] = useState("");
-  const [sent, setSent] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
+  const [tab, setTab] = useState<"signin" | "signup">("signin");
 
-  const handleMagicLink = async (e: React.FormEvent) => {
+  // sign-in state
+  const [siEmail, setSiEmail] = useState("");
+  const [siPassword, setSiPassword] = useState("");
+  const [siShowPwd, setSiShowPwd] = useState(false);
+  const [siLoading, setSiLoading] = useState(false);
+  const [siError, setSiError] = useState("");
+  const [magicSent, setMagicSent] = useState(false);
+
+  // sign-up state
+  const [suName, setSuName] = useState("");
+  const [suEmail, setSuEmail] = useState("");
+  const [suPassword, setSuPassword] = useState("");
+  const [suShowPwd, setSuShowPwd] = useState(false);
+  const [suLoading, setSuLoading] = useState(false);
+  const [suError, setSuError] = useState("");
+  const [suDone, setSuDone] = useState(false);
+
+  const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email.trim()) return;
-    setLoading(true);
-    setError("");
+    setSiLoading(true); setSiError("");
+    const { error } = await supabase.auth.signInWithPassword({ email: siEmail, password: siPassword });
+    setSiLoading(false);
+    if (error) setSiError(error.message);
+  };
+
+  const handleMagicLink = async () => {
+    if (!siEmail.trim()) { setSiError("Enter your email first."); return; }
+    setSiLoading(true); setSiError("");
     const { error } = await supabase.auth.signInWithOtp({
-      email: email.trim(),
+      email: siEmail.trim(),
       options: { emailRedirectTo: `${window.location.origin}/account` },
     });
-    setLoading(false);
-    if (error) { setError(error.message); return; }
-    setSent(true);
+    setSiLoading(false);
+    if (error) { setSiError(error.message); return; }
+    setMagicSent(true);
+  };
+
+  const handleSignUp = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (suPassword.length < 8) { setSuError("Password must be at least 8 characters."); return; }
+    setSuLoading(true); setSuError("");
+    const { error } = await supabase.auth.signUp({
+      email: suEmail,
+      password: suPassword,
+      options: {
+        data: { full_name: suName },
+        emailRedirectTo: `${window.location.origin}/account`,
+      },
+    });
+    setSuLoading(false);
+    if (error) { setSuError(error.message); return; }
+    setSuDone(true);
   };
 
   const handleGoogle = async () => {
@@ -69,6 +106,29 @@ function SignInView() {
     });
   };
 
+  const GoogleButton = () => (
+    <button
+      type="button"
+      onClick={handleGoogle}
+      className="w-full flex items-center justify-center gap-2 border border-border py-3 rounded-xl text-sm font-medium text-primary hover:bg-muted transition-colors"
+    >
+      <svg className="h-4 w-4" viewBox="0 0 24 24">
+        <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 01-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/>
+        <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+        <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
+        <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+      </svg>
+      Continue with Google
+    </button>
+  );
+
+  const Divider = () => (
+    <div className="relative my-4">
+      <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-border"/></div>
+      <div className="relative flex justify-center"><span className="bg-white px-3 text-xs text-primary/40">or</span></div>
+    </div>
+  );
+
   return (
     <>
       <Header />
@@ -76,75 +136,155 @@ function SignInView() {
         <div className="w-full max-w-sm">
           <div className="text-center mb-8">
             <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary/40 mb-3">NECTA Labs</p>
-            <h1 className="text-2xl font-bold text-primary mb-2">Sign in to your account</h1>
+            <h1 className="text-2xl font-bold text-primary mb-2">Your account</h1>
             <p className="text-sm text-primary/50">View your pre-order, founding member perks, and subscription details.</p>
           </div>
 
-          <div className="bg-white rounded-2xl border border-border p-6 shadow-sm">
-            {sent ? (
-              <div className="text-center py-4">
-                <div className="w-12 h-12 rounded-full bg-green-50 flex items-center justify-center mx-auto mb-4">
-                  <Mail className="h-6 w-6 text-green-600" />
-                </div>
-                <h2 className="font-semibold text-primary mb-2">Check your email</h2>
-                <p className="text-sm text-primary/50 leading-relaxed">
-                  We've sent a sign-in link to <strong>{email}</strong>. Click it to access your account — no password needed.
-                </p>
+          <div className="bg-white rounded-2xl border border-border shadow-sm overflow-hidden">
+            {/* Tabs */}
+            <div className="flex border-b border-border">
+              {(["signin", "signup"] as const).map((t) => (
                 <button
-                  onClick={() => setSent(false)}
-                  className="mt-4 text-xs text-primary/40 hover:text-primary transition-colors underline"
+                  key={t}
+                  onClick={() => setTab(t)}
+                  className={`flex-1 py-3.5 text-sm font-semibold transition-colors ${
+                    tab === t ? "text-primary border-b-2 border-primary -mb-px" : "text-primary/40 hover:text-primary"
+                  }`}
                 >
-                  Use a different email
+                  {t === "signin" ? "Sign in" : "Create account"}
                 </button>
-              </div>
-            ) : (
-              <>
-                <form onSubmit={handleMagicLink} className="space-y-3">
-                  <div>
-                    <label className="block text-xs font-medium text-primary/60 mb-1.5">Email address</label>
-                    <input
-                      type="email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      placeholder="you@example.com"
-                      required
-                      className="w-full px-4 py-3 border border-border rounded-xl text-sm text-primary placeholder:text-primary/30 focus:outline-none focus:border-primary/40 transition-colors"
-                    />
+              ))}
+            </div>
+
+            <div className="p-6">
+              {/* ── SIGN IN ── */}
+              {tab === "signin" && (
+                magicSent ? (
+                  <div className="text-center py-4">
+                    <div className="w-12 h-12 rounded-full bg-green-50 flex items-center justify-center mx-auto mb-4">
+                      <Mail className="h-6 w-6 text-green-600"/>
+                    </div>
+                    <h2 className="font-semibold text-primary mb-2">Check your email</h2>
+                    <p className="text-sm text-primary/50 leading-relaxed">
+                      We sent a sign-in link to <strong>{siEmail}</strong>. Click it to access your account.
+                    </p>
+                    <button onClick={() => setMagicSent(false)} className="mt-4 text-xs text-primary/40 hover:text-primary underline">
+                      Back
+                    </button>
                   </div>
-                  {error && <p className="text-xs text-red-500">{error}</p>}
-                  <button
-                    type="submit"
-                    disabled={loading}
-                    className="w-full flex items-center justify-center gap-2 bg-primary text-white font-semibold py-3 rounded-xl text-sm hover:bg-primary/90 transition-colors disabled:opacity-60"
-                  >
-                    {loading ? "Sending…" : "Send sign-in link"}
-                    {!loading && <ArrowRight className="h-4 w-4" />}
-                  </button>
-                </form>
+                ) : (
+                  <>
+                    <form onSubmit={handleSignIn} className="space-y-3">
+                      <input
+                        type="email"
+                        value={siEmail}
+                        onChange={(e) => setSiEmail(e.target.value)}
+                        placeholder="Email address"
+                        required
+                        className="w-full px-4 py-3 border border-border rounded-xl text-sm text-primary placeholder:text-primary/30 focus:outline-none focus:border-primary/40 transition-colors"
+                      />
+                      <div className="relative">
+                        <input
+                          type={siShowPwd ? "text" : "password"}
+                          value={siPassword}
+                          onChange={(e) => setSiPassword(e.target.value)}
+                          placeholder="Password"
+                          required
+                          className="w-full px-4 pr-10 py-3 border border-border rounded-xl text-sm text-primary placeholder:text-primary/30 focus:outline-none focus:border-primary/40 transition-colors"
+                        />
+                        <button type="button" onClick={() => setSiShowPwd(!siShowPwd)} className="absolute right-3 top-1/2 -translate-y-1/2 text-primary/30">
+                          {siShowPwd ? <EyeOff className="h-4 w-4"/> : <Eye className="h-4 w-4"/>}
+                        </button>
+                      </div>
+                      {siError && <p className="text-xs text-red-500">{siError}</p>}
+                      <button
+                        type="submit"
+                        disabled={siLoading}
+                        className="w-full bg-primary text-white font-semibold py-3 rounded-xl text-sm hover:bg-primary/90 transition-colors disabled:opacity-60"
+                      >
+                        {siLoading ? "Signing in…" : "Sign in"}
+                      </button>
+                    </form>
 
-                <div className="relative my-4">
-                  <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-border" /></div>
-                  <div className="relative flex justify-center"><span className="bg-white px-3 text-xs text-primary/40">or</span></div>
-                </div>
+                    <button
+                      type="button"
+                      onClick={handleMagicLink}
+                      disabled={siLoading}
+                      className="w-full mt-2 py-3 border border-border rounded-xl text-sm text-primary/60 hover:text-primary hover:border-primary/40 transition-colors flex items-center justify-center gap-2"
+                    >
+                      <Mail className="h-4 w-4"/> Email me a sign-in link instead
+                    </button>
 
-                <button
-                  onClick={handleGoogle}
-                  className="w-full flex items-center justify-center gap-2 border border-border py-3 rounded-xl text-sm font-medium text-primary hover:bg-muted transition-colors"
-                >
-                  <svg className="h-4 w-4" viewBox="0 0 24 24">
-                    <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 01-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4" />
-                    <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853" />
-                    <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05" />
-                    <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335" />
-                  </svg>
-                  Continue with Google
-                </button>
-              </>
-            )}
+                    <Divider />
+                    <GoogleButton />
+                  </>
+                )
+              )}
+
+              {/* ── CREATE ACCOUNT ── */}
+              {tab === "signup" && (
+                suDone ? (
+                  <div className="text-center py-4">
+                    <div className="w-12 h-12 rounded-full bg-green-50 flex items-center justify-center mx-auto mb-4">
+                      <Mail className="h-6 w-6 text-green-600"/>
+                    </div>
+                    <h2 className="font-semibold text-primary mb-2">Confirm your email</h2>
+                    <p className="text-sm text-primary/50 leading-relaxed">
+                      We sent a confirmation link to <strong>{suEmail}</strong>. Click it to activate your account.
+                    </p>
+                  </div>
+                ) : (
+                  <>
+                    <form onSubmit={handleSignUp} className="space-y-3">
+                      <input
+                        type="text"
+                        value={suName}
+                        onChange={(e) => setSuName(e.target.value)}
+                        placeholder="Full name"
+                        className="w-full px-4 py-3 border border-border rounded-xl text-sm text-primary placeholder:text-primary/30 focus:outline-none focus:border-primary/40 transition-colors"
+                      />
+                      <input
+                        type="email"
+                        value={suEmail}
+                        onChange={(e) => setSuEmail(e.target.value)}
+                        placeholder="Email address"
+                        required
+                        className="w-full px-4 py-3 border border-border rounded-xl text-sm text-primary placeholder:text-primary/30 focus:outline-none focus:border-primary/40 transition-colors"
+                      />
+                      <div className="relative">
+                        <input
+                          type={suShowPwd ? "text" : "password"}
+                          value={suPassword}
+                          onChange={(e) => setSuPassword(e.target.value)}
+                          placeholder="Password (min 8 characters)"
+                          required
+                          minLength={8}
+                          className="w-full px-4 pr-10 py-3 border border-border rounded-xl text-sm text-primary placeholder:text-primary/30 focus:outline-none focus:border-primary/40 transition-colors"
+                        />
+                        <button type="button" onClick={() => setSuShowPwd(!suShowPwd)} className="absolute right-3 top-1/2 -translate-y-1/2 text-primary/30">
+                          {suShowPwd ? <EyeOff className="h-4 w-4"/> : <Eye className="h-4 w-4"/>}
+                        </button>
+                      </div>
+                      {suError && <p className="text-xs text-red-500">{suError}</p>}
+                      <button
+                        type="submit"
+                        disabled={suLoading}
+                        className="w-full bg-primary text-white font-semibold py-3 rounded-xl text-sm hover:bg-primary/90 transition-colors disabled:opacity-60"
+                      >
+                        {suLoading ? "Creating account…" : "Create account"}
+                      </button>
+                    </form>
+
+                    <Divider />
+                    <GoogleButton />
+                  </>
+                )
+              )}
+            </div>
           </div>
 
           <p className="text-center text-xs text-primary/35 mt-5">
-            No account yet? Place a pre-order and one will be created for you.
+            Placed a pre-order? Sign in with the email you used at checkout.
           </p>
         </div>
       </main>
