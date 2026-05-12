@@ -77,7 +77,7 @@ function OrderSuccessContent() {
             // Send magic link — they're already checking their email for the order confirmation
             await supabase.auth.signInWithOtp({
               email: data.email,
-              options: { emailRedirectTo: 'https://nectalabs.com/account' },
+              options: { emailRedirectTo: `${window.location.origin}/account` },
             });
             setMagicSent(true);
             setAccountState('magic');
@@ -95,7 +95,7 @@ function OrderSuccessContent() {
     setAuthLoading(true);
     await supabase.auth.signInWithOtp({
       email: order.email,
-      options: { emailRedirectTo: 'https://nectalabs.com/account' },
+      options: { emailRedirectTo: `${window.location.origin}/account` },
     });
     setAuthLoading(false);
     setMagicSent(true);
