@@ -126,28 +126,44 @@ export async function POST(req: NextRequest) {
       const freq = session.metadata?.frequency ?? '';
 
       // Save to pre_orders table and get member number (count after insert)
+      // Dedup: skip if an identical row was inserted within the last 5 minutes
+      // (guards against Stripe webhook retries creating duplicate orders)
       let memberNumber = 0;
       try {
         const supabase = getSupabase();
-        await supabase.from('pre_orders').insert({
-          email,
-          product_slug: productSlug,
-          format: purchaseType === 'subscribe' ? `subscription${freq ? `:${freq}` : ''}` : 'one-off',
-          size,
-          quantity: 1,
-          status: 'deposit_paid',
-        });
+        const dedupWindow = new Date(Date.now() - 5 * 60 * 1000).toISOString();
+        const { data: existingOrder } = await supabase
+          .from('pre_orders')
+          .select('id')
+          .eq('email', email)
+          .eq('product_slug', productSlug)
+          .gte('created_at', dedupWindow)
+          .limit(1)
+          .single();
+
+        if (existingOrder) {
+          console.log('[webhook] duplicate deposit event detected — skipping insert for:', email);
+        } else {
+          await supabase.from('pre_orders').insert({
+            email,
+            product_slug: productSlug,
+            format: purchaseType === 'subscribe' ? `subscription${freq ? `:${freq}` : ''}` : 'one-off',
+            size,
+            quantity: 1,
+            status: 'deposit_paid',
+          });
+          // Also add to email_signups
+          await supabase.from('email_signups').insert({
+            email,
+            source: `deposit-${productSlug}`,
+          });
+        }
         const { count } = await supabase
           .from('pre_orders')
           .select('*', { count: 'exact', head: true })
           .eq('status', 'deposit_paid');
         memberNumber = count ?? 0;
-        // Also add to email_signups
-        await supabase.from('email_signups').insert({
-          email,
-          source: `deposit-${productSlug}`,
-        });
-        console.log('[webhook] deposit saved to pre_orders — email:', email, '| member:', memberNumber);
+        console.log('[webhook] deposit pre_orders — member count:', memberNumber);
       } catch (err) {
         console.error('[webhook] failed to save deposit to pre_orders:', err instanceof Error ? err.message : String(err));
       }
@@ -262,23 +278,39 @@ export async function POST(req: NextRequest) {
       }
 
       // Save to pre_orders so Order History shows this order
+      // Dedup: skip if an identical row was inserted within the last 5 minutes
       const subFreq = metaFrequency || deriveFrequency(size, metaFrequency);
+      const subSlug = session.metadata?.productSlug ?? productName.toLowerCase().replace(/\s+/g, '-');
       try {
         const supabaseClient = getSupabase();
-        await supabaseClient.from('pre_orders').insert({
-          email,
-          product_slug: session.metadata?.productSlug ?? productName.toLowerCase().replace(/\s+/g, '-'),
-          format: `subscription${subFreq ? `:${subFreq}` : ''}`,
-          size: size || null,
-          quantity: 1,
-          status: 'deposit_paid',
-        });
-        // Also add to email_signups
-        await supabaseClient.from('email_signups').insert({
-          email,
-          source: `subscription-${session.metadata?.productSlug ?? 'unknown'}`,
-        });
-        console.log('[webhook] subscription saved to pre_orders — email:', email);
+        const dedupWindow = new Date(Date.now() - 5 * 60 * 1000).toISOString();
+        const { data: existingOrder } = await supabaseClient
+          .from('pre_orders')
+          .select('id')
+          .eq('email', email)
+          .eq('product_slug', subSlug)
+          .gte('created_at', dedupWindow)
+          .limit(1)
+          .single();
+
+        if (existingOrder) {
+          console.log('[webhook] duplicate subscription event detected — skipping insert for:', email);
+        } else {
+          await supabaseClient.from('pre_orders').insert({
+            email,
+            product_slug: subSlug,
+            format: `subscription${subFreq ? `:${subFreq}` : ''}`,
+            size: size || null,
+            quantity: 1,
+            status: 'deposit_paid',
+          });
+          // Also add to email_signups
+          await supabaseClient.from('email_signups').insert({
+            email,
+            source: `subscription-${subSlug}`,
+          });
+          console.log('[webhook] subscription saved to pre_orders — email:', email);
+        }
       } catch (err) {
         console.error('[webhook] failed to save subscription to pre_orders:', err instanceof Error ? err.message : String(err));
       }

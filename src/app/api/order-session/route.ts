@@ -1,12 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { stripe } from '@/lib/stripe';
-import { createClient } from '@supabase/supabase-js';
 
-const supabaseAdmin = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-);
-
+// READ-ONLY: retrieves Stripe session data for the order-success page UI.
+// pre_orders insertion is handled exclusively by the Stripe webhook to avoid duplicates.
 export async function GET(req: NextRequest) {
   const sessionId = req.nextUrl.searchParams.get('session_id');
   if (!sessionId) {
@@ -21,22 +17,8 @@ export async function GET(req: NextRequest) {
     const firstName = rawName.trim().split(/\s+/)[0] || '';
     const productName = session.metadata?.productName ?? '';
     const mode = session.mode ?? 'payment';
-    // Setup mode = subscription pre-order (card saved, no charge today)
     const amountPence = mode === 'setup' ? 0 : (session.amount_total ?? 0);
     const amount = mode === 'setup' ? '0.00' : (amountPence / 100).toFixed(2);
-
-    // Save to pre_orders (no dedup — one row per purchase)
-    await supabaseAdmin
-      .from('pre_orders')
-      .insert({
-        email,
-        product_slug: productName,
-        amount_paid: amountPence,
-        status: mode === 'setup' ? 'subscription-preorder' : mode,
-        stripe_session_id: sessionId,
-        size: session.metadata?.size ?? null,
-        format: session.metadata?.frequency ?? null,
-      });
 
     return NextResponse.json({
       email,
