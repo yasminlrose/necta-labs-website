@@ -336,9 +336,15 @@ const AccountPage = () => {
       .select("*")
       .eq("email", user.email)
       .order("created_at", { ascending: false })
-      .then(({ data }) => {
+      .then(async ({ data }) => {
         setOrders(data ?? []);
         setOrdersLoading(false);
+        // If user has orders but no name set yet, refresh the session so any
+        // name synced by the webhook shows up without requiring a sign-out
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        if ((data ?? []).length > 0 && !(user as any).user_metadata?.full_name) {
+          await supabase.auth.refreshSession();
+        }
       });
   }, [user?.email]);
 
@@ -368,7 +374,7 @@ const AccountPage = () => {
   // Not signed in — show sign-in form
   if (!user) return <SignInView />;
 
-  const displayName = (user.user_metadata?.full_name as string) || user.email?.split("@")[0] || "there";
+  const displayName = (user.user_metadata?.full_name as string) || user.email || "there";
   const initials = getInitials(user.user_metadata?.full_name as string, user.email);
   const memberSince = getMemberSince(user.created_at);
   const currentTabConfig = tabs.find((t) => t.id === activeTab)!;

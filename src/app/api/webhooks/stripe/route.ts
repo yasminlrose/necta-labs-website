@@ -17,6 +17,7 @@ import Stripe from 'stripe';
 import { stripe } from '@/lib/stripe';
 import { sendEmail } from '@/lib/resendTemplates';
 import { createClient } from '@supabase/supabase-js';
+import type { User as SupabaseUser } from '@supabase/supabase-js';
 
 function getSupabase() {
   return createClient(
@@ -131,7 +132,7 @@ export async function POST(req: NextRequest) {
         await supabase.from('pre_orders').insert({
           email,
           product_slug: productSlug,
-          format: purchaseType === 'subscribe' ? 'subscription' : 'one-off',
+          format: purchaseType === 'subscribe' ? `subscription${freq ? `:${freq}` : ''}` : 'one-off',
           size,
           quantity: 1,
           status: 'deposit_paid',
@@ -149,6 +150,24 @@ export async function POST(req: NextRequest) {
         console.log('[webhook] deposit saved to pre_orders — email:', email, '| member:', memberNumber);
       } catch (err) {
         console.error('[webhook] failed to save deposit to pre_orders:', err instanceof Error ? err.message : String(err));
+      }
+
+      // Sync customer name to Supabase auth metadata so the account dashboard
+      // shows their real name instead of their email prefix
+      if (rawName) {
+        try {
+          const admin = getSupabaseAdmin();
+          const listResult = await admin.auth.admin.listUsers({ perPage: 1000 });
+          const existing = (listResult.data.users as SupabaseUser[]).find(u => u.email?.toLowerCase() === email.toLowerCase());
+          if (existing && !existing.user_metadata?.full_name) {
+            await admin.auth.admin.updateUserById(existing.id, {
+              user_metadata: { ...existing.user_metadata, full_name: rawName },
+            });
+            console.log('[webhook] synced full_name to user metadata:', email);
+          }
+        } catch (err) {
+          console.error('[webhook] name sync failed:', err instanceof Error ? err.message : String(err));
+        }
       }
 
       // Create founding member coupon + personal promo code in Stripe
@@ -243,12 +262,13 @@ export async function POST(req: NextRequest) {
       }
 
       // Save to pre_orders so Order History shows this order
+      const subFreq = metaFrequency || deriveFrequency(size, metaFrequency);
       try {
         const supabaseClient = getSupabase();
         await supabaseClient.from('pre_orders').insert({
           email,
           product_slug: session.metadata?.productSlug ?? productName.toLowerCase().replace(/\s+/g, '-'),
-          format: 'subscription',
+          format: `subscription${subFreq ? `:${subFreq}` : ''}`,
           size: size || null,
           quantity: 1,
           status: 'deposit_paid',
@@ -261,6 +281,23 @@ export async function POST(req: NextRequest) {
         console.log('[webhook] subscription saved to pre_orders — email:', email);
       } catch (err) {
         console.error('[webhook] failed to save subscription to pre_orders:', err instanceof Error ? err.message : String(err));
+      }
+
+      // Sync customer name to Supabase auth metadata
+      if (firstName && firstName !== 'there') {
+        try {
+          const admin = getSupabaseAdmin();
+          const listResult = await admin.auth.admin.listUsers({ perPage: 1000 });
+          const existing = (listResult.data.users as SupabaseUser[]).find(u => u.email?.toLowerCase() === email.toLowerCase());
+          if (existing && !existing.user_metadata?.full_name) {
+            await admin.auth.admin.updateUserById(existing.id, {
+              user_metadata: { ...existing.user_metadata, full_name: firstName },
+            });
+            console.log('[webhook] synced name to user metadata (subscription):', email);
+          }
+        } catch (err) {
+          console.error('[webhook] name sync failed (subscription):', err instanceof Error ? err.message : String(err));
+        }
       }
 
       // Get the actual recurring price amount and first charge date from Stripe

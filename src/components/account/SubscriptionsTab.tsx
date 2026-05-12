@@ -1,7 +1,7 @@
 'use client';
 
 import Link from "next/link";
-import { Package, Clock, CheckCircle2, Calendar } from "lucide-react";
+import { Package, Clock, CheckCircle2, Calendar, RefreshCw } from "lucide-react";
 
 interface PreOrder {
   id: string;
@@ -17,8 +17,35 @@ interface Props {
   orders: PreOrder[];
 }
 
+const PRODUCT_NAMES: Record<string, string> = {
+  focus:    "NECTA Focus",
+  calm:     "NECTA Calm",
+  immunity: "NECTA Immunity",
+  glow:     "NECTA Glow",
+};
+
+function productName(slug: string): string {
+  return PRODUCT_NAMES[slug.toLowerCase()] ?? `NECTA ${slug.charAt(0).toUpperCase() + slug.slice(1)}`;
+}
+
+/** Extract frequency from format field, e.g. "subscription:monthly" → "Monthly" */
+function parseFrequency(format: string | null, size: string | null): string {
+  if (format?.includes(":")) {
+    const freq = format.split(":")[1];
+    return freq.charAt(0).toUpperCase() + freq.slice(1);
+  }
+  // Infer from size
+  if (size?.includes("90")) return "Every 3 months";
+  if (size?.includes("14")) return "Every 2 weeks";
+  return "Monthly";
+}
+
+function isSubscription(format: string | null): boolean {
+  return format?.startsWith("subscription") ?? false;
+}
+
 const SubscriptionsTab = ({ orders }: Props) => {
-  const subscriptionOrders = orders.filter((o) => o.format === "subscription");
+  const subscriptionOrders = orders.filter((o) => isSubscription(o.format));
 
   if (subscriptionOrders.length === 0) {
     return (
@@ -44,17 +71,62 @@ const SubscriptionsTab = ({ orders }: Props) => {
 
   return (
     <div className="space-y-6">
-      {/* Pre-order confirmed banner */}
+      {/* Confirmed banner */}
       <div className="bg-green-50 border border-green-200 rounded-2xl p-5 flex gap-4 items-start">
         <CheckCircle2 className="h-5 w-5 text-green-600 flex-shrink-0 mt-0.5" />
         <div>
-          <p className="font-semibold text-green-800 text-sm">Your pre-order subscription is confirmed</p>
+          <p className="font-semibold text-green-800 text-sm">
+            {subscriptionOrders.length === 1 ? "Your pre-order subscription is confirmed" : `${subscriptionOrders.length} pre-order subscriptions confirmed`}
+          </p>
           <p className="text-xs text-green-700 mt-1">
-            Your card will be charged on <strong>1 November 2026</strong>. Your order will be dispatched from <strong>17 November 2026</strong>.
-            You'll receive an email when it's on its way.
+            Your card will be charged on <strong>1 November 2026</strong>. Orders dispatch from <strong>17 November 2026</strong>.
           </p>
         </div>
       </div>
+
+      {/* Subscription cards */}
+      {subscriptionOrders.map((order) => {
+        const freq = parseFrequency(order.format, order.size);
+        return (
+          <div key={order.id} className="bg-white border border-border rounded-2xl p-5">
+            <div className="flex items-start justify-between gap-3 mb-4">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
+                  <RefreshCw className="h-5 w-5 text-primary/50" />
+                </div>
+                <div>
+                  <p className="font-semibold text-primary text-sm">{productName(order.product_slug)}</p>
+                  {order.size && (
+                    <p className="text-xs text-primary/45 mt-0.5">{order.size}</p>
+                  )}
+                </div>
+              </div>
+              <span className="text-[11px] font-semibold px-2.5 py-1 rounded-full border whitespace-nowrap text-amber-600 bg-amber-50 border-amber-200">
+                Deposit paid
+              </span>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3 text-xs text-primary/50 border-t border-border pt-3">
+              <div>
+                <p className="font-medium text-primary/70 mb-0.5">Frequency</p>
+                <p>{freq}</p>
+              </div>
+              <div>
+                <p className="font-medium text-primary/70 mb-0.5">First charge</p>
+                <p>1 November 2026</p>
+              </div>
+              <div>
+                <p className="font-medium text-primary/70 mb-0.5">First dispatch</p>
+                <p>From 17 November 2026</p>
+              </div>
+              <div>
+                <p className="font-medium text-primary/70 mb-0.5">Order date</p>
+                <p>{new Date(order.created_at).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}</p>
+              </div>
+            </div>
+          </div>
+        );
+      })}
 
       {/* Timeline */}
       <div className="bg-white border border-border rounded-2xl p-5">
@@ -79,15 +151,12 @@ const SubscriptionsTab = ({ orders }: Props) => {
         </div>
       </div>
 
-      {/* Manage subscription note */}
+      {/* Cancel note */}
       <div className="border border-dashed border-primary/20 rounded-xl p-4 text-center">
         <p className="text-xs text-primary/50 mb-2">
           Need to cancel before dispatch? Email us and we'll sort it immediately.
         </p>
-        <a
-          href="mailto:hello@nectalabs.com?subject=Pre-order cancellation"
-          className="text-xs font-semibold text-primary hover:underline"
-        >
+        <a href="mailto:hello@nectalabs.com?subject=Pre-order cancellation" className="text-xs font-semibold text-primary hover:underline">
           hello@nectalabs.com
         </a>
       </div>
