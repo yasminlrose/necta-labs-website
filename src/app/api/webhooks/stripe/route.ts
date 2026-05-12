@@ -170,7 +170,8 @@ export async function POST(req: NextRequest) {
             customer: session.customer as string,
           });
           // Apply discount directly to customer account (auto-applies at checkout)
-          await stripe.customers.update(session.customer as string, {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          await (stripe.customers.update as any)(session.customer as string, {
             coupon: FOUNDING_COUPON_ID,
           });
           console.log('[webhook] founding coupon applied — code:', couponCode);
