@@ -3,7 +3,7 @@ import { Leaf, FlaskConical, Droplets, ShieldCheck } from "lucide-react";
 const stats = [
   { Icon: Leaf, value: "100%", label: "Natural Ingredients" },
   { Icon: FlaskConical, value: "4", label: "Clinically-Dosed Blends" },
-  { Icon: Droplets, value: "1 drop", label: "Into Any Drink" },
+  { Icon: Droplets, value: "2 pumps", label: "Into Any Drink" },
   { Icon: ShieldCheck, value: "UK Made", label: "Organic Certified" },
 ];
 

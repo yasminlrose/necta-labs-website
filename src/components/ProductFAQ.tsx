@@ -32,7 +32,7 @@ const allFAQs: { question: string; answer: string }[] = [
   {
     question: "Is it safe to take every day?",
     answer:
-      "Yes. All ingredients are used at doses consistent with long-term safety profiles in peer-reviewed literature. We recommend one pump (15ml) per day. Always consult a healthcare professional if you are pregnant, breastfeeding, or taking medication.",
+      "Yes. All ingredients are used at doses consistent with long-term safety profiles in peer-reviewed literature. We recommend two pumps (30ml) per day. Always consult a healthcare professional if you are pregnant, breastfeeding, or taking medication.",
   },
   {
     question: "What's the difference between the bottle and the sachets?",
