@@ -113,7 +113,7 @@ function SignInView() {
     e.preventDefault();
     if (suPassword.length < 8) { setSuError("Password must be at least 8 characters."); return; }
     setSuLoading(true); setSuError("");
-    const { error } = await supabase.auth.signUp({
+    const { data, error } = await supabase.auth.signUp({
       email: suEmail,
       password: suPassword,
       options: {
@@ -123,7 +123,10 @@ function SignInView() {
     });
     setSuLoading(false);
     if (error) { setSuError(error.message); return; }
-    setSuDone(true);
+    // If email confirmation is disabled, session is returned immediately → auth
+    // context picks it up and shows the dashboard automatically.
+    // If confirmation is required, show the "check your email" message.
+    if (!data.session) setSuDone(true);
   };
 
   const handleGoogle = async () => {
