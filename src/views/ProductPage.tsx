@@ -666,7 +666,7 @@ const ProductPage = ({ slug: slugProp }: { slug?: string } = {}) => {
                 {[
                   { feature: "Clinically relevant doses", v: [true, "partial", false, false] },
                   { feature: "Adds to drinks you already make", v: [true, "partial", false, true] },
-                  { feature: "Organic certified (70%+)", v: [true, "partial", false, false] },
+                  { feature: "Organic certified", v: [true, "partial", false, false] },
                   { feature: "No mixing or prep", v: [true, false, true, true] },
                   { feature: "Focus, Immunity, Calm & Glow", v: [true, false, false, false] },
                   { feature: "Works in hot and cold drinks", v: [true, "partial", false, true] },

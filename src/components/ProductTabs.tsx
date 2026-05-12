@@ -195,7 +195,7 @@ const ProductTabs = ({ product }: ProductTabsProps) => {
                 style={{ backgroundColor: cardBg }}
               >
                 <p className="text-sm text-foreground/60">
-                  70%+ organic by weight. Soil Association certified. No artificial flavours, colours, or sweeteners.
+                  Organic ingredients. No artificial flavours, colours, or sweeteners.
                 </p>
               </div>
             </div>

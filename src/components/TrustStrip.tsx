@@ -4,7 +4,7 @@ const TrustStrip = () => {
     "Research-Backed Doses",
     "UK Made",
     "Zero Refined Sugar",
-    "70%+ Organic",
+    "Organic Ingredients",
   ];
 
   return (

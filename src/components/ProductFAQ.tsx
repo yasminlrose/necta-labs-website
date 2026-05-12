@@ -57,7 +57,7 @@ const allFAQs: { question: string; answer: string }[] = [
   {
     question: "Is Necta organic?",
     answer:
-      'Made with 70%+ organic ingredients by weight, qualifying as "made with organic ingredients" under Soil Association Organic Standards. We are pursuing full Soil Association certification.',
+      'Made with organic ingredients. We are pursuing full Soil Association certification.',
   },
 ];
 
