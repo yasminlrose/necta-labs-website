@@ -190,7 +190,7 @@ export async function POST(req: NextRequest) {
       // Use stable URLs only — VERCEL_URL changes every deploy and can't be
       // whitelisted in Supabase. VERCEL_BRANCH_URL is stable per branch.
       const origin = process.env.VERCEL_ENV === 'production'
-        ? 'https://nectalabs.com'
+        ? 'https://www.nectalabs.com'
         : process.env.VERCEL_BRANCH_URL
           ? `https://${process.env.VERCEL_BRANCH_URL}`
           : 'https://nectalabs.com';
