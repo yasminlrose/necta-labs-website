@@ -8,8 +8,8 @@ import { supabase } from "@/integrations/supabase/client";
 interface PreOrder {
   id: string;
   product_slug: string;
-  format: string;
-  size: string;
+  format: string | null;
+  size: string | null;
   quantity: number;
   status: string;
   created_at: string;
