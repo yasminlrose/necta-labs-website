@@ -54,6 +54,10 @@ export async function POST(req: NextRequest) {
           },
         ],
         customer_email: email ?? undefined,
+        payment_intent_data: {
+          // Save card for off-session charge when order dispatches (Nov 2026)
+          setup_future_usage: 'off_session',
+        },
         success_url: `${origin}/order-success?session_id={CHECKOUT_SESSION_ID}`,
         cancel_url: `${origin}/pre-order`,
         metadata: {
@@ -64,7 +68,7 @@ export async function POST(req: NextRequest) {
         },
         custom_text: {
           submit: {
-            message: `This £10 deposit secures your founding member pre-order. The remaining balance${balanceFormatted ? ` of ${balanceFormatted}` : ''} is only charged when your order ships in November 2026. Cancel any time before dispatch for a full refund.`,
+            message: `This £10 deposit secures your founding member pre-order. The remaining balance${balanceFormatted ? ` of ${balanceFormatted}` : ''} is charged on 1 November 2026 — orders dispatch from 17 November 2026. Cancel any time before dispatch for a full refund.`,
           },
         },
       });
@@ -115,7 +119,7 @@ export async function POST(req: NextRequest) {
         metadata: meta,
         custom_text: {
           submit: {
-            message: `You won't be charged until November 2026 when your order ships. Cancel any time before dispatch for a full refund.`,
+            message: `Your first charge is 1 November 2026 — orders dispatch from 17 November 2026. Cancel any time before dispatch for a full refund.`,
           },
         },
       });

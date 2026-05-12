@@ -73,13 +73,9 @@ function OrderSuccessContent() {
           const res = await fetch(`/api/check-account?email=${encodeURIComponent(data.email)}`);
           const { exists } = await res.json();
 
+          // Whether or not they have an account, the webhook confirmation email
+          // already contains a sign-in link — don't send a second email here.
           if (exists) {
-            // Send magic link — they're already checking their email for the order confirmation
-            await supabase.auth.signInWithOtp({
-              email: data.email,
-              options: { emailRedirectTo: `${window.location.origin}/account` },
-            });
-            setMagicSent(true);
             setAccountState('magic');
           } else {
             setAccountState('signup');
@@ -93,9 +89,10 @@ function OrderSuccessContent() {
   const handleResendMagicLink = async () => {
     if (!order?.email) return;
     setAuthLoading(true);
-    await supabase.auth.signInWithOtp({
-      email: order.email,
-      options: { emailRedirectTo: `${window.location.origin}/account` },
+    await fetch('/api/send-magic-link', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: order.email }),
     });
     setAuthLoading(false);
     setMagicSent(true);
@@ -111,7 +108,7 @@ function OrderSuccessContent() {
       password,
       options: {
         data: { full_name: order.firstName },
-        emailRedirectTo: 'https://nectalabs.com/account',
+        emailRedirectTo: `${window.location.origin}/account`,
       },
     });
     setAuthLoading(false);
@@ -140,7 +137,7 @@ function OrderSuccessContent() {
 
         <h1 className="text-3xl font-bold text-primary mb-3">Your pre-order is confirmed.</h1>
         <p className="text-base text-primary/60 mb-2">
-          Your product ships in November 2026. Check your email for your confirmation.
+          Charged 1 November 2026 · Dispatched from 17 November 2026. Check your email for your confirmation.
         </p>
         <p className="text-sm text-primary/40 mb-8">
           Thank you for being here at the beginning.
@@ -150,23 +147,27 @@ function OrderSuccessContent() {
         {showAccountCard && (
           <div className="bg-white border border-border rounded-2xl p-6 mb-8 text-left">
 
-            {/* Existing account — magic link sent */}
+            {/* Existing account — sign-in link is in the confirmation email */}
             {accountState === 'magic' && (
               <>
                 <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center mb-4">
                   <Mail className="h-5 w-5 text-primary" />
                 </div>
-                <h2 className="text-base font-bold text-primary mb-1">Check your email to sign in</h2>
+                <h2 className="text-base font-bold text-primary mb-1">Check your confirmation email</h2>
                 <p className="text-xs text-primary/50 mb-4">
-                  We've sent a sign-in link to <strong>{order!.email}</strong>. Click it to access your account and order details — no password needed.
+                  Your order confirmation has been sent to <strong>{order!.email}</strong>. It includes a button to sign in to your account — no password needed.
                 </p>
-                <button
-                  onClick={handleResendMagicLink}
-                  disabled={authLoading}
-                  className="w-full border border-border text-primary font-medium py-3 rounded-lg text-sm hover:bg-muted transition-colors disabled:opacity-50"
-                >
-                  {authLoading ? 'Sending…' : magicSent ? 'Resend link' : 'Send link'}
-                </button>
+                {!magicSent ? (
+                  <button
+                    onClick={handleResendMagicLink}
+                    disabled={authLoading}
+                    className="w-full border border-border text-primary font-medium py-3 rounded-lg text-sm hover:bg-muted transition-colors disabled:opacity-50"
+                  >
+                    {authLoading ? 'Sending…' : "Didn't get it? Resend sign-in link"}
+                  </button>
+                ) : (
+                  <p className="text-xs text-green-600 text-center">Sign-in link sent — check your inbox.</p>
+                )}
               </>
             )}
 

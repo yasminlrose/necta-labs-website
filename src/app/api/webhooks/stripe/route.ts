@@ -124,7 +124,8 @@ export async function POST(req: NextRequest) {
       const size = session.metadata?.size ?? '';
       const freq = session.metadata?.frequency ?? '';
 
-      // Save to pre_orders table
+      // Save to pre_orders table and get member number (count after insert)
+      let memberNumber = 0;
       try {
         const supabase = getSupabase();
         await supabase.from('pre_orders').insert({
@@ -135,28 +136,74 @@ export async function POST(req: NextRequest) {
           quantity: 1,
           status: 'deposit_paid',
         });
+        const { count } = await supabase
+          .from('pre_orders')
+          .select('*', { count: 'exact', head: true })
+          .eq('status', 'deposit_paid');
+        memberNumber = count ?? 0;
         // Also add to email_signups
         await supabase.from('email_signups').insert({
           email,
           source: `deposit-${productSlug}`,
         });
-        console.log('[webhook] deposit saved to pre_orders — email:', email);
+        console.log('[webhook] deposit saved to pre_orders — email:', email, '| member:', memberNumber);
       } catch (err) {
         console.error('[webhook] failed to save deposit to pre_orders:', err instanceof Error ? err.message : String(err));
+      }
+
+      // Create founding member coupon + personal promo code in Stripe
+      const FOUNDING_COUPON_ID = 'founding-member-15pct';
+      const couponCode = memberNumber ? `FOUNDING${memberNumber}` : '';
+      if (memberNumber && session.customer) {
+        try {
+          // Ensure the base coupon exists
+          try { await stripe.coupons.retrieve(FOUNDING_COUPON_ID); }
+          catch {
+            await stripe.coupons.create({
+              id: FOUNDING_COUPON_ID,
+              percent_off: 15,
+              duration: 'forever',
+              name: 'Founding Member — 15% Off Forever',
+            });
+          }
+          // Create a unique promo code tied to this customer
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          await (stripe.promotionCodes.create as any)({
+            coupon: FOUNDING_COUPON_ID,
+            code: couponCode,
+            customer: session.customer as string,
+          });
+          // Apply discount directly to customer account (auto-applies at checkout)
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          await (stripe.customers.update as any)(session.customer as string, {
+            coupon: FOUNDING_COUPON_ID,
+          });
+          console.log('[webhook] founding coupon applied — code:', couponCode);
+        } catch (err) {
+          console.error('[webhook] coupon setup failed:', err instanceof Error ? err.message : String(err));
+        }
       }
 
       // Send confirmation email (with magic sign-in link embedded)
       const orderDesc = [size, purchaseType === 'subscribe' ? `Subscribe (${freq || 'monthly'})` : 'One-off'].filter(Boolean).join(' · ');
       const balanceText = balance ? `£${balance}` : 'your remaining balance';
-      const origin = process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'https://nectalabs.com';
+      // Use stable URLs only — VERCEL_URL changes every deploy and can't be
+      // whitelisted in Supabase. VERCEL_BRANCH_URL is stable per branch.
+      const origin = process.env.VERCEL_ENV === 'production'
+        ? 'https://www.nectalabs.com'
+        : process.env.VERCEL_BRANCH_URL
+          ? `https://${process.env.VERCEL_BRANCH_URL}`
+          : 'https://nectalabs.com';
       const signInUrl = await generateMagicLink(email, origin);
       try {
         const resendId = await sendEmail('deposit', email, {
             first_name:    firstName,
             product_name:  `NECTA ${productName} — ${orderDesc}`,
             order_total:   `£10 deposit (${balanceText} due on dispatch)`,
-            dispatch_date: 'November 2026',
+            dispatch_date: 'From 17 November 2026',
             sign_in_url:   signInUrl,
+            member_number: memberNumber ? String(memberNumber) : '',
+            coupon_code:   couponCode,
           });
         console.log('[webhook] deposit confirmation sent — id:', resendId);
       } catch (err) {
@@ -179,7 +226,7 @@ export async function POST(req: NextRequest) {
 
       try {
         const resendId = await sendEmail('deposit', email, {
-          first_name: firstName, product_name: productName, order_total: amount, dispatch_date: 'November 2026',
+          first_name: firstName, product_name: productName, order_total: amount, dispatch_date: 'From 17 November 2026',
         });
         console.log('[webhook] order-confirmation sent — id:', resendId);
       } catch (err) {
@@ -187,12 +234,33 @@ export async function POST(req: NextRequest) {
       }
 
     } else if (session.mode === 'subscription') {
-      // ── Subscription pre-order (trial_end = Oct 2026, no charge today) ───────
+      // ── Subscription pre-order (trial_end = Nov 2026, no charge today) ────────
       const { email, firstName } = await getCustomerDetails(session.customer as string);
 
       if (!email) {
         console.warn('[webhook] no email for subscription — skipping welcome email');
         return NextResponse.json({ received: true });
+      }
+
+      // Save to pre_orders so Order History shows this order
+      try {
+        const supabaseClient = getSupabase();
+        await supabaseClient.from('pre_orders').insert({
+          email,
+          product_slug: session.metadata?.productSlug ?? productName.toLowerCase().replace(/\s+/g, '-'),
+          format: 'subscription',
+          size: size || null,
+          quantity: 1,
+          status: 'deposit_paid',
+        });
+        // Also add to email_signups
+        await supabaseClient.from('email_signups').insert({
+          email,
+          source: `subscription-${session.metadata?.productSlug ?? 'unknown'}`,
+        });
+        console.log('[webhook] subscription saved to pre_orders — email:', email);
+      } catch (err) {
+        console.error('[webhook] failed to save subscription to pre_orders:', err instanceof Error ? err.message : String(err));
       }
 
       // Get the actual recurring price amount and first charge date from Stripe

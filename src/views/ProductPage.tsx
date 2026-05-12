@@ -197,7 +197,7 @@ const ProductPage = ({ slug: slugProp }: { slug?: string } = {}) => {
               <h1 className="text-3xl md:text-4xl font-bold text-primary mb-1">{product.name}</h1>
               <p className="text-sm text-primary/50 italic mb-2">{product.flavor}</p>
               <p className="text-xs text-primary/60 bg-primary/[0.04] border border-primary/10 rounded-lg px-3 py-2 mb-4">
-                Pre-order — ships October 2026. Cancel any time before dispatch for a full refund.
+                Pre-order — ships from 17 November 2026. Cancel any time before dispatch for a full refund.
               </p>
 
               {/* Stars */}
