@@ -111,7 +111,7 @@ function OrderSuccessContent() {
       password,
       options: {
         data: { full_name: order.firstName },
-        emailRedirectTo: 'https://nectalabs.com/account',
+        emailRedirectTo: `${window.location.origin}/account`,
       },
     });
     setAuthLoading(false);

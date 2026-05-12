@@ -124,25 +124,58 @@ export async function POST(req: NextRequest) {
       const size = session.metadata?.size ?? '';
       const freq = session.metadata?.frequency ?? '';
 
-      // Save to pre_orders table
+      // Save to pre_orders table and get member number
+      let memberNumber = 0;
       try {
         const supabase = getSupabase();
-        await supabase.from('pre_orders').insert({
+        const { data: inserted } = await supabase.from('pre_orders').insert({
           email,
           product_slug: productSlug,
           format: purchaseType === 'subscribe' ? 'subscription' : 'one-off',
           size,
           quantity: 1,
           status: 'deposit_paid',
-        });
+        }).select('id').single();
+        memberNumber = inserted?.id ?? 0;
         // Also add to email_signups
         await supabase.from('email_signups').insert({
           email,
           source: `deposit-${productSlug}`,
         });
-        console.log('[webhook] deposit saved to pre_orders — email:', email);
+        console.log('[webhook] deposit saved to pre_orders — email:', email, '| member:', memberNumber);
       } catch (err) {
         console.error('[webhook] failed to save deposit to pre_orders:', err instanceof Error ? err.message : String(err));
+      }
+
+      // Create founding member coupon + personal promo code in Stripe
+      const FOUNDING_COUPON_ID = 'founding-member-15pct';
+      let couponCode = memberNumber ? `FOUNDING${memberNumber}` : '';
+      if (memberNumber && session.customer) {
+        try {
+          // Ensure the base coupon exists
+          try { await stripe.coupons.retrieve(FOUNDING_COUPON_ID); }
+          catch {
+            await stripe.coupons.create({
+              id: FOUNDING_COUPON_ID,
+              percent_off: 15,
+              duration: 'forever',
+              name: 'Founding Member — 15% Off Forever',
+            });
+          }
+          // Create a unique promo code tied to this customer
+          await stripe.promotionCodes.create({
+            coupon: FOUNDING_COUPON_ID,
+            code: couponCode,
+            customer: session.customer as string,
+          });
+          // Apply discount directly to customer account (auto-applies at checkout)
+          await stripe.customers.update(session.customer as string, {
+            coupon: FOUNDING_COUPON_ID,
+          });
+          console.log('[webhook] founding coupon applied — code:', couponCode);
+        } catch (err) {
+          console.error('[webhook] coupon setup failed:', err instanceof Error ? err.message : String(err));
+        }
       }
 
       // Send confirmation email (with magic sign-in link embedded)
@@ -157,6 +190,8 @@ export async function POST(req: NextRequest) {
             order_total:   `£10 deposit (${balanceText} due on dispatch)`,
             dispatch_date: 'November 2026',
             sign_in_url:   signInUrl,
+            member_number: memberNumber ? String(memberNumber) : '',
+            coupon_code:   couponCode,
           });
         console.log('[webhook] deposit confirmation sent — id:', resendId);
       } catch (err) {
