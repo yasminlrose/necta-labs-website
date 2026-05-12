@@ -25,6 +25,29 @@ function getSupabase() {
   );
 }
 
+function getSupabaseAdmin() {
+  return createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+  );
+}
+
+/** Generate a Supabase magic link for the given email. Returns the URL or a fallback. */
+async function generateMagicLink(email: string, origin: string): Promise<string> {
+  try {
+    const { data, error } = await getSupabaseAdmin().auth.admin.generateLink({
+      type: 'magiclink',
+      email,
+      options: { redirectTo: `${origin}/account` },
+    });
+    if (error || !data.properties?.action_link) throw new Error(error?.message ?? 'no link');
+    return data.properties.action_link;
+  } catch (err) {
+    console.error('[webhook] generateMagicLink failed:', err instanceof Error ? err.message : String(err));
+    return `${origin}/account`;
+  }
+}
+
 /** Format a Unix timestamp as a human-readable UK date. */
 function formatUnixDate(ts: number): string {
   return new Date(ts * 1000).toLocaleDateString('en-GB', {
@@ -122,15 +145,18 @@ export async function POST(req: NextRequest) {
         console.error('[webhook] failed to save deposit to pre_orders:', err instanceof Error ? err.message : String(err));
       }
 
-      // Send confirmation email
+      // Send confirmation email (with magic sign-in link embedded)
       const orderDesc = [size, purchaseType === 'subscribe' ? `Subscribe (${freq || 'monthly'})` : 'One-off'].filter(Boolean).join(' · ');
       const balanceText = balance ? `£${balance}` : 'your remaining balance';
+      const origin = process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'https://nectalabs.com';
+      const signInUrl = await generateMagicLink(email, origin);
       try {
         const resendId = await sendEmail('deposit', email, {
             first_name:    firstName,
             product_name:  `NECTA ${productName} — ${orderDesc}`,
             order_total:   `£10 deposit (${balanceText} due on dispatch)`,
             dispatch_date: 'November 2026',
+            sign_in_url:   signInUrl,
           });
         console.log('[webhook] deposit confirmation sent — id:', resendId);
       } catch (err) {
