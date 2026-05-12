@@ -18,7 +18,7 @@ const FROM = 'NECTA Labs <hello@nectalabs.com>';
 export const TEMPLATE_ALIASES = {
   ORDER_CONFIRMATION:   'pre-order-confirmation',
   SUBSCRIPTION_WELCOME: 'subscription-welcome',
-  NEWSLETTER_WELCOME:   'newsletter-welcome',
+  NEWSLETTER_WELCOME:   'waitlist-email',
   LAUNCH_ANNOUNCEMENT:  'launch-announcement',
 } as const;
 
@@ -106,7 +106,7 @@ export async function sendEmail(
     deposit:      'pre-order-confirmation',
     preorder:     'pre-order-confirmation',
     subscription: 'subscription-welcome',
-    newsletter:   'newsletter-welcome',
+    newsletter:   'waitlist-email',
     launch:       'launch-announcement',
   };
   return sendTemplate(aliasMap[type], to, variables);
