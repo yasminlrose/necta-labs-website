@@ -51,6 +51,7 @@ export default function WriteReviewForm({ product, onSubmitted }: Props) {
       review_text: text.trim(),
       verified_purchase: verifiedPurchase,
       helpful_count: 0,
+      status: 'approved',
     });
 
     setLoading(false);
