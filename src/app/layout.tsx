@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import './globals.css';
 import { Providers } from './providers';
+import { SpeedInsights } from '@vercel/speed-insights/next';
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://nectalabs.com'),
@@ -38,7 +39,7 @@ const localBusinessSchema = {
   },
   sameAs: [
     'https://instagram.com/necta_syrups',
-    'https://tiktok.com/@nectalabs',
+    'https://www.tiktok.com/@necta_labs',
   ],
 };
 
@@ -70,6 +71,7 @@ export default function RootLayout({
       </head>
       <body>
         <Providers>{children}</Providers>
+        <SpeedInsights />
       </body>
     </html>
   );
