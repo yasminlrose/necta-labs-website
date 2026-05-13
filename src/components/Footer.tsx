@@ -4,7 +4,6 @@ import { useState } from "react";
 import { Instagram, ArrowRight, Check } from "lucide-react";
 import Link from "next/link";
 import NectaLogo from "@/components/NectaLogo";
-import { supabase } from "@/integrations/supabase/client";
 
 function EmailSignup() {
   const [email, setEmail] = useState("");
@@ -20,40 +19,21 @@ function EmailSignup() {
     setError("");
     setAlreadyExists(false);
 
-    // Check if email already exists
-    const { data: existing } = await supabase
-      .from("email_signups")
-      .select("id")
-      .eq("email", email.trim())
-      .limit(1);
+    const res = await fetch("/api/email-signup", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email: email.trim(), source: "footer" }),
+    }).catch(() => null);
 
-    if (existing && existing.length > 0) {
-      setLoading(false);
-      setAlreadyExists(true);
-      setDone(true);
-      return;
-    }
-
-    const { error } = await supabase
-      .from("email_signups")
-      .insert({ email: email.trim(), source: "footer" });
     setLoading(false);
-    if (error && error.code !== "23505") {
+
+    if (!res || !res.ok) {
       setError("Something went wrong. Please try again.");
       return;
     }
 
-    // Send newsletter welcome email
-    await fetch("/api/send-email", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        type: "newsletter",
-        to: email.trim(),
-        data: { firstName: "" },
-      }),
-    }).catch(() => null); // non-blocking
-
+    const data = await res.json();
+    if (data.alreadyExists) setAlreadyExists(true);
     setDone(true);
   };
 

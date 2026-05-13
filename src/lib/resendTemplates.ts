@@ -96,6 +96,26 @@ export async function sendTemplate(
   return data.id ?? 'unknown';
 }
 
+const NOTIFY_TO = 'hello@nectalabs.com';
+
+/**
+ * Send a plain-text internal notification to hello@nectalabs.com.
+ * Non-blocking — call without await or catch errors yourself.
+ */
+export async function sendInternalNotification(subject: string, text: string): Promise<void> {
+  const apiKey = process.env.RESEND_API_KEY;
+  if (!apiKey) return;
+  try {
+    await fetch(`${RESEND_API}/emails`, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ from: FROM, to: [NOTIFY_TO], subject, text }),
+    });
+  } catch {
+    // non-blocking — never fail the main flow
+  }
+}
+
 /** Typed helper — maps email type to the right template + variables. */
 export async function sendEmail(
   type: EmailType,
