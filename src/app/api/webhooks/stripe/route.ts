@@ -15,7 +15,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import Stripe from 'stripe';
 import { stripe } from '@/lib/stripe';
-import { sendEmail } from '@/lib/resendTemplates';
+import { sendEmail, sendInternalNotification } from '@/lib/resendTemplates';
 import { createClient } from '@supabase/supabase-js';
 import type { User as SupabaseUser } from '@supabase/supabase-js';
 
@@ -245,6 +245,12 @@ export async function POST(req: NextRequest) {
         console.error('[webhook] deposit confirmation email failed:', err instanceof Error ? err.message : String(err));
       }
 
+      // Internal notification to hello@nectalabs.com
+      sendInternalNotification(
+        `New pre-order — NECTA ${productName}`,
+        `New pre-order received!\n\nCustomer: ${rawName || email}\nEmail: ${email}\nProduct: NECTA ${productName}\nSize: ${size || '—'}\nType: ${purchaseType === 'subscribe' ? `Subscribe (${freq || 'monthly'})` : 'One-off'}\nMember #${memberNumber}\n\nView in Stripe: https://dashboard.stripe.com/payments`,
+      );
+
       return NextResponse.json({ received: true });
 
     } else if (session.mode === 'payment') {
@@ -367,6 +373,12 @@ export async function POST(req: NextRequest) {
       } catch (err) {
         console.error('[webhook] subscription-welcome failed:', err instanceof Error ? err.message : String(err));
       }
+
+      // Internal notification
+      sendInternalNotification(
+        `New subscription pre-order — NECTA ${productName}`,
+        `New subscription pre-order!\n\nCustomer: ${firstName}\nEmail: ${email}\nProduct: NECTA ${productName}\nSize: ${size || '—'}\nFrequency: ${frequency}\nFirst charge: ${firstChargeDate}\n\nView in Stripe: https://dashboard.stripe.com/subscriptions`,
+      );
 
     } else {
       console.warn('[webhook] unhandled session.mode:', session.mode);
