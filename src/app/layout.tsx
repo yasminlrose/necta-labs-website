@@ -5,12 +5,13 @@ import { SpeedInsights } from '@vercel/speed-insights/next';
 import { Analytics } from '@vercel/analytics/next';
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://nectalabs.com'),
+  metadataBase: new URL('https://www.nectalabs.com'),
   title: {
     default: 'NECTA Labs — Organic Functional Infusions for Coffee & Tea',
     template: '%s | NECTA Labs',
   },
   description: 'Premium organic functional infusions with Lion\'s Mane, Reishi, Ashwagandha & more. Add to any drink. Research-backed doses. UK made.',
+  keywords: ['functional infusion', 'adaptogen drink', 'lions mane supplement', 'organic functional drinks', 'mushroom coffee', 'ashwagandha drink', 'nootropic infusion', 'UK wellness drink', 'NECTA Labs'],
   authors: [{ name: 'NECTA Labs' }],
   openGraph: {
     type: 'website',

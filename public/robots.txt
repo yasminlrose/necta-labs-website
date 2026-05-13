@@ -1,9 +1,13 @@
-# *
 User-agent: *
 Allow: /
+Disallow: /account
+Disallow: /order-success
+Disallow: /admin
+Disallow: /stockist-portal
+Disallow: /api/
 
 # Host
-Host: https://nectalabs.com
+Host: https://www.nectalabs.com
 
 # Sitemaps
-Sitemap: https://nectalabs.com/sitemap.xml
+Sitemap: https://www.nectalabs.com/sitemap.xml
