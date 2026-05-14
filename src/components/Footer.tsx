@@ -160,12 +160,13 @@ const Footer = () => {
             <ul className="space-y-3">
               {[
                 { href: "/learn", label: "All Articles" },
-                { href: "/learn/mushroom-coffee-benefits", label: "Mushroom Coffee" },
-                { href: "/learn/ashwagandha-benefits", label: "Ashwagandha Benefits" },
-                { href: "/learn/how-to-lower-cortisol-naturally", label: "Lower Cortisol" },
-                { href: "/learn/best-nootropics-uk", label: "Best Nootropics UK" },
+                { href: "/learn/why-most-adaptogen-supplements-dont-work", label: "Why Most Adaptogens Fail" },
+                { href: "/learn/liquid-adaptogens-uk", label: "Liquid Adaptogens UK" },
+                { href: "/learn/best-adaptogen-brand-uk", label: "Best Adaptogen Brand UK" },
+                { href: "/learn/burnout-supplements-uk", label: "Burnout Supplements UK" },
                 { href: "/learn/what-is-an-adaptogen", label: "What Is an Adaptogen?" },
-                { href: "/learn/turmeric-benefits", label: "Turmeric Benefits" },
+                { href: "/learn/best-nootropics-uk", label: "Best Nootropics UK" },
+                { href: "/learn/adaptogen-morning-routine", label: "Morning Routine Guide" },
                 { href: "/how-it-works", label: "How It Works" },
                 { href: "/science", label: "The Science" },
               ].map(({ href, label }) => (
