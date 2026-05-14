@@ -4,7 +4,7 @@ import ProductPage from '@/views/ProductPage';
 
 const title = 'NECTA GLOW — Marine Collagen 2.5g for Skin Health';
 const description =
-  'GLOW organic functional infusion: Marine Collagen 2.5g, Hyaluronic Acid 120mg, CoQ10 80mg. Skin health from the inside out. Cherry Almond flavour. Pump bottle from £25/mo.';
+  'GLOW organic functional infusion: Marine Collagen 2.5g, Hyaluronic Acid 120mg, CoQ10 80mg. Skin health from the inside out. Cherry Almond flavour. Pump bottle 250ml from £29.';
 const canonical = 'https://www.nectalabs.com/shop/glow';
 
 export const metadata: Metadata = {
@@ -32,7 +32,7 @@ const productSchema = {
   offers: {
     '@type': 'Offer',
     priceCurrency: 'GBP',
-    price: 25,
+    price: 29,
     availability: 'https://schema.org/PreOrder',
     url: canonical,
     priceValidUntil: '2026-12-31',

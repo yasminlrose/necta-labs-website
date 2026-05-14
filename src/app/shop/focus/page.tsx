@@ -4,7 +4,7 @@ import ProductPage from '@/views/ProductPage';
 
 const title = "NECTA FOCUS — Lion's Mane 500mg for Mental Clarity";
 const description =
-  "FOCUS organic functional infusion: Lion's Mane 500mg, L-Theanine 80mg, Rhodiola 200mg. Mental clarity without the crash. Vanilla Bean flavour. Pump bottle from £25/mo.";
+  "FOCUS organic functional infusion: Lion's Mane 500mg, L-Theanine 80mg, Rhodiola 200mg. Mental clarity without the crash. Vanilla Bean flavour. Pump bottle 250ml from £29.";
 const canonical = 'https://www.nectalabs.com/shop/focus';
 
 export const metadata: Metadata = {
@@ -32,7 +32,7 @@ const productSchema = {
   offers: {
     '@type': 'Offer',
     priceCurrency: 'GBP',
-    price: 25,
+    price: 29,
     availability: 'https://schema.org/PreOrder',
     url: canonical,
     priceValidUntil: '2026-12-31',
