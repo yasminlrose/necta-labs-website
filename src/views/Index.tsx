@@ -9,6 +9,7 @@ import FeatureIconsSection from "@/components/FeatureIconsSection";
 import BenefitTabsSection from "@/components/BenefitTabsSection";
 import IngredientSpotlightsSection from "@/components/IngredientSpotlightsSection";
 import CategoryCardsSection from "@/components/CategoryCardsSection";
+import LearnTeaserSection from "@/components/LearnTeaserSection";
 import Footer from "@/components/Footer";
 import EmailPopup from "@/components/EmailPopup";
 
@@ -25,6 +26,7 @@ const Index = () => {
         <BenefitTabsSection />
         <IngredientSpotlightsSection />
         <CategoryCardsSection />
+        <LearnTeaserSection />
       </main>
       <Footer />
       <EmailPopup />
