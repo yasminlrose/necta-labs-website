@@ -1,10 +1,12 @@
 User-agent: *
 Allow: /
 Disallow: /account
-Disallow: /order-success
 Disallow: /admin
-Disallow: /stockist-portal
 Disallow: /api/
+Disallow: /stockist-portal
+Disallow: /waitlist
+Disallow: /order-success
+Disallow: /stockists/apply
 
 # Host
 Host: https://www.nectalabs.com

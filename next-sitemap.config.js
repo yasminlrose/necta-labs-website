@@ -13,9 +13,6 @@ module.exports = {
       { userAgent: '*', disallow: '/order-success' },
       { userAgent: '*', disallow: '/stockists/apply' },
     ],
-    additionalSitemaps: [
-      'https://www.nectalabs.com/sitemap.xml',
-    ],
   },
   exclude: [
     '/account',
