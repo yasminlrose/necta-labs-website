@@ -352,13 +352,14 @@ function ProductColumn({ slug }: { slug: ProductSlug }) {
 
           {/* Trust */}
           <div className="flex items-center justify-center gap-3 text-primary/35">
-            {[{ Icon: Truck, label: "Free delivery" }, { Icon: RefreshCcw, label: "Cancel anytime" }, { Icon: Leaf, label: "Natural" }].map(({ Icon, label }) => (
+            {[{ Icon: Truck, label: "Free UK delivery" }, { Icon: RefreshCcw, label: "Cancel anytime" }, { Icon: Leaf, label: "Natural" }].map(({ Icon, label }) => (
               <div key={label} className="flex items-center gap-1">
                 <Icon className="h-2.5 w-2.5" />
                 <span className="text-[9px]">{label}</span>
               </div>
             ))}
           </div>
+          <p className="text-[9px] text-primary/25 text-center mt-1">Currently shipping to the UK only</p>
         </div>
       </div>
   );
