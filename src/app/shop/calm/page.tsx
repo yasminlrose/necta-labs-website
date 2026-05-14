@@ -4,7 +4,7 @@ import ProductPage from '@/views/ProductPage';
 
 const title = 'NECTA CALM — Chamomile & Lemon Balm for Stress Relief';
 const description =
-  'CALM organic functional infusion: Chamomile 150mg, Lemon Balm 150mg, Jujube Seed 200mg. Stress relief without drowsiness. Honey Caramel flavour. Pump bottle from £25/mo.';
+  'CALM organic functional infusion: Chamomile 150mg, Lemon Balm 150mg, Jujube Seed 200mg. Stress relief without drowsiness. Honey Caramel flavour. Pump bottle 250ml from £29.';
 const canonical = 'https://www.nectalabs.com/shop/calm';
 
 export const metadata: Metadata = {
@@ -32,7 +32,7 @@ const productSchema = {
   offers: {
     '@type': 'Offer',
     priceCurrency: 'GBP',
-    price: 25,
+    price: 29,
     availability: 'https://schema.org/PreOrder',
     url: canonical,
     priceValidUntil: '2026-12-31',

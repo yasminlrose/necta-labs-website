@@ -4,7 +4,7 @@ import ProductPage from '@/views/ProductPage';
 
 const title = 'NECTA IMMUNITY — Reishi 2g for Daily Immune Defence';
 const description =
-  'IMMUNITY organic functional infusion: Reishi 2g, Elderberry 500mg, Ashwagandha 300mg. Daily immune defence and resilience. Hazelnut & Orange flavour. Pump bottle from £25/mo.';
+  'IMMUNITY organic functional infusion: Reishi 2g, Elderberry 500mg, Ashwagandha 300mg. Daily immune defence and resilience. Hazelnut & Orange flavour. Pump bottle 250ml from £29.';
 const canonical = 'https://www.nectalabs.com/shop/immunity';
 
 export const metadata: Metadata = {
@@ -32,7 +32,7 @@ const productSchema = {
   offers: {
     '@type': 'Offer',
     priceCurrency: 'GBP',
-    price: 25,
+    price: 29,
     availability: 'https://schema.org/PreOrder',
     url: canonical,
     priceValidUntil: '2026-12-31',
