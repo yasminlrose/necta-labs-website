@@ -13,12 +13,12 @@ const tabs = [
     label: "Mental Performance",
     icon: Brain,
     headline: "Stay sharp, all day.",
-    sub: "FOCUS & IMMUNITY infusions are designed to support cognitive performance, stress resilience, and immune defence — every single day.",
+    sub: "FOCUS & IMMUNITY infusions are designed to support cognitive performance, stress resilience, and everyday wellness — every single day.",
     benefits: [
       "Enhanced concentration and working memory",
       "Reduced mental fatigue and brain fog",
       "Stress resilience under pressure",
-      "Immune system support",
+      "Everyday wellness support",
     ],
     cta: "Pre-order FOCUS",
     ctaLink: "/pre-order",
@@ -33,7 +33,7 @@ const tabs = [
     headline: "Unwind. Recover. Restore.",
     sub: "CALM infusion supports your nervous system to ease daily stress, improve sleep quality, and wake up feeling restored — naturally.",
     benefits: [
-      "Reduced anxiety and nervous tension",
+      "Everyday calm and nervous system support",
       "Deeper, more restorative sleep",
       "Calm focus during the day",
       "No drowsiness or morning grogginess",

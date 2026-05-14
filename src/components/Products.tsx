@@ -50,7 +50,7 @@ const products: Record<ProductVariant, ProductInfo> = {
   },
   calm: {
     name: "Calm",
-    tagline: "Relaxation & stress relief",
+    tagline: "Everyday calm & relaxation",
     colorClass: "text-necta-calm",
     bgClass: "bg-necta-calm",
     borderClass: "border-necta-calm",

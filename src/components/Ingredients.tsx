@@ -80,7 +80,7 @@ const ingredientsByType: Record<InfusionType, { ingredients: Ingredient[]; color
       {
         name: "Elderberry Extract",
         dose: "500mg",
-        benefit: "Supports immune defenses and antioxidant protection during physical stress",
+        benefit: "Supports everyday wellness and antioxidant protection during physical stress",
         imageUrl: "https://images.unsplash.com/photo-1596591606975-97ee5cef3a1e?w=300&h=300&fit=crop",
       },
       {
@@ -92,7 +92,7 @@ const ingredientsByType: Record<InfusionType, { ingredients: Ingredient[]; color
       {
         name: "Vitamin C",
         dose: "200mg",
-        benefit: "Essential for immune defense, collagen production, and antioxidant protection",
+        benefit: "Essential for collagen production, everyday wellness, and antioxidant protection",
         imageUrl: "https://images.unsplash.com/photo-1582979512210-99b6a53386f9?w=300&h=300&fit=crop",
       },
       {
@@ -206,7 +206,7 @@ const ingredientsByType: Record<InfusionType, { ingredients: Ingredient[]; color
       {
         name: "Pomegranate Extract",
         dose: "250mg",
-        benefit: "Rich in polyphenols for skin elasticity, vascular health, and anti-aging",
+        benefit: "Rich in polyphenols for skin elasticity, vascular health, and healthy ageing",
         imageUrl: "https://images.unsplash.com/photo-1615485290382-441e4d049cb5?w=300&h=300&fit=crop",
       },
       {

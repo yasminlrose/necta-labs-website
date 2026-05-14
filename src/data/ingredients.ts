@@ -151,7 +151,7 @@ export const ingredients: Record<string, IngredientData> = {
   "elderberry": {
     slug: "elderberry",
     name: "Elderberry",
-    benefit: "Rich in antioxidants, supports immune defences",
+    benefit: "Rich in antioxidants, supports everyday wellness",
     whatIsIt: [
       "Elderberry (Sambucus nigra) has been used as a natural remedy for centuries across Europe. The deep purple berries are packed with anthocyanins — powerful antioxidants that give them their distinctive colour and immune-supporting properties.",
       "Modern research has shown elderberry can reduce the duration and severity of colds and flu by stimulating the immune system's cytokine response. It's one of the most popular and well-studied natural immune supplements.",
@@ -192,7 +192,7 @@ export const ingredients: Record<string, IngredientData> = {
   "vitamin-c": {
     slug: "vitamin-c",
     name: "Vitamin C",
-    benefit: "Essential for immune defence and collagen synthesis",
+    benefit: "Essential for collagen synthesis and everyday wellness",
     whatIsIt: [
       "Vitamin C (ascorbic acid) is perhaps the most well-known immune nutrient. It's essential for the growth, development, and repair of all body tissues, and plays a critical role in immune cell function.",
       "Your body can't produce or store Vitamin C, so daily intake is essential. It's a powerful antioxidant that protects cells from free radical damage and supports the production of white blood cells that fight infections.",
@@ -211,7 +211,7 @@ export const ingredients: Record<string, IngredientData> = {
   "zinc": {
     slug: "zinc",
     name: "Zinc",
-    benefit: "Essential mineral for immune defence and cell division",
+    benefit: "Essential mineral for everyday wellness and cell division",
     whatIsIt: [
       "Zinc is a trace mineral involved in over 300 enzymatic reactions in the body. It's critical for immune function, wound healing, DNA synthesis, and cell division.",
       "Even mild zinc deficiency can impair immune responses. Supplementation has been shown to reduce the duration and severity of common colds and support overall immune resilience.",
@@ -230,7 +230,7 @@ export const ingredients: Record<string, IngredientData> = {
   "chamomile": {
     slug: "chamomile",
     name: "Chamomile",
-    benefit: "Promotes relaxation and reduces anxiety without sedation",
+    benefit: "Promotes everyday calm and relaxation without sedation",
     whatIsIt: [
       "Chamomile (Matricaria chamomilla) is one of the world's oldest and most widely used medicinal plants. It's been consumed as a calming tea for thousands of years across Egyptian, Greek, and Roman civilisations.",
       "Its calming effects come from apigenin, a flavonoid that binds to GABA receptors in the brain — the same receptors targeted by anti-anxiety medications, but in a gentle, non-addictive way.",

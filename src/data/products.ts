@@ -97,7 +97,7 @@ export const products: Record<ProductSlug, ProductData> = {
   immunity: {
     slug: "immunity",
     name: "IMMUNITY",
-    tagline: "Daily immune defence and resilience",
+    tagline: "Everyday wellness and resilience",
     flavor: "Hazelnut & Orange",
     flavorNotes: "Creamy hazelnut with bright citrus",
     heroIngredientsSummary: "Reishi 1.5g • Elderberry 500mg • Ashwagandha 300mg",
@@ -108,9 +108,9 @@ export const products: Record<ProductSlug, ProductData> = {
     sachets: SACHET_PRICES,
     ingredients: [
       { name: "Reishi Mushroom", dose: "1.5g", benefit: "Immune-modulating adaptogenic mushroom for stress balance and deep immunity." },
-      { name: "Elderberry Extract", dose: "500mg", benefit: "Supports immune defenses and provides antioxidant protection." },
+      { name: "Elderberry Extract", dose: "500mg", benefit: "Supports everyday wellness and provides antioxidant protection." },
       { name: "Ashwagandha", dose: "300mg", benefit: "Reduces stress and cortisol while supporting mood and immune resilience." },
-      { name: "Vitamin C", dose: "200mg", benefit: "Essential for immune defense and antioxidant protection." },
+      { name: "Vitamin C", dose: "200mg", benefit: "Essential for everyday wellness and antioxidant protection." },
       { name: "Walnut Leaves", dose: "100mg", benefit: "Antimicrobial activity for gut cleansing and immune reinforcement." },
       { name: "Rose Hip", dose: "200mg", benefit: "High in vitamin C and polyphenols for immune strength." },
       { name: "Quercetin", dose: "80mg", benefit: "Mast cell stabilizer and anti-inflammatory compound." },

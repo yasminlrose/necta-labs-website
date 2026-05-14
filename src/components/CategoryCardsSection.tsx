@@ -10,8 +10,8 @@ import bottleGlow from "@/assets/bottle-glow.jpeg";
 
 const categories = [
   { slug: "focus",   name: "Focus",   desc: "Mental clarity & cognitive performance", image: bottleFocus.src },
-  { slug: "immunity",name: "Immunity",desc: "Daily immune defence & resilience",       image: bottleImmunity.src },
-  { slug: "calm",    name: "Calm",    desc: "Stress relief & restful sleep",           image: bottleCalm.src },
+  { slug: "immunity",name: "Immunity",desc: "Everyday wellness & natural resilience",  image: bottleImmunity.src },
+  { slug: "calm",    name: "Calm",    desc: "Everyday calm & restful sleep",           image: bottleCalm.src },
   { slug: "glow",    name: "Glow",    desc: "Skin health from the inside out",         image: bottleGlow.src },
 ];
 
