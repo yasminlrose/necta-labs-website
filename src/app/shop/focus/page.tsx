@@ -2,9 +2,9 @@ import type { Metadata } from 'next';
 import { Suspense } from 'react';
 import ProductPage from '@/views/ProductPage';
 
-const title = "NECTA FOCUS — Lion's Mane 500mg for Mental Clarity";
+const title = "NECTA FOCUS — Lion's Mane 2g for Mental Clarity";
 const description =
-  "FOCUS organic functional infusion: Lion's Mane 500mg, L-Theanine 80mg, Rhodiola 200mg. Mental clarity without the crash. Vanilla Bean flavour. Pump bottle 250ml from £29.";
+  "FOCUS organic functional infusion: Lion's Mane 2g, L-Theanine 80mg, Rhodiola 200mg, Ginkgo 140mg, B Vitamins. Mental clarity without the crash. Vanilla Bean flavour. Pump bottle 250ml from £29.";
 const canonical = 'https://www.nectalabs.com/shop/focus';
 
 export const metadata: Metadata = {
@@ -67,7 +67,7 @@ const faqSchema = {
       name: "What ingredients are in NECTA FOCUS?",
       acceptedAnswer: {
         '@type': 'Answer',
-        text: "NECTA FOCUS contains Lion's Mane 500mg, L-Theanine 80mg, and Rhodiola Rosea 200mg — all at clinically researched doses. It is organic, UK-made, and Vanilla Bean flavoured.",
+        text: "NECTA FOCUS contains Lion's Mane 2g, L-Theanine 80mg, Rhodiola Rosea 200mg, and Ginkgo 140mg — all at clinically researched doses. It is organic, UK-made, and Vanilla Bean flavoured.",
       },
     },
     {

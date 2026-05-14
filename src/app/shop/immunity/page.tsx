@@ -67,7 +67,7 @@ const faqSchema = {
       name: 'How does NECTA IMMUNITY support the immune system?',
       acceptedAnswer: {
         '@type': 'Answer',
-        text: 'Reishi mushroom at 2g has been shown in clinical research to modulate immune function. Elderberry 500mg provides antioxidant support, and Ashwagandha 300mg helps reduce cortisol — chronic stress is one of the biggest suppressors of immune function.',
+        text: 'Reishi mushroom at 1.5g has been shown in clinical research to modulate immune function. Elderberry 500mg provides antioxidant support, and Ashwagandha 300mg helps reduce cortisol — chronic stress is one of the biggest suppressors of immune function.',
       },
     },
     {
