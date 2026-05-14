@@ -159,10 +159,15 @@ const Footer = () => {
             <h4 className="text-sm font-semibold mb-4">Learn</h4>
             <ul className="space-y-3">
               {[
-                { href: "/learn", label: "Learn" },
+                { href: "/learn", label: "All Articles" },
+                { href: "/learn/mushroom-coffee-benefits", label: "Mushroom Coffee" },
+                { href: "/learn/ashwagandha-benefits", label: "Ashwagandha Benefits" },
+                { href: "/learn/how-to-lower-cortisol-naturally", label: "Lower Cortisol" },
+                { href: "/learn/best-nootropics-uk", label: "Best Nootropics UK" },
+                { href: "/learn/what-is-an-adaptogen", label: "What Is an Adaptogen?" },
+                { href: "/learn/turmeric-benefits", label: "Turmeric Benefits" },
                 { href: "/how-it-works", label: "How It Works" },
                 { href: "/science", label: "The Science" },
-                { href: "/about", label: "Our Story" },
               ].map(({ href, label }) => (
                 <li key={href}>
                   <Link

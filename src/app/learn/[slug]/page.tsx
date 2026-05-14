@@ -4,6 +4,7 @@ import Link from 'next/link';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { getArticle, getAllArticles, type Article } from '@/data/articles';
+import { articleFaqs } from '@/data/faqs';
 
 export async function generateStaticParams() {
   return getAllArticles().map((a) => ({ slug: a.slug }));
@@ -52,6 +53,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
   const related = getRelatedArticles(article, getAllArticles());
 
   const canonical = `https://www.nectalabs.com/learn/${slug}`;
+  const faqs = articleFaqs[slug] ?? [];
 
   const articleSchema = {
     '@context': 'https://schema.org',
@@ -81,10 +83,21 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
     ],
   };
 
+  const faqSchema = faqs.length > 0 ? {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: faqs.map(({ q, a }) => ({
+      '@type': 'Question',
+      name: q,
+      acceptedAnswer: { '@type': 'Answer', text: a },
+    })),
+  } : null;
+
   return (
     <div className="min-h-screen bg-white">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(articleSchema) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }} />
+      {faqSchema && <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }} />}
       <Header />
 
       <div className="necta-container py-12 md:py-16">
@@ -145,6 +158,21 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
               >
                 View {article.relatedProduct.name} →
               </Link>
+            </div>
+          )}
+
+          {/* FAQ Section */}
+          {faqs.length > 0 && (
+            <div className="mt-14 pt-10 border-t border-border">
+              <h2 className="text-xl font-bold text-foreground mb-6">Frequently Asked Questions</h2>
+              <div className="space-y-5">
+                {faqs.map(({ q, a }, i) => (
+                  <div key={i} className="border border-border rounded-xl p-5">
+                    <h3 className="text-sm font-bold text-foreground mb-2">{q}</h3>
+                    <p className="text-sm text-muted-foreground leading-relaxed">{a}</p>
+                  </div>
+                ))}
+              </div>
             </div>
           )}
 
