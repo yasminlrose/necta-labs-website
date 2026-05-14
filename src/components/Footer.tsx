@@ -159,6 +159,7 @@ const Footer = () => {
             <h4 className="text-sm font-semibold mb-4">Learn</h4>
             <ul className="space-y-3">
               {[
+                { href: "/learn", label: "Learn" },
                 { href: "/how-it-works", label: "How It Works" },
                 { href: "/science", label: "The Science" },
                 { href: "/about", label: "Our Story" },

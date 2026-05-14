@@ -20,6 +20,7 @@ const announcements = [
 const navLinks = [
   { href: "/pre-order", label: "Pre-Order" },
   { href: "/science", label: "Ingredients" },
+  { href: "/learn", label: "Learn" },
   { href: "/about", label: "About" },
   { href: "/stockist", label: "Stockists" },
 ];
