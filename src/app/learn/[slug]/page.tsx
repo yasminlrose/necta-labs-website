@@ -3,7 +3,7 @@ import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
-import { getArticle, getAllArticles } from '@/data/articles';
+import { getArticle, getAllArticles, type Article } from '@/data/articles';
 
 export async function generateStaticParams() {
   return getAllArticles().map((a) => ({ slug: a.slug }));
@@ -32,10 +32,24 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   };
 }
 
+const CATEGORY_COLORS: Record<string, string> = {
+  Ingredients: 'bg-emerald-50 text-emerald-700',
+  Wellness: 'bg-violet-50 text-violet-700',
+  'How To': 'bg-amber-50 text-amber-700',
+  Nootropics: 'bg-blue-50 text-blue-700',
+};
+
+function getRelatedArticles(current: Article, all: Article[]): Article[] {
+  const sameCategory = all.filter((a) => a.slug !== current.slug && a.category === current.category);
+  const others = all.filter((a) => a.slug !== current.slug && a.category !== current.category);
+  return [...sameCategory, ...others].slice(0, 3);
+}
+
 export default async function ArticlePage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const article = getArticle(slug);
   if (!article) notFound();
+  const related = getRelatedArticles(article, getAllArticles());
 
   const canonical = `https://www.nectalabs.com/learn/${slug}`;
 
@@ -131,6 +145,33 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
               >
                 View {article.relatedProduct.name} →
               </Link>
+            </div>
+          )}
+
+          {/* Related Articles */}
+          {related.length > 0 && (
+            <div className="mt-14 pt-10 border-t border-border">
+              <h2 className="text-base font-bold text-foreground mb-6">Read Next</h2>
+              <div className="grid grid-cols-1 gap-4">
+                {related.map((rel) => (
+                  <Link
+                    key={rel.slug}
+                    href={`/learn/${rel.slug}`}
+                    className="group flex flex-col gap-1 p-4 rounded-xl border border-border hover:shadow-sm transition-shadow"
+                  >
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className={`text-[10px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-full ${CATEGORY_COLORS[rel.category] ?? 'bg-muted text-muted-foreground'}`}>
+                        {rel.category}
+                      </span>
+                      <span className="text-[10px] text-muted-foreground">{rel.readingTime}</span>
+                    </div>
+                    <p className="text-sm font-semibold text-foreground group-hover:underline underline-offset-2 leading-snug">
+                      {rel.title}
+                    </p>
+                    <p className="text-xs text-muted-foreground leading-relaxed line-clamp-2">{rel.description}</p>
+                  </Link>
+                ))}
+              </div>
             </div>
           )}
 
