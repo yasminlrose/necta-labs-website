@@ -36,7 +36,7 @@ const colorMap: Record<string, { accent: string; light: string; gradient: string
 
 const heroTaglines: Record<string, string> = {
   focus:   "Sharpen your mind. Add to any drink.",
-  immunity:"Strengthen your defences. Add to any drink.",
+  immunity:"Support your everyday resilience. Add to any drink.",
   calm:    "Find your calm. Add to any drink.",
   glow:    "Glow from within. Add to any drink.",
 };

@@ -16,7 +16,7 @@ const spotlights = [
     color: "bg-[#D6EBEA]",
     image: bottleFocus.src,
     ingredients: [
-      { name: "Lion's Mane", dose: "500mg", note: "Nerve growth factor" },
+      { name: "Lion's Mane", dose: "2g", note: "Nerve growth factor" },
       { name: "Rhodiola Rosea", dose: "200mg", note: "Stress resilience" },
       { name: "L-Theanine", dose: "80mg", note: "Calm focus" },
       { name: "Bacopa Monnieri", dose: "300mg", note: "Memory & recall" },
@@ -25,11 +25,11 @@ const spotlights = [
   },
   {
     product: "IMMUNITY",
-    tagline: "For daily immune defence",
+    tagline: "For everyday wellness & resilience",
     color: "bg-[#F2DDD4]",
     image: bottleImmunity.src,
     ingredients: [
-      { name: "Reishi Mushroom", dose: "2g", note: "Immune modulation" },
+      { name: "Reishi Mushroom", dose: "1.5g", note: "Everyday wellness support" },
       { name: "Elderberry", dose: "500mg", note: "Antioxidant defence" },
       { name: "Ashwagandha", dose: "300mg", note: "Cortisol balance" },
       { name: "Vitamin C", dose: "200mg", note: "Immune support" },
@@ -38,7 +38,7 @@ const spotlights = [
   },
   {
     product: "CALM",
-    tagline: "For stress relief & sleep",
+    tagline: "For everyday calm & sleep",
     color: "bg-[#E0DAEF]",
     image: bottleCalm.src,
     ingredients: [

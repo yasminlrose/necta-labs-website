@@ -7,16 +7,16 @@ import SachetProductPage from '@/views/SachetProductPage';
 
 const productMeta: Record<string, { title: string; description: string }> = {
   focus: {
-    title: "FOCUS — Lion's Mane & Rhodiola for Mental Clarity",
-    description: "NECTA FOCUS organic functional infusion with Lion's Mane 500mg, Rhodiola 200mg, L-Theanine 80mg. Mental clarity without the crash. Pump bottle or sachets.",
+    title: "FOCUS — Lion's Mane 2g & Rhodiola for Mental Performance",
+    description: "NECTA FOCUS organic functional infusion with Lion's Mane 2g, Rhodiola 200mg, L-Theanine 80mg. Support focus and mental performance. Pump bottle or sachets.",
   },
   immunity: {
-    title: "IMMUNITY — Reishi & Elderberry for Daily Defence",
-    description: "NECTA IMMUNITY organic functional infusion with Reishi 2g, Elderberry 500mg, Ashwagandha 300mg. Daily immune defence and resilience.",
+    title: "IMMUNITY — Reishi & Elderberry for Everyday Wellness",
+    description: "NECTA IMMUNITY organic functional infusion with Reishi 1.5g, Elderberry 500mg, Ashwagandha 300mg. Support everyday wellness and natural resilience.",
   },
   calm: {
-    title: "CALM — Chamomile & Lemon Balm for Stress Relief",
-    description: "NECTA CALM organic functional infusion with Chamomile 150mg, Lemon Balm 150mg, Jujube Seed 200mg. Stress relief without drowsiness.",
+    title: "CALM — Chamomile & Lemon Balm for Everyday Calm",
+    description: "NECTA CALM organic functional infusion with Chamomile 150mg, Lemon Balm 150mg, Jujube Seed 200mg. Support everyday calm and relaxation.",
   },
   glow: {
     title: "GLOW — Marine Collagen for Skin Health",

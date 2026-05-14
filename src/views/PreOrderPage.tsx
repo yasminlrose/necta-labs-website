@@ -18,7 +18,7 @@ const colorMap: Record<ProductSlug, { accent: string; light: string; mid: string
 
 const heroTaglines: Record<ProductSlug, string> = {
   focus:    "Sharpen your mind.",
-  immunity: "Strengthen your defences.",
+  immunity: "Support your everyday resilience.",
   calm:     "Find your calm.",
   glow:     "Glow from within.",
 };
