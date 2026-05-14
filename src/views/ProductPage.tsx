@@ -725,6 +725,60 @@ const ProductPage = ({ slug: slugProp }: { slug?: string } = {}) => {
       <ReviewSection key={slug} product={product.slug} />
       <WriteReviewForm product={product.slug} onSubmitted={() => window.location.reload()} />
 
+      {/* ── LEARN ABOUT THE INGREDIENTS ── */}
+      {(() => {
+        const learnLinks: Record<string, { href: string; title: string; desc: string }[]> = {
+          focus: [
+            { href: '/learn/does-lions-mane-actually-work', title: "Does Lion's Mane Actually Work?", desc: 'The clinical evidence behind NGF, neuroplasticity, and cognitive performance.' },
+            { href: '/learn/best-nootropics-uk', title: 'Best Nootropics UK 2026', desc: 'Evidence-ranked guide to the most effective cognitive supplements available in the UK.' },
+            { href: '/learn/mushroom-coffee-benefits', title: 'Mushroom Coffee Benefits', desc: 'Why combining functional mushrooms with coffee outperforms coffee alone.' },
+            { href: '/learn/rhodiola-rosea-benefits', title: 'Rhodiola Rosea Benefits', desc: 'How Rhodiola reduces mental fatigue and maintains performance under stress.' },
+          ],
+          calm: [
+            { href: '/learn/ashwagandha-benefits', title: 'Ashwagandha Benefits', desc: 'The most-studied adaptogen for cortisol, stress, and sleep — what the trials show.' },
+            { href: '/learn/how-to-lower-cortisol-naturally', title: 'How to Lower Cortisol Naturally', desc: 'Evidence-based strategies and supplements that measurably reduce cortisol.' },
+            { href: '/learn/best-supplements-for-anxiety-uk', title: 'Best Supplements for Anxiety UK', desc: 'Ranked by clinical evidence — from ashwagandha to L-theanine.' },
+            { href: '/learn/sleep-supplements-uk', title: 'Best Sleep Supplements UK', desc: 'What actually works for sleep — without prescription melatonin.' },
+          ],
+          immunity: [
+            { href: '/learn/reishi-mushroom-benefits', title: 'Reishi Mushroom Benefits', desc: 'Immune modulation, stress, and sleep — the evidence for the queen of mushrooms.' },
+            { href: '/learn/turkey-tail-mushroom-benefits', title: 'Turkey Tail Mushroom Benefits', desc: 'The most clinically studied immune mushroom, including cancer adjunct therapy trials.' },
+            { href: '/learn/chaga-mushroom-benefits', title: 'Chaga Mushroom Benefits', desc: 'One of the highest ORAC antioxidant scores of any natural substance.' },
+            { href: '/learn/functional-mushrooms-guide', title: 'Functional Mushrooms UK Guide', desc: 'Complete comparison of Lion\'s Mane, Reishi, Cordyceps, Chaga, and Turkey Tail.' },
+          ],
+          glow: [
+            { href: '/learn/does-collagen-actually-work', title: 'Does Collagen Actually Work?', desc: 'Clinical trial evidence for skin elasticity, hydration, and wrinkle reduction.' },
+            { href: '/learn/collagen-for-skin', title: 'Collagen for Skin', desc: 'What the RCTs show about dose, form, and timeline for visible skin improvements.' },
+            { href: '/learn/best-collagen-supplements-uk', title: 'Best Collagen Supplements UK 2026', desc: 'Marine vs bovine, dose requirements, and what most products get wrong.' },
+            { href: '/learn/marine-collagen-vs-plant-collagen', title: 'Marine vs Plant Collagen', desc: 'Which type of collagen is actually better for skin and joint health.' },
+          ],
+        };
+        const links = learnLinks[product.slug] ?? [];
+        if (!links.length) return null;
+        return (
+          <section className="py-14 md:py-16 bg-muted/30 border-t border-border">
+            <div className="necta-container">
+              <div className="flex items-end justify-between mb-8">
+                <div>
+                  <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-foreground/40 mb-1">The Science</p>
+                  <h2 className="text-xl font-bold text-foreground">Learn About the Ingredients</h2>
+                </div>
+                <Link href="/learn" className="text-sm font-semibold text-primary hover:underline hidden md:block">View all →</Link>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                {links.map(({ href, title, desc }) => (
+                  <Link key={href} href={href} className="group bg-white border border-border rounded-xl p-4 hover:shadow-sm transition-shadow flex flex-col gap-2">
+                    <p className="text-sm font-bold text-foreground leading-snug group-hover:underline underline-offset-2">{title}</p>
+                    <p className="text-xs text-muted-foreground leading-relaxed flex-1">{desc}</p>
+                    <span className="text-xs font-semibold text-primary mt-1">Read →</span>
+                  </Link>
+                ))}
+              </div>
+            </div>
+          </section>
+        );
+      })()}
+
       <Footer />
 
       <ReserveOrderModal
