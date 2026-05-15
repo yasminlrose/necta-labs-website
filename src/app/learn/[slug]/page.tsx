@@ -153,7 +153,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
                 The formula built around the ingredients covered in this article — clinically dosed, organic, UK made.
               </p>
               <Link
-                href={`/shop/${article.relatedProduct.slug}`}
+                href="/pre-order"
                 className="inline-flex items-center gap-2 bg-primary text-white text-sm font-semibold px-5 py-2.5 rounded-full hover:bg-primary/90 transition-colors"
               >
                 View {article.relatedProduct.name} →

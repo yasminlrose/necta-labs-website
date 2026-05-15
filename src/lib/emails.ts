@@ -173,8 +173,8 @@ export function launchAnnouncementEmail(d: LaunchEmailData) {
       </table>
       <p style="${BODY}">All liquid. All UK-made. All add to whatever you're already drinking.</p>
       <p style="margin:24px 0;">
-        <a href="https://nectalabs.com/shop" style="display:inline-block;background:#1E2D3D;color:#ffffff;font-weight:700;padding:14px 28px;border-radius:8px;text-decoration:none;font-size:14px;">
-          Shop now — nectalabs.com
+        <a href="https://nectalabs.com/pre-order" style="display:inline-block;background:#1E2D3D;color:#ffffff;font-weight:700;padding:14px 28px;border-radius:8px;text-decoration:none;font-size:14px;">
+          Pre-order now — nectalabs.com
         </a>
       </p>
       <p style="${BODY}">

@@ -120,8 +120,8 @@ export const articles: Article[] = [
 <h2>How to Stack Adaptogens</h2>
 <p>The most effective approach is to combine adaptogens that work through different mechanisms. For stress and anxiety specifically:</p>
 <ul>
-  <li><strong>Ashwagandha + Lemon Balm + Chamomile</strong> — targets cortisol, GABA activity, and long-term HPA modulation simultaneously. This is the combination in <a href="/shop/calm">NECTA CALM</a>.</li>
-  <li><strong>Rhodiola + Lion's Mane</strong> — cognitive performance under stress. See <a href="/shop/focus">NECTA FOCUS</a>.</li>
+  <li><strong>Ashwagandha + Lemon Balm + Chamomile</strong> — targets cortisol, GABA activity, and long-term HPA modulation simultaneously. This is the combination in <a href="/pre-order">NECTA CALM</a>.</li>
+  <li><strong>Rhodiola + Lion's Mane</strong> — cognitive performance under stress. See <a href="/pre-order">NECTA FOCUS</a>.</li>
 </ul>
 <p>The key rule: give adaptogens 4–8 weeks before judging. They are not acute anxiolytics. They are systemic modulators that build benefit over time.</p>
 
@@ -169,7 +169,7 @@ export const articles: Article[] = [
 <p>Take a capsule with your morning coffee. Simple and effective — but you miss the convenience of it being in the drink.</p>
 
 <h3>3. Liquid ashwagandha extract (the easiest)</h3>
-<p>A pre-formulated liquid extract mixed directly into your coffee is the cleanest approach. It mixes invisibly into hot or cold drinks, the dose is precise, and the taste (if it's a good product) is minimal. This is what <a href="/shop/calm">NECTA CALM</a> is built for — 2 pumps into your morning coffee gives you Ashwagandha 300mg alongside Chamomile and Lemon Balm, all in a formula designed to dissolve instantly into any temperature drink.</p>
+<p>A pre-formulated liquid extract mixed directly into your coffee is the cleanest approach. It mixes invisibly into hot or cold drinks, the dose is precise, and the taste (if it's a good product) is minimal. This is what <a href="/pre-order">NECTA CALM</a> is built for — 2 pumps into your morning coffee gives you Ashwagandha 300mg alongside Chamomile and Lemon Balm, all in a formula designed to dissolve instantly into any temperature drink.</p>
 
 <h2>What to Expect</h2>
 <p>The effects of ashwagandha in coffee are subtle, especially at first. You are not looking for a dramatic feeling. You are looking for:</p>
@@ -471,7 +471,7 @@ export const articles: Article[] = [
 
 <h2>3. L-Theanine</h2>
 <p>L-Theanine — the amino acid from green tea — reduces the excitatory neurotransmitter activity that drives the anxious mental state associated with elevated cortisol. EEG studies show it increases alpha brain wave activity within 45 minutes — the brain state associated with relaxed alertness. It doesn't directly lower serum cortisol but reduces its psychological effects significantly and may reduce cortisol reactivity to stressors.</p>
-<p><strong>Dose:</strong> 80–200mg, ideally alongside caffeine at a 2:1 ratio. Available in <a href="/shop/focus">NECTA FOCUS</a>.</p>
+<p><strong>Dose:</strong> 80–200mg, ideally alongside caffeine at a 2:1 ratio. Available in <a href="/pre-order">NECTA FOCUS</a>.</p>
 
 <h2>4. Quality Sleep (Non-Negotiable)</h2>
 <p>Cortisol follows a circadian rhythm — it naturally peaks in the morning (helping you wake up) and should be at its lowest around midnight. Sleep deprivation completely disrupts this cycle: even one night of poor sleep increases morning cortisol significantly. Chronic sleep restriction causes sustained HPA axis dysregulation.</p>
@@ -490,7 +490,7 @@ export const articles: Article[] = [
 
 <h2>The Compounding Effect</h2>
 <p>None of these interventions in isolation will transform your cortisol profile overnight. The approach that works is stacking multiple low-effort interventions: consistent sleep, daily adaptogens, moderate exercise, reduced caffeine load, and deliberate recovery time. Each reduces cortisol by a small amount; together the effect is clinically meaningful.</p>
-<p>For supplementation specifically: ashwagandha + L-theanine is the most evidence-supported combination, targeting the HPA axis and neurological stress response simultaneously. This is exactly what <a href="/shop/calm">NECTA CALM</a> is built around.</p>
+<p>For supplementation specifically: ashwagandha + L-theanine is the most evidence-supported combination, targeting the HPA axis and neurological stress response simultaneously. This is exactly what <a href="/pre-order">NECTA CALM</a> is built around.</p>
     `,
   },
   {
@@ -594,7 +594,7 @@ export const articles: Article[] = [
   <li><strong>For stress and performance:</strong> Rhodiola (200mg) + Ashwagandha (300mg)</li>
   <li><strong>For long-term memory:</strong> Bacopa (300mg) + Lion's Mane (500mg)</li>
 </ul>
-<p>The first stack — L-Theanine, caffeine, and Lion's Mane — is the core of <a href="/shop/focus">NECTA FOCUS</a>, designed for morning use in any drink.</p>
+<p>The first stack — L-Theanine, caffeine, and Lion's Mane — is the core of <a href="/pre-order">NECTA FOCUS</a>, designed for morning use in any drink.</p>
 
 <h2>What to Avoid</h2>
 <p>Many UK nootropic products make extraordinary claims while containing clinically meaningless doses. Red flags:</p>
@@ -742,7 +742,7 @@ export const articles: Article[] = [
 
 <h2>The Practical Stack</h2>
 <p>For most people with lifestyle-driven brain fog: Lion's Mane 500mg + L-Theanine 80–100mg daily, morning. Add Rhodiola 200mg if fatigue is the primary driver. Ensure B12 and omega-3 are adequate. Give it 8 weeks before judging.</p>
-<p>This is exactly the combination in <a href="/shop/focus">NECTA FOCUS</a> — designed as a daily morning ritual that addresses the most common cognitive drivers of brain fog without stimulants or synthetic compounds.</p>
+<p>This is exactly the combination in <a href="/pre-order">NECTA FOCUS</a> — designed as a daily morning ritual that addresses the most common cognitive drivers of brain fog without stimulants or synthetic compounds.</p>
     `,
   },
   {
@@ -781,7 +781,7 @@ export const articles: Article[] = [
 
 <h2>How to Use Chamomile Effectively</h2>
 <p>A standard chamomile tea bag contains approximately 50–150mg of chamomile extract — meaningful but at the lower end of doses used in clinical trials (typically 220–1500mg of extract standardised to 1.2% apigenin). For therapeutic benefit, a standardised extract providing at least 200mg of chamomile per dose is more reliable than a tea bag.</p>
-<p>Chamomile combines particularly well with Lemon Balm (which enhances GABA availability) and Ashwagandha (which reduces cortisol) — addressing anxiety from three complementary directions simultaneously. This is the combination in <a href="/shop/calm">NECTA CALM</a>.</p>
+<p>Chamomile combines particularly well with Lemon Balm (which enhances GABA availability) and Ashwagandha (which reduces cortisol) — addressing anxiety from three complementary directions simultaneously. This is the combination in <a href="/pre-order">NECTA CALM</a>.</p>
 
 <h2>Safety</h2>
 <p>Chamomile is one of the safest medicinal herbs with centuries of documented use. Rare allergic reactions can occur in people with ragweed or chrysanthemum allergies (same botanical family). Avoid at therapeutic doses in pregnancy due to its mild uterine stimulant effects. Otherwise, daily use at normal doses is well-supported by the safety literature.</p>
@@ -822,7 +822,7 @@ export const articles: Article[] = [
   <li><strong>Lemon Balm + Ashwagandha</strong> — ashwagandha reduces cortisol (upstream stress hormone) while lemon balm addresses the neurological symptom of anxiety (GABA). Complementary mechanisms.</li>
   <li><strong>Lemon Balm + L-Theanine</strong> — both promote alpha brain wave activity through different pathways. The combination may be more effective than either alone for daytime calm focus.</li>
 </ul>
-<p>This three-way combination — chamomile, lemon balm, and ashwagandha — is the formula in <a href="/shop/calm">NECTA CALM</a>.</p>
+<p>This three-way combination — chamomile, lemon balm, and ashwagandha — is the formula in <a href="/pre-order">NECTA CALM</a>.</p>
 
 <h2>Dosage and Safety</h2>
 <p>Effective doses in clinical studies: <strong>300–600mg of standardised lemon balm extract</strong> (standardised to rosmarinic acid content). Fresh herb tea provides significantly lower doses.</p>
@@ -869,7 +869,7 @@ export const articles: Article[] = [
   <li>Add L-Theanine + Lion's Mane + Rhodiola at clinically meaningful doses</li>
   <li>Adjust dose independently of caffeine</li>
 </ul>
-<p>This is the approach <a href="/shop/focus">NECTA FOCUS</a> is built for — 2 pumps into any drink, delivering Lion's Mane 500mg, L-Theanine 80mg, and Rhodiola 200mg in a formula that's designed to complement rather than replace your coffee.</p>
+<p>This is the approach <a href="/pre-order">NECTA FOCUS</a> is built for — 2 pumps into any drink, delivering Lion's Mane 500mg, L-Theanine 80mg, and Rhodiola 200mg in a formula that's designed to complement rather than replace your coffee.</p>
 
 <h2>What to Look for in an Adaptogenic Coffee Product</h2>
 <p>If you prefer an all-in-one product:</p>
@@ -928,7 +928,7 @@ export const articles: Article[] = [
   <li>Weeks 2–4: Ashwagandha reduces baseline cortisol, improving sleep and resilience</li>
   <li>Weeks 4–12: Lion's Mane builds cognitive clarity and long-term brain health</li>
 </ul>
-<p>This is the rationale behind <a href="/shop/focus">NECTA FOCUS</a> — Lion's Mane, L-Theanine, and Rhodiola (which covers the acute mental performance angle that ashwagandha doesn't address directly).</p>
+<p>This is the rationale behind <a href="/pre-order">NECTA FOCUS</a> — Lion's Mane, L-Theanine, and Rhodiola (which covers the acute mental performance angle that ashwagandha doesn't address directly).</p>
     `,
   },
   {
