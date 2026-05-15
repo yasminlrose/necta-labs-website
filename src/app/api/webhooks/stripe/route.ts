@@ -148,6 +148,15 @@ export async function POST(req: NextRequest) {
       const size = session.metadata?.size ?? '';
       const freq = session.metadata?.frequency ?? '';
 
+      // Extract shipping details (available at session scope for use in notification)
+      type SessionWithShipping = Stripe.Checkout.Session & { shipping_details?: { address?: Stripe.Address | null; name?: string | null } | null };
+      const s1 = session as SessionWithShipping;
+      const shippingAddr = s1.shipping_details?.address;
+      const shippingCountry = shippingAddr?.country ?? 'GB';
+      const { cost: shippingCost, courier: shippingCourier } = calculateShippingCost(shippingCountry);
+      const shippingName = s1.shipping_details?.name ?? rawName;
+      const shippingFormatted = formatAddress(shippingAddr);
+
       // Save to pre_orders table and get member number (count after insert)
       // Dedup: skip if an identical row was inserted within the last 5 minutes
       // (guards against Stripe webhook retries creating duplicate orders)
@@ -163,14 +172,6 @@ export async function POST(req: NextRequest) {
           .gte('created_at', dedupWindow)
           .limit(1)
           .single();
-
-        type SessionWithShipping = Stripe.Checkout.Session & { shipping_details?: { address?: Stripe.Address | null; name?: string | null } | null };
-        const s1 = session as SessionWithShipping;
-        const shippingAddr = s1.shipping_details?.address;
-        const shippingCountry = shippingAddr?.country ?? 'GB';
-        const { cost: shippingCost, courier: shippingCourier } = calculateShippingCost(shippingCountry);
-        const shippingName = s1.shipping_details?.name ?? rawName;
-        const shippingFormatted = formatAddress(shippingAddr);
 
         if (existingOrder) {
           console.log('[webhook] duplicate deposit event detected — skipping insert for:', email);
