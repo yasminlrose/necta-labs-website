@@ -79,7 +79,38 @@ const WaitlistPage = () => {
       <Header />
 
       {/* HERO — matches homepage gradient */}
-      <section className="py-20 md:py-28 text-center px-5" style={{ background: HERO_BG }}>
+      <section className="pb-16 md:pb-24 text-center px-5 pt-10 md:pt-14" style={{ background: HERO_BG }}>
+
+        {/* Product strip — 4 bottles at the top, clickable */}
+        <div className="flex justify-center gap-3 md:gap-5 mb-10 max-w-lg mx-auto">
+          {productSlugs.map((slug) => {
+            const p = products[slug];
+            const meta = skuMeta[slug];
+            return (
+              <Link
+                key={slug}
+                href={`/pre-order#${slug}`}
+                className="group flex flex-col items-center gap-1.5 flex-1"
+                title={`NECTA ${p.name}`}
+              >
+                <div
+                  className="w-full rounded-2xl flex items-end justify-center pt-3 pb-0 overflow-hidden transition-transform duration-300 group-hover:-translate-y-1"
+                  style={{ backgroundColor: meta.bg, aspectRatio: '3/4' }}
+                >
+                  <Image
+                    src={p.bottleImage}
+                    alt={`NECTA ${p.name}`}
+                    width={100}
+                    height={140}
+                    className="object-contain object-bottom w-full h-full"
+                  />
+                </div>
+                <p className="text-[9px] font-bold text-primary/60 uppercase tracking-wide group-hover:text-primary transition-colors">{p.name}</p>
+              </Link>
+            );
+          })}
+        </div>
+
         <div className="max-w-2xl mx-auto">
 
           {/* Spots counter */}
