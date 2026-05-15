@@ -242,13 +242,13 @@ export async function POST(req: NextRequest) {
             });
           }
           // Create a unique promo code tied to this customer
-          await (stripe.promotionCodes.create as (p: Record<string, unknown>) => Promise<unknown>)({
+          await (stripe.promotionCodes.create as any)({
             coupon: FOUNDING_COUPON_ID,
             code: couponCode,
             customer: session.customer as string,
           });
           // Apply discount directly to customer account (auto-applies at checkout)
-          await (stripe.customers.update as (id: string, p: Record<string, unknown>) => Promise<unknown>)(session.customer as string, {
+          await (stripe.customers.update as any)(session.customer as string, {
             coupon: FOUNDING_COUPON_ID,
           });
           console.log('[webhook] founding coupon applied — code:', couponCode);
