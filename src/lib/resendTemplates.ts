@@ -104,15 +104,24 @@ const NOTIFY_TO = 'hello@nectalabs.com';
  */
 export async function sendInternalNotification(subject: string, text: string): Promise<void> {
   const apiKey = process.env.RESEND_API_KEY;
-  if (!apiKey) return;
+  if (!apiKey) {
+    console.warn('[resend] RESEND_API_KEY not set — skipping internal notification');
+    return;
+  }
   try {
-    await fetch(`${RESEND_API}/emails`, {
+    const res = await fetch(`${RESEND_API}/emails`, {
       method: 'POST',
       headers: { Authorization: `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
       body: JSON.stringify({ from: FROM, to: [NOTIFY_TO], subject, text }),
     });
-  } catch {
-    // non-blocking — never fail the main flow
+    const data = await res.json();
+    if (!res.ok) {
+      console.error('[resend] internal notification failed:', res.status, JSON.stringify(data));
+    } else {
+      console.log('[resend] internal notification sent:', (data as { id?: string }).id, '→', NOTIFY_TO);
+    }
+  } catch (err) {
+    console.error('[resend] internal notification error:', err instanceof Error ? err.message : String(err));
   }
 }
 

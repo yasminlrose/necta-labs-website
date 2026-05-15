@@ -44,8 +44,8 @@ export async function POST(req: NextRequest) {
     body: JSON.stringify({ type: 'newsletter', to: email.trim(), data: { firstName: '' } }),
   }).catch(() => null);
 
-  // Internal notification
-  sendInternalNotification(
+  // Internal notification — awaited so it runs before the serverless function terminates
+  await sendInternalNotification(
     'New waitlist signup',
     `New email signup!\n\nEmail: ${email.trim()}\nSource: ${source}`,
   );

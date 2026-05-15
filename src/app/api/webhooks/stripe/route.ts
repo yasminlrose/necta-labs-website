@@ -283,7 +283,7 @@ export async function POST(req: NextRequest) {
       }
 
       // Internal notification to hello@nectalabs.com
-      sendInternalNotification(
+      await sendInternalNotification(
         `New pre-order — NECTA ${productName}`,
         `New pre-order received!\n\nCustomer: ${rawName || email}\nEmail: ${email}\nProduct: NECTA ${productName}\nSize: ${size || '—'}\nType: ${purchaseType === 'subscribe' ? `Subscribe (${freq || 'monthly'})` : 'One-off'}\nMember #${memberNumber}\n\nShipping to: ${shippingName}\nAddress: ${shippingFormatted}\nCountry: ${shippingCountry}\nShipping charged today: ${shippingCost === 0 ? 'Free (UK)' : `£${shippingCost}`}\nNovember balance due: £${balance}\n\nView in Stripe: https://dashboard.stripe.com/payments`,
       );
@@ -338,7 +338,7 @@ export async function POST(req: NextRequest) {
         });
       } catch (err) { console.error('[webhook] cart-deposit email failed:', err instanceof Error ? err.message : String(err)); }
 
-      sendInternalNotification(
+      await sendInternalNotification(
         `New basket pre-order — ${productNames}`,
         `New basket pre-order!\n\nCustomer: ${rawName || email}\nEmail: ${email}\nProducts: ${productNames}\nItems: ${productSlugs.length}\n\nShipping to: ${shippingName}\nAddress: ${shippingFormatted}\nCountry: ${shippingCountry}\nShipping charged today: ${shippingCost === 0 ? 'Free (UK)' : `£${shippingCost}`}\nNovember balance due: £${totalBalance}\n\nView in Stripe: https://dashboard.stripe.com/payments`,
       );
@@ -466,7 +466,7 @@ export async function POST(req: NextRequest) {
       }
 
       // Internal notification
-      sendInternalNotification(
+      await sendInternalNotification(
         `New subscription pre-order — NECTA ${productName}`,
         `New subscription pre-order!\n\nCustomer: ${firstName}\nEmail: ${email}\nProduct: NECTA ${productName}\nSize: ${size || '—'}\nFrequency: ${frequency}\nFirst charge: ${firstChargeDate}\n\nView in Stripe: https://dashboard.stripe.com/subscriptions`,
       );
