@@ -185,7 +185,7 @@ export const products: Record<ProductSlug, ProductData> = {
     price500Sub: 32,
     sachets: SACHET_PRICES,
     ingredients: [
-      { name: "Marine Collagen", dose: "2500mg", benefit: "Bioavailable peptides for skin firmness, elasticity, hair, nails, and joints." },
+      { name: "Marine Collagen", dose: "2.5g", benefit: "Bioavailable peptides for skin firmness, elasticity, hair, nails, and joints." },
       { name: "Hyaluronic Acid", dose: "120mg", benefit: "Supports skin hydration, plumpness, and joint lubrication." },
       { name: "Schisandra", dose: "1000mg", benefit: "Enhances mental clarity, liver detox, stress resilience, and skin brightness." },
       { name: "Trans-Resveratrol", dose: "100mg", benefit: "Potent antioxidant for healthy aging and cellular protection." },
