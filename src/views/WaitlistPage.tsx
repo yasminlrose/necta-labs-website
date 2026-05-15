@@ -34,10 +34,12 @@ const WaitlistPage = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showForm, setShowForm] = useState(false);
   const { toast } = useToast();
-  const { waitlistCount } = useLiveCounters();
+  const { waitlistCount, preorderCount } = useLiveCounters();
 
-  const spotsRemaining = Math.max(0, FOUNDING_LIMIT - waitlistCount);
-  const progressPct = Math.min(100, (waitlistCount / FOUNDING_LIMIT) * 100);
+  // Founding member spots are based on confirmed pre-orders only (deposit paid),
+  // NOT waitlist signups — waitlist is separate.
+  const spotsRemaining = Math.max(0, FOUNDING_LIMIT - preorderCount);
+  const progressPct = Math.min(100, (preorderCount / FOUNDING_LIMIT) * 100);
   const submitted = memberNumber !== null;
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -52,13 +54,12 @@ const WaitlistPage = () => {
       if (error) {
         if (error.code === "23505") {
           toast({ title: "You're already on the list", description: "We'll be in touch soon." });
-          setMemberNumber(waitlistCount);
+          setMemberNumber(0);
           return;
         }
         throw error;
       }
-      const { data } = await supabase.rpc("get_waitlist_count");
-      setMemberNumber(data ?? waitlistCount + 1);
+      setMemberNumber(0); // 0 = waitlist (not a founding member number — that only comes from a pre-order)
 
       // Send newsletter-welcome email (fire-and-forget — don't block on failure)
       fetch('/api/send-email', {
@@ -97,7 +98,7 @@ const WaitlistPage = () => {
                 style={{ width: `${progressPct}%` }}
               />
             </div>
-            <p className="text-[10px] text-primary/35">{waitlistCount} of {FOUNDING_LIMIT} founding pre-orders placed</p>
+            <p className="text-[10px] text-primary/35">{preorderCount} of {FOUNDING_LIMIT} founding pre-orders placed · {waitlistCount} on waitlist</p>
           </div>
 
           <p className="text-xs font-semibold uppercase tracking-[0.25em] text-primary/35 mb-5">
