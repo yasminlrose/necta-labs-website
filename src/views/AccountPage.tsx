@@ -341,12 +341,11 @@ const AccountPage = () => {
         setOrdersLoading(false);
         // If user has orders but no name set yet, refresh the session so any
         // name synced by the webhook shows up without requiring a sign-out
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        if ((data ?? []).length > 0 && !(user as any).user_metadata?.full_name) {
+        if ((data ?? []).length > 0 && !(user as { user_metadata?: { full_name?: string } }).user_metadata?.full_name) {
           await supabase.auth.refreshSession();
         }
       });
-  }, [user?.email]);
+  }, [user]);
 
   const handleTabChange = (id: TabId) => {
     setActiveTab(id);

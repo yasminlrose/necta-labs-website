@@ -164,10 +164,12 @@ export async function POST(req: NextRequest) {
           .limit(1)
           .single();
 
-        const shippingAddr = session.shipping_details?.address;
+        type SessionWithShipping = Stripe.Checkout.Session & { shipping_details?: { address?: Stripe.Address | null; name?: string | null } | null };
+        const s1 = session as SessionWithShipping;
+        const shippingAddr = s1.shipping_details?.address;
         const shippingCountry = shippingAddr?.country ?? 'GB';
         const { cost: shippingCost, courier: shippingCourier } = calculateShippingCost(shippingCountry);
-        const shippingName = session.shipping_details?.name ?? rawName;
+        const shippingName = s1.shipping_details?.name ?? rawName;
         const shippingFormatted = formatAddress(shippingAddr);
 
         if (existingOrder) {
@@ -298,10 +300,12 @@ export async function POST(req: NextRequest) {
       const productSlugs = (session.metadata?.productSlugs ?? '').split(',').filter(Boolean);
       const productNames = session.metadata?.productNames ?? '';
       const totalBalance = session.metadata?.totalBalance ?? '0';
-      const shippingAddr = session.shipping_details?.address;
+      type SessionWithShipping = Stripe.Checkout.Session & { shipping_details?: { address?: Stripe.Address | null; name?: string | null } | null };
+      const s2 = session as SessionWithShipping;
+      const shippingAddr = s2.shipping_details?.address;
       const shippingCountry = shippingAddr?.country ?? 'GB';
       const { cost: shippingCost, courier: shippingCourier } = calculateShippingCost(shippingCountry);
-      const shippingName = session.shipping_details?.name ?? rawName;
+      const shippingName = s2.shipping_details?.name ?? rawName;
       const shippingFormatted = formatAddress(shippingAddr);
 
       try {
