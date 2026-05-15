@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Image from "next/image";
-import { Star, Truck, RefreshCcw, Leaf, Check, ChevronDown, BadgePercent, Crown, FlaskConical } from "lucide-react";
+import { Star, Truck, RefreshCcw, Leaf, Check, ChevronDown, BadgePercent, Crown, FlaskConical, X, FlaskConical as Flask } from "lucide-react";
 import { toast } from "sonner";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -45,7 +45,6 @@ const DEPOSIT = 10;
 
 /* ─── Founding member perks banner ─── */
 function FoundingPerks() {
-  /* Hero gradient: blends all 4 product colours left→right, like image #9 */
   const heroBg = "linear-gradient(120deg, #C4D9F5 0%, #CFC7EC 30%, #F2DDD4 65%, #F0DEDA 100%)";
 
   return (
@@ -73,7 +72,6 @@ function FoundingPerks() {
             </div>
           ))}
         </div>
-        {/* Trust badges */}
         <div className="flex flex-wrap items-center justify-center gap-3">
           {["£10 deposit — balance on dispatch", "Free UK delivery", "Cancel anytime for full refund"].map((t) => (
             <span key={t} className="flex items-center gap-1.5 bg-white/50 backdrop-blur-sm rounded-full px-4 py-1.5 text-primary/65 text-xs border border-white/60">
@@ -83,6 +81,120 @@ function FoundingPerks() {
         </div>
       </div>
     </section>
+  );
+}
+
+/* ─── Product Detail Modal ─── */
+interface ProductDetailModalProps {
+  slug: ProductSlug;
+  onClose: () => void;
+  onReserve: () => void;
+  loading: boolean;
+}
+
+function ProductDetailModal({ slug, onClose, onReserve, loading }: ProductDetailModalProps) {
+  const product = products[slug];
+  const colors  = colorMap[slug];
+  const [tab, setTab] = useState<"ingredients" | "science">("ingredients");
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4">
+      {/* Backdrop */}
+      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
+
+      {/* Sheet */}
+      <div className="relative bg-white w-full sm:max-w-2xl sm:rounded-2xl rounded-t-2xl shadow-2xl max-h-[92vh] flex flex-col overflow-hidden">
+
+        {/* Header */}
+        <div className="flex items-center justify-between px-5 pt-5 pb-4 border-b border-border shrink-0"
+          style={{ background: colors.gradient }}>
+          <div>
+            <p className="text-[9px] text-primary/35 tracking-widest uppercase">NECTA Labs</p>
+            <h3 className="text-xl font-bold text-primary">{product.name}</h3>
+            <p className="text-xs text-primary/50 italic">{product.flavor} · {product.heroIngredientsSummary}</p>
+          </div>
+          <button onClick={onClose} className="w-8 h-8 rounded-full bg-white/60 flex items-center justify-center hover:bg-white transition-colors">
+            <X className="h-4 w-4 text-primary/60" />
+          </button>
+        </div>
+
+        {/* Tab bar */}
+        <div className="flex border-b border-border shrink-0 bg-white">
+          {(["ingredients", "science"] as const).map((t) => (
+            <button
+              key={t}
+              onClick={() => setTab(t)}
+              className={`flex-1 py-3 text-sm font-medium transition-colors border-b-2 ${
+                tab === t ? "border-primary text-primary" : "border-transparent text-primary/40 hover:text-primary/70"
+              }`}
+              style={tab === t ? { borderBottomColor: colors.accent, color: colors.accent } : {}}
+            >
+              {t === "ingredients" ? "Ingredients & Dosages" : "Science & Studies"}
+            </button>
+          ))}
+        </div>
+
+        {/* Scrollable content */}
+        <div className="overflow-y-auto flex-1 px-5 py-5">
+
+          {tab === "ingredients" && (
+            <div>
+              <p className="text-xs text-primary/40 mb-4">
+                Every ingredient is clinically dosed, traceable, and organic. Per serving (2 pumps or 1 sachet).
+              </p>
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b border-border">
+                    <th className="text-left py-2 text-xs font-semibold text-primary/40 uppercase tracking-wide">Ingredient</th>
+                    <th className="text-right py-2 text-xs font-semibold text-primary/40 uppercase tracking-wide pr-4">Dose</th>
+                    <th className="text-left py-2 text-xs font-semibold text-primary/40 uppercase tracking-wide">Benefit</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {product.ingredients.map((ing, i) => (
+                    <tr key={ing.name} className={`border-b border-border/40 ${i % 2 === 0 ? "bg-transparent" : "bg-primary/[0.02]"}`}>
+                      <td className="py-3 font-medium text-primary text-xs">{ing.name}</td>
+                      <td className="py-3 text-right pr-4 font-bold text-xs whitespace-nowrap" style={{ color: colors.accent }}>{ing.dose}</td>
+                      <td className="py-3 text-primary/55 text-xs leading-snug">{ing.benefit}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+
+          {tab === "science" && (
+            <div className="space-y-4">
+              {product.studies.length === 0 && (
+                <p className="text-sm text-primary/40 text-center py-8">Studies coming soon.</p>
+              )}
+              {product.studies.map((study) => (
+                <div key={study.title} className="rounded-xl border border-border p-4">
+                  <p className="text-xs font-bold text-primary mb-1">{study.title}</p>
+                  <p className="text-[11px] text-primary/45 mb-2">{study.authors} · {study.journal} ({study.year})</p>
+                  <p className="text-xs text-primary/65 leading-relaxed">{study.finding}</p>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Sticky footer CTA */}
+        <div className="shrink-0 px-5 py-4 border-t border-border bg-white">
+          <button
+            onClick={() => { onClose(); onReserve(); }}
+            disabled={loading}
+            className="w-full py-3.5 rounded-xl font-semibold text-sm text-white transition-all hover:opacity-90 disabled:opacity-60"
+            style={{ backgroundColor: colors.accent }}
+          >
+            {loading ? 'Redirecting to checkout…' : `Reserve ${product.name} — £${DEPOSIT} deposit →`}
+          </button>
+          <p className="text-[10px] text-primary/35 text-center mt-2">
+            Balance charged 1 Nov 2026 · Ships from 17 Nov · Cancel anytime
+          </p>
+        </div>
+      </div>
+    </div>
   );
 }
 
@@ -99,6 +211,7 @@ function ProductColumn({ slug }: { slug: ProductSlug }) {
   const [freqOpen, setFreqOpen]     = useState(false);
   const [activeImg, setActiveImg]   = useState(0);
   const [loading, setLoading]       = useState(false);
+  const [showDetail, setShowDetail] = useState(false);
 
   const oneOffPrice = size === "250ml" ? product.price250 : product.price500;
   const subPrice    = size === "250ml" ? product.price250Sub : product.price500Sub;
@@ -146,7 +259,6 @@ function ProductColumn({ slug }: { slug: ProductSlug }) {
     }
   };
 
-  /* Reusable micro-radio */
   const Radio = ({ active }: { active: boolean }) => (
     <div className={`w-3.5 h-3.5 rounded-full border-2 flex items-center justify-center shrink-0 transition-colors`}
       style={{ borderColor: active ? colors.accent : "#d1d5db" }}>
@@ -155,20 +267,31 @@ function ProductColumn({ slug }: { slug: ProductSlug }) {
   );
 
   return (
+    <>
       <div className="flex flex-col" style={{ background: colors.gradient }}>
 
-        {/* Product image — clean white card, no blend mode */}
+        {/* Product image — clickable to open detail */}
         <div className="px-5 pt-8 pb-4">
-          <div className="bg-white rounded-2xl overflow-hidden flex items-center justify-center h-52 md:h-60 shadow-sm">
+          <button
+            onClick={() => setShowDetail(true)}
+            className="w-full bg-white rounded-2xl overflow-hidden flex items-center justify-center h-52 md:h-60 shadow-sm hover:shadow-md transition-shadow group relative"
+            aria-label={`View ${product.name} ingredients`}
+          >
             <Image
               src={images[activeImg].src}
               alt={images[activeImg].alt}
               width={220}
               height={220}
               priority
-              className="h-[88%] w-auto object-contain"
+              className="h-[88%] w-auto object-contain group-hover:scale-[1.03] transition-transform duration-300"
             />
-          </div>
+            {/* Hover overlay */}
+            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors flex items-end justify-center pb-3 opacity-0 group-hover:opacity-100">
+              <span className="text-[10px] font-semibold text-primary/60 bg-white/80 rounded-full px-3 py-1">
+                View ingredients →
+              </span>
+            </div>
+          </button>
           {/* Thumbnail switcher */}
           <div className="flex gap-2 mt-2.5 justify-center">
             {images.map((img, i) => (
@@ -187,12 +310,21 @@ function ProductColumn({ slug }: { slug: ProductSlug }) {
         {/* Purchase module */}
         <div className="px-5 pb-8 flex flex-col gap-3 flex-1">
 
-          {/* Name + stars */}
+          {/* Name + stars + ingredients link */}
           <div>
             <p className="text-[9px] text-primary/35 tracking-widest uppercase">NECTA Labs</p>
             <h3 className="text-lg font-bold text-primary leading-tight">{product.name}</h3>
             <p className="text-[11px] text-primary/50 italic mb-1.5">{product.flavor}</p>
             <p className="text-[11px] text-primary/55 mb-2">{heroTaglines[slug]}</p>
+            {/* Ingredients shortcut */}
+            <button
+              onClick={() => setShowDetail(true)}
+              className="inline-flex items-center gap-1 text-[10px] font-semibold rounded-full px-2.5 py-1 transition-colors"
+              style={{ color: colors.accent, backgroundColor: `${colors.light}` }}
+            >
+              <Flask className="h-2.5 w-2.5" />
+              {product.heroIngredientsSummary} · See all →
+            </button>
           </div>
 
           {/* Format toggle */}
@@ -213,7 +345,6 @@ function ProductColumn({ slug }: { slug: ProductSlug }) {
           {/* BOTTLE options */}
           {format === "bottle" && (
             <>
-              {/* Size */}
               <div className="flex gap-1.5">
                 {(["250ml", "500ml"] as BottleSize[]).map((s) => {
                   const p = s === "250ml" ? product.price250 : product.price500;
@@ -232,7 +363,6 @@ function ProductColumn({ slug }: { slug: ProductSlug }) {
                 })}
               </div>
 
-              {/* Purchase type */}
               <div className="space-y-1.5">
                 {[
                   { type: "one-off" as PurchaseType,  label: "One-off",          price: `£${oneOffPrice}` },
@@ -261,7 +391,6 @@ function ProductColumn({ slug }: { slug: ProductSlug }) {
                 })}
               </div>
 
-              {/* Frequency */}
               {purchaseType === "subscribe" && (
                 <div className="relative">
                   <button
@@ -362,6 +491,17 @@ function ProductColumn({ slug }: { slug: ProductSlug }) {
           <p className="text-[9px] text-primary/25 text-center mt-1">Shipping to UK, US, EU & more — dispatching November 2026</p>
         </div>
       </div>
+
+      {/* Detail modal */}
+      {showDetail && (
+        <ProductDetailModal
+          slug={slug}
+          onClose={() => setShowDetail(false)}
+          onReserve={handleReserve}
+          loading={loading}
+        />
+      )}
+    </>
   );
 }
 
@@ -385,10 +525,10 @@ export default function PreOrderPage() {
     <div className="min-h-screen bg-background">
       <Header />
 
-      {/* Hero + founding perks — one unified section */}
+      {/* Hero + founding perks */}
       <FoundingPerks />
 
-      {/* 4-column product grid — each column fills with its product colour */}
+      {/* 4-column product grid */}
       <section>
         <div className="necta-container max-w-7xl py-8 pb-4">
           <h2 className="text-3xl md:text-4xl font-bold text-primary text-center mb-2">
@@ -398,7 +538,6 @@ export default function PreOrderPage() {
             Add to whatever you're drinking. Feel whatever you need.
           </p>
         </div>
-        {/* Edge-to-edge colour strips */}
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 divide-x divide-white/40">
           {productSlugs.map((slug) => (
             <ProductColumn key={slug} slug={slug} />
