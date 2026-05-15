@@ -157,8 +157,8 @@ const CartDrawer = () => {
               <span className="font-bold text-primary">£{subtotal.toFixed(2)}</span>
             </div>
             <div className="text-xs text-primary/40 space-y-0.5">
-              <p>£10 deposit per product · balance charged 1 Nov 2026</p>
-              <p>UK free · EU +£9 · US/CA +£16 · AU/SG +£20</p>
+              <p>£10 deposit per product · balance + shipping charged 1 Nov 2026</p>
+              <p>Shipping calculated at checkout based on your delivery address.</p>
             </div>
             <button
               disabled={checkoutLoading}

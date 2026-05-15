@@ -84,7 +84,7 @@ export async function POST(req: NextRequest) {
       },
       custom_text: {
         submit: {
-          message: `This £${items.length * 10} deposit (£10 per product) secures your founding member pre-orders. Your remaining balance of £${totalBalance} is charged on 1 November 2026 — orders dispatch from 17 November 2026. UK delivery free · EU +£9 · US/CA +£16 · AU/SG +£20. Cancel any time before dispatch for a full refund.`,
+          message: `This £${items.length * 10} deposit (£10 per product) secures your founding member pre-orders. Your remaining balance of £${totalBalance} plus any applicable shipping is charged on 1 November 2026 — orders dispatch from 17 November 2026. Shipping is calculated from your delivery address below and added to your November balance. Cancel any time before dispatch for a full refund.`,
         },
       },
     });

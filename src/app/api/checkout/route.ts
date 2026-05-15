@@ -74,7 +74,7 @@ export async function POST(req: NextRequest) {
         ...(promoCodesEnabled() && { allow_promotion_codes: true }),
         custom_text: {
           submit: {
-            message: `This £10 deposit secures your founding member pre-order. The remaining balance${balanceFormatted ? ` of ${balanceFormatted}` : ''} is charged on 1 November 2026 — orders dispatch from 17 November 2026. UK delivery is free. International shipping (EU +£9 · US/CA +£16 · AU/SG +£20) will be added to your November balance. Cancel any time before dispatch for a full refund.`,
+            message: `This £10 deposit secures your founding member pre-order. The remaining balance${balanceFormatted ? ` of ${balanceFormatted}` : ''} plus any applicable shipping is charged on 1 November 2026 — orders dispatch from 17 November 2026. Shipping is calculated from your delivery address below and added to your November balance. Cancel any time before dispatch for a full refund.`,
           },
         },
       });
