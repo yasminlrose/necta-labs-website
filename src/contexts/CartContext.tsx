@@ -8,10 +8,12 @@ export interface CartItem {
   slug: string;
   name: string;
   image: string;
-  price: number;
+  price: number;       // deposit price (£10)
   size: string;        // "250ml" | "500ml" | "30-day box" etc.
   mode: "subscribe" | "one-off";
   quantity: number;
+  balance?: number;    // remaining balance due on 1 Nov 2026
+  frequency?: string;  // delivery frequency for subscriptions
 }
 
 interface CartContextValue {

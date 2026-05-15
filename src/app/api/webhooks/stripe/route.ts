@@ -58,6 +58,29 @@ function formatUnixDate(ts: number): string {
   });
 }
 
+/** Calculate shipping cost (£) based on destination country code. */
+function calculateShippingCost(country: string): { cost: number; courier: string } {
+  const EU = ['DE','FR','ES','IT','NL','BE','AT','SE','DK','FI','NO','CH','IE','PT','PL'];
+  if (country === 'GB') return { cost: 0, courier: 'Free UK delivery' };
+  if (EU.includes(country)) return { cost: 9, courier: 'DPD tracked' };
+  if (['US','CA'].includes(country)) return { cost: 16, courier: 'FedEx tracked' };
+  if (['AU','SG'].includes(country)) return { cost: 20, courier: 'DHL tracked' };
+  return { cost: 16, courier: 'International tracked' }; // default
+}
+
+/** Format shipping address from Stripe address object. */
+function formatAddress(addr: {
+  line1?: string | null;
+  line2?: string | null;
+  city?: string | null;
+  postal_code?: string | null;
+  country?: string | null;
+} | null | undefined): string {
+  if (!addr) return 'Not provided';
+  return [addr.line1, addr.line2, addr.city, addr.postal_code, addr.country]
+    .filter(Boolean).join(', ');
+}
+
 /** Derive a human-readable delivery frequency from session metadata. */
 function deriveFrequency(size: string, metaFrequency: string): string {
   if (metaFrequency) return metaFrequency;
@@ -141,6 +164,12 @@ export async function POST(req: NextRequest) {
           .limit(1)
           .single();
 
+        const shippingAddr = session.shipping_details?.address;
+        const shippingCountry = shippingAddr?.country ?? 'GB';
+        const { cost: shippingCost, courier: shippingCourier } = calculateShippingCost(shippingCountry);
+        const shippingName = session.shipping_details?.name ?? rawName;
+        const shippingFormatted = formatAddress(shippingAddr);
+
         if (existingOrder) {
           console.log('[webhook] duplicate deposit event detected — skipping insert for:', email);
         } else {
@@ -151,6 +180,13 @@ export async function POST(req: NextRequest) {
             size,
             quantity: 1,
             status: 'deposit_paid',
+            shipping_name: shippingName || null,
+            shipping_address: shippingFormatted || null,
+            shipping_country: shippingCountry || null,
+            shipping_cost: shippingCost,
+          }).catch((e: unknown) => {
+            // Gracefully handle if shipping columns don't exist yet — data is in the notification email
+            console.warn('[webhook] shipping columns not in schema yet:', e instanceof Error ? e.message : String(e));
           });
           // Also add to email_signups
           await supabase.from('email_signups').insert({
@@ -248,9 +284,56 @@ export async function POST(req: NextRequest) {
       // Internal notification to hello@nectalabs.com
       sendInternalNotification(
         `New pre-order — NECTA ${productName}`,
-        `New pre-order received!\n\nCustomer: ${rawName || email}\nEmail: ${email}\nProduct: NECTA ${productName}\nSize: ${size || '—'}\nType: ${purchaseType === 'subscribe' ? `Subscribe (${freq || 'monthly'})` : 'One-off'}\nMember #${memberNumber}\n\nView in Stripe: https://dashboard.stripe.com/payments`,
+        `New pre-order received!\n\nCustomer: ${rawName || email}\nEmail: ${email}\nProduct: NECTA ${productName}\nSize: ${size || '—'}\nType: ${purchaseType === 'subscribe' ? `Subscribe (${freq || 'monthly'})` : 'One-off'}\nMember #${memberNumber}\n\nShipping to: ${shippingName}\nAddress: ${shippingFormatted}\nShipping cost: ${shippingCost === 0 ? 'Free (UK)' : `£${shippingCost} (${shippingCourier})`}\nBalance due: £${balance}\nTotal November charge: £${Number(balance) + shippingCost}\n\nView in Stripe: https://dashboard.stripe.com/payments`,
       );
 
+      return NextResponse.json({ received: true });
+
+    } else if (session.metadata?.checkoutType === 'cart-deposit') {
+      // ── Multi-item basket deposit ─────────────────────────────────────────────
+      const email = session.customer_details?.email ?? null;
+      if (!email) { console.warn('[webhook] no email for cart-deposit'); return NextResponse.json({ received: true }); }
+      const rawName = session.customer_details?.name ?? '';
+      const firstName = rawName.trim().split(/\s+/)[0] || 'there';
+      const productSlugs = (session.metadata?.productSlugs ?? '').split(',').filter(Boolean);
+      const productNames = session.metadata?.productNames ?? '';
+      const totalBalance = session.metadata?.totalBalance ?? '0';
+      const shippingAddr = session.shipping_details?.address;
+      const shippingCountry = shippingAddr?.country ?? 'GB';
+      const { cost: shippingCost, courier: shippingCourier } = calculateShippingCost(shippingCountry);
+      const shippingName = session.shipping_details?.name ?? rawName;
+      const shippingFormatted = formatAddress(shippingAddr);
+
+      try {
+        const supabase = getSupabase();
+        const dedupWindow = new Date(Date.now() - 5 * 60 * 1000).toISOString();
+        for (const slug of productSlugs) {
+          const { data: exists } = await supabase.from('pre_orders').select('id').eq('email', email).eq('product_slug', slug).gte('created_at', dedupWindow).limit(1).single();
+          if (!exists) {
+            await supabase.from('pre_orders').insert({
+              email, product_slug: slug, format: 'one-off', quantity: 1, status: 'deposit_paid',
+              shipping_name: shippingName || null, shipping_address: shippingFormatted || null,
+              shipping_country: shippingCountry || null, shipping_cost: shippingCost,
+            }).catch((e: unknown) => console.warn('[webhook] cart-deposit shipping columns:', e instanceof Error ? e.message : String(e)));
+          }
+        }
+        await supabase.from('email_signups').insert({ email, source: 'cart-deposit' }).catch(() => {});
+      } catch (err) { console.error('[webhook] cart-deposit DB error:', err instanceof Error ? err.message : String(err)); }
+
+      const signInUrl = await generateMagicLink(email, process.env.VERCEL_ENV === 'production' ? 'https://www.nectalabs.com' : 'https://nectalabs.com');
+      try {
+        await sendEmail('deposit', email, {
+          first_name: firstName, product_name: productNames,
+          order_total: `£${productSlugs.length * 10} deposit (£${totalBalance} balance due on dispatch)`,
+          dispatch_date: 'From 17 November 2026', sign_in_url: signInUrl,
+          member_number: '', coupon_code: '',
+        });
+      } catch (err) { console.error('[webhook] cart-deposit email failed:', err instanceof Error ? err.message : String(err)); }
+
+      sendInternalNotification(
+        `New basket pre-order — ${productNames}`,
+        `New basket pre-order!\n\nCustomer: ${rawName || email}\nEmail: ${email}\nProducts: ${productNames}\nItems: ${productSlugs.length}\n\nShipping to: ${shippingName}\nAddress: ${shippingFormatted}\nShipping cost: ${shippingCost === 0 ? 'Free (UK)' : `£${shippingCost} (${shippingCourier})`}\nBalance due: £${totalBalance}\nTotal November charge: £${Number(totalBalance) + shippingCost}\n\nView in Stripe: https://dashboard.stripe.com/payments`,
+      );
       return NextResponse.json({ received: true });
 
     } else if (session.mode === 'payment') {

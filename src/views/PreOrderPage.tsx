@@ -2,11 +2,13 @@
 
 import { useState } from "react";
 import Image from "next/image";
-import { Star, Truck, RefreshCcw, Leaf, Check, ChevronDown, BadgePercent, Crown, FlaskConical, X, FlaskConical as Flask } from "lucide-react";
+import { Truck, RefreshCcw, Leaf, Check, ChevronDown, BadgePercent, Crown, FlaskConical, X, FlaskConical as Flask, ShoppingBag } from "lucide-react";
 import { toast } from "sonner";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { products, productSlugs, type ProductSlug } from "@/data/products";
+import { ingredientImages } from "@/data/ingredientImages";
+import { useCart } from "@/contexts/CartContext";
 
 /* ─── Brand colours per product ─── */
 const colorMap: Record<ProductSlug, { accent: string; light: string; mid: string; gradient: string }> = {
@@ -139,27 +141,39 @@ function ProductDetailModal({ slug, onClose, onReserve, loading }: ProductDetail
 
           {tab === "ingredients" && (
             <div>
-              <p className="text-xs text-primary/40 mb-4">
+              <p className="text-xs text-primary/40 mb-5">
                 Every ingredient is clinically dosed, traceable, and organic. Per serving (2 pumps or 1 sachet).
               </p>
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="border-b border-border">
-                    <th className="text-left py-2 text-xs font-semibold text-primary/40 uppercase tracking-wide">Ingredient</th>
-                    <th className="text-right py-2 text-xs font-semibold text-primary/40 uppercase tracking-wide pr-4">Dose</th>
-                    <th className="text-left py-2 text-xs font-semibold text-primary/40 uppercase tracking-wide">Benefit</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {product.ingredients.map((ing, i) => (
-                    <tr key={ing.name} className={`border-b border-border/40 ${i % 2 === 0 ? "bg-transparent" : "bg-primary/[0.02]"}`}>
-                      <td className="py-3 font-medium text-primary text-xs">{ing.name}</td>
-                      <td className="py-3 text-right pr-4 font-bold text-xs whitespace-nowrap" style={{ color: colors.accent }}>{ing.dose}</td>
-                      <td className="py-3 text-primary/55 text-xs leading-snug">{ing.benefit}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                {product.ingredients.map((ing) => {
+                  const imgSrc = ingredientImages[ing.name];
+                  return (
+                    <div key={ing.name} className="rounded-xl border border-border bg-white overflow-hidden flex flex-col">
+                      {/* Ingredient image */}
+                      <div className="relative h-24 w-full bg-muted/20 shrink-0">
+                        {imgSrc ? (
+                          <Image
+                            src={imgSrc}
+                            alt={ing.name}
+                            fill
+                            className="object-cover"
+                          />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center" style={{ backgroundColor: `${colors.light}` }}>
+                            <Flask className="h-8 w-8 opacity-30" style={{ color: colors.accent }} />
+                          </div>
+                        )}
+                      </div>
+                      {/* Info */}
+                      <div className="p-3 flex flex-col gap-1 flex-1">
+                        <p className="text-xs font-bold text-primary leading-tight">{ing.name}</p>
+                        <p className="text-sm font-extrabold" style={{ color: colors.accent }}>{ing.dose}</p>
+                        <p className="text-[10px] text-primary/50 leading-snug mt-0.5">{ing.benefit}</p>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
             </div>
           )}
 
@@ -212,6 +226,7 @@ function ProductColumn({ slug }: { slug: ProductSlug }) {
   const [activeImg, setActiveImg]   = useState(0);
   const [loading, setLoading]       = useState(false);
   const [showDetail, setShowDetail] = useState(false);
+  const { addItem } = useCart();
 
   const oneOffPrice = size === "250ml" ? product.price250 : product.price500;
   const subPrice    = size === "250ml" ? product.price250Sub : product.price500Sub;
@@ -476,7 +491,7 @@ function ProductColumn({ slug }: { slug: ProductSlug }) {
             <p className="text-[8px] text-primary/30 mt-1.5">Shipping added to November balance for international orders.</p>
           </div>
 
-          {/* CTA */}
+          {/* CTAs */}
           <button
             onClick={handleReserve}
             disabled={loading}
@@ -484,6 +499,27 @@ function ProductColumn({ slug }: { slug: ProductSlug }) {
             style={{ backgroundColor: colors.accent }}
           >
             {loading ? 'Redirecting to checkout…' : `Reserve with £${DEPOSIT} deposit →`}
+          </button>
+          <button
+            onClick={() => {
+              addItem({
+                id: `${slug}-${format}-${format === 'bottle' ? size : sachetDays}-${purchaseType}`,
+                slug,
+                name: `NECTA ${product.name}`,
+                image: format === 'sachet' ? product.sachetImage : product.bottleImage,
+                price: DEPOSIT,
+                size: sizeLabel,
+                mode: purchaseType === 'subscribe' ? 'subscribe' : 'one-off',
+                balance,
+                frequency: purchaseType === 'subscribe' ? frequency : undefined,
+              });
+              toast.success(`NECTA ${product.name} added to basket`);
+            }}
+            className="w-full py-3 rounded-xl font-semibold text-sm transition-all border-2 flex items-center justify-center gap-2 hover:opacity-80"
+            style={{ borderColor: colors.accent, color: colors.accent, backgroundColor: `${colors.light}80` }}
+          >
+            <ShoppingBag className="h-4 w-4" />
+            Add to basket
           </button>
 
           {/* Trust */}

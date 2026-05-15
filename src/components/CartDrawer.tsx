@@ -156,13 +156,16 @@ const CartDrawer = () => {
               <span className="text-sm text-primary/60">Subtotal</span>
               <span className="font-bold text-primary">£{subtotal.toFixed(2)}</span>
             </div>
-            <p className="text-xs text-primary/40">Free UK delivery on subscriptions. Shipping calculated at checkout.</p>
+            <div className="text-xs text-primary/40 space-y-0.5">
+              <p>£10 deposit per product · balance charged 1 Nov 2026</p>
+              <p>UK free · EU +£9 · US/CA +£16 · AU/SG +£20</p>
+            </div>
             <button
               disabled={checkoutLoading}
               onClick={handleCheckout}
               className="w-full bg-primary text-white font-semibold py-4 rounded-md hover:bg-primary/90 transition-colors text-sm disabled:opacity-60"
             >
-              {checkoutLoading ? 'Redirecting…' : `Checkout — £${subtotal.toFixed(2)}`}
+              {checkoutLoading ? 'Redirecting…' : `Reserve all — £${subtotal.toFixed(2)} deposit`}
             </button>
             <button
               onClick={closeCart}
