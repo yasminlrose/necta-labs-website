@@ -16,7 +16,19 @@ const promoCodesEnabled = () => new Date() >= LAUNCH_DATE;
 
 export async function POST(req: NextRequest) {
   try {
-    const { priceId, email, mode, productName, size, productSlug, frequency, balance, purchaseType } = await req.json();
+    const { priceId, email, mode, productName, size, productSlug, frequency, balance, purchaseType, shippingRegion } = await req.json();
+
+    const SHIPPING_PENCE: Record<string, number> = { GB: 0, EU: 900, US: 1600, AU: 2000 };
+    const SHIPPING_LABEL: Record<string, string> = {
+      GB: 'Free UK delivery',
+      EU: 'EU tracked delivery (DPD)',
+      US: 'US / Canada tracked (FedEx)',
+      AU: 'Australia / Singapore (DHL)',
+    };
+    const region = (shippingRegion ?? 'GB') as string;
+    const shippingPence = SHIPPING_PENCE[region] ?? 1600;
+    const shippingLabel = SHIPPING_LABEL[region] ?? 'International tracked';
+    const shippingGbp = shippingPence / 100;
 
     if (!mode) {
       return NextResponse.json({ error: 'Missing mode' }, { status: 400 });
@@ -56,42 +68,23 @@ export async function POST(req: NextRequest) {
             },
             quantity: 1,
           },
+          ...(shippingPence > 0 ? [{
+            price_data: {
+              currency: 'gbp',
+              product_data: { name: shippingLabel },
+              unit_amount: shippingPence,
+            },
+            quantity: 1,
+          }] : []),
         ],
         customer_email: email ?? undefined,
         payment_intent_data: {
           // Save card for off-session charge when order dispatches (Nov 2026)
           setup_future_usage: 'off_session',
         },
-        shipping_options: [
-          {
-            shipping_rate_data: {
-              type: 'fixed_amount',
-              fixed_amount: { amount: 0, currency: 'gbp' },
-              display_name: 'Free UK delivery',
-            },
-          },
-          {
-            shipping_rate_data: {
-              type: 'fixed_amount',
-              fixed_amount: { amount: 900, currency: 'gbp' },
-              display_name: 'EU tracked delivery (DPD)',
-            },
-          },
-          {
-            shipping_rate_data: {
-              type: 'fixed_amount',
-              fixed_amount: { amount: 1600, currency: 'gbp' },
-              display_name: 'US / Canada tracked (FedEx)',
-            },
-          },
-          {
-            shipping_rate_data: {
-              type: 'fixed_amount',
-              fixed_amount: { amount: 2000, currency: 'gbp' },
-              display_name: 'Australia / Singapore (DHL)',
-            },
-          },
-        ],
+        shipping_address_collection: {
+          allowed_countries: ['GB', 'US', 'CA', 'DE', 'FR', 'ES', 'IT', 'NL', 'BE', 'AT', 'SE', 'DK', 'FI', 'NO', 'CH', 'IE', 'PT', 'PL', 'AU', 'SG'],
+        },
         success_url: `${origin}/order-success?session_id={CHECKOUT_SESSION_ID}`,
         cancel_url: `${origin}/pre-order`,
         metadata: {
@@ -99,11 +92,13 @@ export async function POST(req: NextRequest) {
           checkoutType: 'deposit',
           balance: balance ?? '',
           purchaseType: purchaseType ?? '',
+          shippingRegion: region,
+          shippingCost: String(shippingGbp),
         },
         ...(promoCodesEnabled() && { allow_promotion_codes: true }),
         custom_text: {
           submit: {
-            message: `Your £10 deposit + shipping is charged today. The remaining product balance${balanceFormatted ? ` of ${balanceFormatted}` : ''} is charged on 1 November 2026 — orders dispatch from 17 November 2026. Cancel any time before dispatch for a full refund.`,
+            message: `Your £10 deposit${shippingGbp > 0 ? ` + £${shippingGbp} shipping` : ''} is charged today. Your remaining product balance${balanceFormatted ? ` of ${balanceFormatted}` : ''} is charged on 1 November 2026 — orders dispatch from 17 November 2026. Cancel any time before dispatch for a full refund.`,
           },
         },
       });

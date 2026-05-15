@@ -1,14 +1,25 @@
 'use client';
 
 import { useState } from "react";
-import { X, Minus, Plus, ShoppingBag, ArrowRight } from "lucide-react";
+import { X, Minus, Plus, ShoppingBag, ArrowRight, ChevronDown } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import { useCart } from "@/contexts/CartContext";
 
+const SHIPPING_REGIONS = [
+  { value: 'GB', label: '🇬🇧 United Kingdom', cost: 0,  display: 'Free' },
+  { value: 'EU', label: '🇪🇺 Europe',          cost: 9,  display: '+£9' },
+  { value: 'US', label: '🇺🇸 US / 🇨🇦 Canada', cost: 16, display: '+£16' },
+  { value: 'AU', label: '🇦🇺 AU / 🇸🇬 Singapore', cost: 20, display: '+£20' },
+];
+
 const CartDrawer = () => {
   const { items, count, subtotal, isOpen, closeCart, removeItem, updateQty } = useCart();
   const [checkoutLoading, setCheckoutLoading] = useState(false);
+  const [shippingRegion, setShippingRegion] = useState('GB');
+
+  const shippingCost = SHIPPING_REGIONS.find(r => r.value === shippingRegion)?.cost ?? 0;
+  const todayTotal = subtotal + shippingCost;
 
   const handleCheckout = async () => {
     setCheckoutLoading(true);
@@ -16,7 +27,7 @@ const CartDrawer = () => {
       const res = await fetch('/api/cart-checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ items }),
+        body: JSON.stringify({ items, shippingRegion }),
       });
       const data: { url?: string; error?: string } = await res.json();
       if (!res.ok || !data.url) throw new Error(data.error ?? 'No checkout URL');
@@ -152,20 +163,53 @@ const CartDrawer = () => {
         {/* Footer */}
         {items.length > 0 && (
           <div className="px-6 py-5 border-t border-border space-y-3">
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-primary/60">Subtotal</span>
-              <span className="font-bold text-primary">£{subtotal.toFixed(2)}</span>
+            {/* Shipping region selector */}
+            <div>
+              <label className="text-[10px] font-semibold text-primary/40 uppercase tracking-wider mb-1 block">
+                Shipping to
+              </label>
+              <div className="relative">
+                <select
+                  value={shippingRegion}
+                  onChange={e => setShippingRegion(e.target.value)}
+                  className="w-full appearance-none rounded-lg border border-border bg-muted/30 px-3 py-2 text-sm text-primary font-medium pr-8 focus:outline-none focus:ring-1 focus:ring-primary/20"
+                >
+                  {SHIPPING_REGIONS.map(r => (
+                    <option key={r.value} value={r.value}>
+                      {r.label} — {r.display}
+                    </option>
+                  ))}
+                </select>
+                <ChevronDown className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-primary/40" />
+              </div>
             </div>
-            <div className="text-xs text-primary/40 space-y-0.5">
-              <p>£10 deposit per product · balance + shipping charged 1 Nov 2026</p>
-              <p>Shipping calculated at checkout based on your delivery address.</p>
+
+            {/* Totals */}
+            <div className="space-y-1">
+              <div className="flex items-center justify-between text-sm">
+                <span className="text-primary/60">Deposits ({items.length} × £10)</span>
+                <span className="font-medium text-primary">£{subtotal.toFixed(2)}</span>
+              </div>
+              <div className="flex items-center justify-between text-sm">
+                <span className="text-primary/60">Shipping</span>
+                <span className="font-medium text-primary">{shippingCost === 0 ? 'Free' : `£${shippingCost}`}</span>
+              </div>
+              <div className="flex items-center justify-between text-sm pt-1 border-t border-border">
+                <span className="font-semibold text-primary">Today's total</span>
+                <span className="font-bold text-primary">£{todayTotal.toFixed(2)}</span>
+              </div>
             </div>
+
+            <p className="text-[10px] text-primary/40">
+              Product balance charged 1 Nov 2026 · Dispatches 17 Nov 2026
+            </p>
+
             <button
               disabled={checkoutLoading}
               onClick={handleCheckout}
               className="w-full bg-primary text-white font-semibold py-4 rounded-md hover:bg-primary/90 transition-colors text-sm disabled:opacity-60"
             >
-              {checkoutLoading ? 'Redirecting…' : `Reserve all — £${subtotal.toFixed(2)} deposit`}
+              {checkoutLoading ? 'Redirecting…' : `Reserve all — £${todayTotal.toFixed(2)} today`}
             </button>
             <button
               onClick={closeCart}

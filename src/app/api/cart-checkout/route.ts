@@ -24,15 +24,26 @@ function getProductImageUrl(slug: string, size: string): string {
 
 const DEPOSIT_PENCE = 1000; // £10
 
+const SHIPPING_PENCE: Record<string, number> = { GB: 0, EU: 900, US: 1600, AU: 2000 };
+const SHIPPING_LABEL: Record<string, string> = {
+  GB: 'Free UK delivery',
+  EU: 'EU tracked delivery (DPD)',
+  US: 'US / Canada tracked (FedEx)',
+  AU: 'Australia / Singapore (DHL)',
+};
+
 export async function POST(req: NextRequest) {
   try {
-    const { items }: { items: CartItem[] } = await req.json();
+    const { items, shippingRegion }: { items: CartItem[]; shippingRegion?: string } = await req.json();
 
     if (!items || items.length === 0) {
       return NextResponse.json({ error: 'No items in cart' }, { status: 400 });
     }
 
     const origin = req.headers.get('origin') ?? 'https://nectalabs.com';
+    const region = shippingRegion ?? 'GB';
+    const shippingPence = SHIPPING_PENCE[region] ?? 1600;
+    const shippingGbp = shippingPence / 100;
 
     // Build a summary for metadata (Stripe metadata values must be strings ≤500 chars)
     const itemsSummary = items.map(item =>
@@ -42,63 +53,47 @@ export async function POST(req: NextRequest) {
     const totalBalance = items.reduce((sum, item) => sum + ((item.balance ?? 0) * item.quantity), 0);
     const productSlugs = items.map(i => i.slug).join(',');
     const productNames = items.map(i => i.name).join(', ');
+    const depositTotal = items.length * 10;
+
+    const depositLineItems = items.flatMap((item) =>
+      Array.from({ length: item.quantity }, () => ({
+        price_data: {
+          currency: 'gbp',
+          product_data: {
+            name: `${item.name} — Pre-order Deposit`,
+            description: [
+              item.size,
+              item.mode === 'subscribe'
+                ? `Subscribe (${item.frequency || 'monthly'})`
+                : 'One-off',
+              item.balance ? `Balance £${item.balance} due on dispatch` : undefined,
+            ].filter(Boolean).join(' · '),
+            images: [getProductImageUrl(item.slug, item.size)],
+          },
+          unit_amount: DEPOSIT_PENCE,
+        },
+        quantity: 1,
+      }))
+    );
+
+    const shippingLineItem = shippingPence > 0 ? [{
+      price_data: {
+        currency: 'gbp',
+        product_data: { name: SHIPPING_LABEL[region] ?? 'International tracked' },
+        unit_amount: shippingPence,
+      },
+      quantity: 1,
+    }] : [];
 
     const session = await stripe.checkout.sessions.create({
       mode: 'payment',
-      line_items: items.flatMap((item) =>
-        Array.from({ length: item.quantity }, () => ({
-          price_data: {
-            currency: 'gbp',
-            product_data: {
-              name: `${item.name} — Pre-order Deposit`,
-              description: [
-                item.size,
-                item.mode === 'subscribe'
-                  ? `Subscribe (${item.frequency || 'monthly'})`
-                  : 'One-off',
-                item.balance ? `Balance £${item.balance} due on dispatch` : undefined,
-              ].filter(Boolean).join(' · '),
-              images: [getProductImageUrl(item.slug, item.size)],
-            },
-            unit_amount: DEPOSIT_PENCE,
-          },
-          quantity: 1,
-        }))
-      ),
+      line_items: [...depositLineItems, ...shippingLineItem],
       payment_intent_data: {
-        // Save card for off-session charge when orders dispatch (Nov 2026)
         setup_future_usage: 'off_session',
       },
-      shipping_options: [
-        {
-          shipping_rate_data: {
-            type: 'fixed_amount',
-            fixed_amount: { amount: 0, currency: 'gbp' },
-            display_name: 'Free UK delivery',
-          },
-        },
-        {
-          shipping_rate_data: {
-            type: 'fixed_amount',
-            fixed_amount: { amount: 900, currency: 'gbp' },
-            display_name: 'EU tracked delivery (DPD)',
-          },
-        },
-        {
-          shipping_rate_data: {
-            type: 'fixed_amount',
-            fixed_amount: { amount: 1600, currency: 'gbp' },
-            display_name: 'US / Canada tracked (FedEx)',
-          },
-        },
-        {
-          shipping_rate_data: {
-            type: 'fixed_amount',
-            fixed_amount: { amount: 2000, currency: 'gbp' },
-            display_name: 'Australia / Singapore (DHL)',
-          },
-        },
-      ],
+      shipping_address_collection: {
+        allowed_countries: ['GB', 'US', 'CA', 'DE', 'FR', 'ES', 'IT', 'NL', 'BE', 'AT', 'SE', 'DK', 'FI', 'NO', 'CH', 'IE', 'PT', 'PL', 'AU', 'SG'],
+      },
       success_url: `${origin}/order-success?session_id={CHECKOUT_SESSION_ID}&source=cart`,
       cancel_url: `${origin}/pre-order`,
       metadata: {
@@ -108,10 +103,12 @@ export async function POST(req: NextRequest) {
         itemsSummary: itemsSummary.slice(0, 500),
         totalBalance: totalBalance.toString(),
         itemCount: items.length.toString(),
+        shippingRegion: region,
+        shippingCost: String(shippingGbp),
       },
       custom_text: {
         submit: {
-          message: `Your £${items.length * 10} deposits (£10 per product) + shipping are charged today. Your remaining product balance of £${totalBalance} is charged on 1 November 2026 — orders dispatch from 17 November 2026. Cancel any time before dispatch for a full refund.`,
+          message: `Your £${depositTotal} deposits (£10 per product)${shippingGbp > 0 ? ` + £${shippingGbp} shipping` : ''} are charged today. Your remaining product balance of £${totalBalance} is charged on 1 November 2026 — orders dispatch from 17 November 2026. Cancel any time before dispatch for a full refund.`,
         },
       },
     });

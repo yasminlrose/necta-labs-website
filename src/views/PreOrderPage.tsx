@@ -45,6 +45,13 @@ const SACHET_SUB_SAVINGS: Partial<Record<SachetDays, { amount: number; badge: st
 
 const DEPOSIT = 10;
 
+const SHIPPING_REGIONS = [
+  { value: 'GB', label: '🇬🇧 United Kingdom', cost: 0,  display: 'Free' },
+  { value: 'EU', label: '🇪🇺 Europe',          cost: 9,  display: '+£9' },
+  { value: 'US', label: '🇺🇸 US / 🇨🇦 Canada', cost: 16, display: '+£16' },
+  { value: 'AU', label: '🇦🇺 AU / 🇸🇬 Singapore', cost: 20, display: '+£20' },
+];
+
 /* ─── Founding member perks banner ─── */
 function FoundingPerks() {
   const heroBg = "linear-gradient(120deg, #C4D9F5 0%, #CFC7EC 30%, #F2DDD4 65%, #F0DEDA 100%)";
@@ -224,8 +231,9 @@ function ProductColumn({ slug }: { slug: ProductSlug }) {
   const [frequency, setFrequency]   = useState("monthly");
   const [freqOpen, setFreqOpen]     = useState(false);
   const [activeImg, setActiveImg]   = useState(0);
-  const [loading, setLoading]       = useState(false);
-  const [showDetail, setShowDetail] = useState(false);
+  const [loading, setLoading]         = useState(false);
+  const [showDetail, setShowDetail]   = useState(false);
+  const [shippingRegion, setShipping] = useState('GB');
   const { addItem } = useCart();
 
   const oneOffPrice = size === "250ml" ? product.price250 : product.price500;
@@ -239,8 +247,10 @@ function ProductColumn({ slug }: { slug: ProductSlug }) {
     ? (purchaseType === "subscribe" && savings ? sachetSub : sachetPrice)
     : (purchaseType === "subscribe" ? subPrice : oneOffPrice);
 
-  const balance    = Math.max(0, currentPrice - DEPOSIT);
-  const sizeLabel  = format === "bottle"
+  const balance      = Math.max(0, currentPrice - DEPOSIT);
+  const shippingCost = SHIPPING_REGIONS.find(r => r.value === shippingRegion)?.cost ?? 0;
+  const todayTotal   = DEPOSIT + shippingCost;
+  const sizeLabel    = format === "bottle"
     ? `${size} bottle`
     : SACHET_OPTIONS.find(o => o.days === sachetDays)?.label ?? "";
 
@@ -263,6 +273,7 @@ function ProductColumn({ slug }: { slug: ProductSlug }) {
           balance: balance.toString(),
           purchaseType,
           frequency: frequency === 'monthly' ? 'monthly' : 'every 2 months',
+          shippingRegion,
         }),
       });
       const data: { url?: string; error?: string } = await res.json();
@@ -475,14 +486,45 @@ function ProductColumn({ slug }: { slug: ProductSlug }) {
             </>
           )}
 
-          {/* Deposit summary */}
-          <div className="rounded-xl px-3.5 py-3 border border-white/60 bg-white/40">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-semibold text-primary">Today: £{DEPOSIT} deposit</span>
-              <span className="text-[9px] bg-white/70 rounded-full px-2 py-0.5 text-primary/50">Refundable</span>
+          {/* Shipping region selector */}
+          <div>
+            <label className="text-[10px] font-semibold text-primary/50 uppercase tracking-wider mb-1.5 block">
+              Shipping to
+            </label>
+            <div className="relative">
+              <select
+                value={shippingRegion}
+                onChange={e => setShipping(e.target.value)}
+                className="w-full appearance-none rounded-lg border border-primary/15 bg-white/60 px-3 py-2 text-[11px] text-primary font-medium pr-7 focus:outline-none focus:ring-1 focus:ring-primary/20"
+              >
+                {SHIPPING_REGIONS.map(r => (
+                  <option key={r.value} value={r.value}>
+                    {r.label} — {r.display}
+                  </option>
+                ))}
+              </select>
+              <ChevronDown className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 h-3 w-3 text-primary/40" />
             </div>
-            <p className="text-[10px] text-primary/50 mt-0.5">Balance £{balance} + shipping charged 1 Nov · Ships from 17 Nov 2026</p>
-            <p className="text-[9px] text-primary/40 mt-1.5">Shipping calculated at checkout based on your delivery address.</p>
+          </div>
+
+          {/* Deposit summary */}
+          <div className="rounded-xl px-3.5 py-3 border border-white/60 bg-white/40 space-y-1">
+            <div className="flex items-center justify-between">
+              <span className="text-[10px] text-primary/50">Deposit</span>
+              <span className="text-[10px] font-semibold text-primary">£{DEPOSIT}</span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-[10px] text-primary/50">Shipping</span>
+              <span className="text-[10px] font-semibold text-primary">{shippingCost === 0 ? 'Free' : `£${shippingCost}`}</span>
+            </div>
+            <div className="flex items-center justify-between pt-1 border-t border-white/60">
+              <span className="text-xs font-bold text-primary">Today</span>
+              <div className="flex items-center gap-1.5">
+                <span className="text-xs font-bold text-primary">£{todayTotal}</span>
+                <span className="text-[9px] bg-white/70 rounded-full px-1.5 py-0.5 text-primary/50">Refundable</span>
+              </div>
+            </div>
+            <p className="text-[9px] text-primary/40 pt-0.5">Balance £{balance} charged 1 Nov · Ships 17 Nov 2026</p>
           </div>
 
           {/* CTAs */}
@@ -492,7 +534,7 @@ function ProductColumn({ slug }: { slug: ProductSlug }) {
             className="w-full py-3.5 rounded-xl font-semibold text-sm text-white transition-all hover:opacity-90 disabled:opacity-60"
             style={{ backgroundColor: colors.accent }}
           >
-            {loading ? 'Redirecting to checkout…' : `Reserve with £${DEPOSIT} deposit →`}
+            {loading ? 'Redirecting to checkout…' : `Reserve — £${todayTotal} today →`}
           </button>
           <button
             onClick={() => {

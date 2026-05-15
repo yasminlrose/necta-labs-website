@@ -58,15 +58,12 @@ function formatUnixDate(ts: number): string {
   });
 }
 
-/** Calculate shipping cost (£) based on destination country code. */
-function calculateShippingCost(country: string): { cost: number; courier: string } {
-  const EU = ['DE','FR','ES','IT','NL','BE','AT','SE','DK','FI','NO','CH','IE','PT','PL'];
-  if (country === 'GB') return { cost: 0, courier: 'Free UK delivery' };
-  if (EU.includes(country)) return { cost: 9, courier: 'DPD tracked' };
-  if (['US','CA'].includes(country)) return { cost: 16, courier: 'FedEx tracked' };
-  if (['AU','SG'].includes(country)) return { cost: 20, courier: 'DHL tracked' };
-  return { cost: 16, courier: 'International tracked' }; // default
-}
+const SHIPPING_LABEL: Record<string, string> = {
+  GB: 'Free UK delivery',
+  EU: 'EU tracked (DPD)',
+  US: 'US/CA tracked (FedEx)',
+  AU: 'AU/SG tracked (DHL)',
+};
 
 /** Format shipping address from Stripe address object. */
 function formatAddress(addr: {
@@ -153,8 +150,8 @@ export async function POST(req: NextRequest) {
       const s1 = session as SessionWithShipping;
       const shippingAddr = s1.shipping_details?.address;
       const shippingCountry = shippingAddr?.country ?? 'GB';
-      const shippingCost = (session.shipping_cost?.amount_total ?? 0) / 100; // £, already charged today
-      const shippingCourier = session.shipping_cost ? 'selected at checkout' : 'Free UK delivery';
+      const shippingCost = parseFloat(session.metadata?.shippingCost ?? '0');
+      const shippingCourier = shippingCost > 0 ? SHIPPING_LABEL[session.metadata?.shippingRegion ?? ''] ?? 'International' : 'Free UK delivery';
       const shippingName = s1.shipping_details?.name ?? rawName;
       const shippingFormatted = formatAddress(shippingAddr);
 
@@ -306,8 +303,8 @@ export async function POST(req: NextRequest) {
       const s2 = session as SessionWithShipping;
       const shippingAddr = s2.shipping_details?.address;
       const shippingCountry = shippingAddr?.country ?? 'GB';
-      const shippingCost = (session.shipping_cost?.amount_total ?? 0) / 100; // £, already charged today
-      const shippingCourier = session.shipping_cost ? 'selected at checkout' : 'Free UK delivery';
+      const shippingCost = parseFloat(session.metadata?.shippingCost ?? '0');
+      const shippingCourier = shippingCost > 0 ? SHIPPING_LABEL[session.metadata?.shippingRegion ?? ''] ?? 'International' : 'Free UK delivery';
       const shippingName = s2.shipping_details?.name ?? rawName;
       const shippingFormatted = formatAddress(shippingAddr);
 
