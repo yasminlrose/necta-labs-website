@@ -268,7 +268,7 @@ function ProductColumn({ slug }: { slug: ProductSlug }) {
 
   return (
     <>
-      <div className="flex flex-col" style={{ background: colors.gradient }}>
+      <div id={slug} className="flex flex-col" style={{ background: colors.gradient }}>
 
         {/* Product image — clickable to open detail */}
         <div className="px-5 pt-8 pb-4">
@@ -467,6 +467,13 @@ function ProductColumn({ slug }: { slug: ProductSlug }) {
               <span className="text-[9px] bg-white/70 rounded-full px-2 py-0.5 text-primary/50">Refundable</span>
             </div>
             <p className="text-[10px] text-primary/50 mt-0.5">Balance £{balance} charged 1 Nov · Ships from 17 Nov 2026</p>
+            <div className="mt-2 pt-2 border-t border-white/50 grid grid-cols-2 gap-x-2 gap-y-0.5">
+              <span className="text-[9px] text-primary/40">🇬🇧 UK</span><span className="text-[9px] text-primary/50 font-medium">Free delivery</span>
+              <span className="text-[9px] text-primary/40">🇪🇺 EU</span><span className="text-[9px] text-primary/50 font-medium">+£9 (DPD tracked)</span>
+              <span className="text-[9px] text-primary/40">🇺🇸 US / 🇨🇦 CA</span><span className="text-[9px] text-primary/50 font-medium">+£16 (FedEx tracked)</span>
+              <span className="text-[9px] text-primary/40">🇦🇺 AU / 🇸🇬 SG</span><span className="text-[9px] text-primary/50 font-medium">+£20 (DHL tracked)</span>
+            </div>
+            <p className="text-[8px] text-primary/30 mt-1.5">Shipping added to November balance for international orders.</p>
           </div>
 
           {/* CTA */}

@@ -72,7 +72,7 @@ export const products: Record<ProductSlug, ProductData> = {
       { name: "L-Theanine", dose: "80mg", benefit: "Promotes calm, focused alertness without drowsiness." },
       { name: "Blueberry Extract", dose: "200mg", benefit: "Rich in anthocyanins for cognitive and vascular support." },
       { name: "Panax Ginseng", dose: "150mg", benefit: "Boosts stamina, mental performance, and immune function." },
-      { name: "Vitamin D3", dose: "1000 IU", benefit: "Supports cognitive function, mood, and neuroprotection." },
+      { name: "Vitamin B Complex", dose: "100% NRV", benefit: "B vitamins support energy metabolism, brain function, and nervous system health." },
       { name: "Bacopa Monnieri", dose: "300mg", benefit: "Enhances memory, learning, and recall." },
     ],
     studies: [
@@ -111,8 +111,10 @@ export const products: Record<ProductSlug, ProductData> = {
       { name: "Elderberry Extract", dose: "500mg", benefit: "Supports everyday wellness and provides antioxidant protection." },
       { name: "Ashwagandha", dose: "300mg", benefit: "Reduces stress and cortisol while supporting mood and immune resilience." },
       { name: "Vitamin C", dose: "200mg", benefit: "Essential for everyday wellness and antioxidant protection." },
+      { name: "Echinacea", dose: "150mg", benefit: "Supports the body's natural defences and everyday resilience." },
+      { name: "Zinc", dose: "10mg", benefit: "Essential mineral supporting immune function and cellular health." },
       { name: "Walnut Leaves", dose: "100mg", benefit: "Antimicrobial activity for gut cleansing and immune reinforcement." },
-      { name: "Rose Hip", dose: "200mg", benefit: "High in vitamin C and polyphenols for immune strength." },
+      { name: "Rose Hip", dose: "200mg", benefit: "High in vitamin C and polyphenols for everyday wellness." },
       { name: "Quercetin", dose: "80mg", benefit: "Mast cell stabilizer and anti-inflammatory compound." },
     ],
     studies: [
@@ -150,7 +152,8 @@ export const products: Record<ProductSlug, ProductData> = {
       { name: "Scarlet Beebalm", dose: "120mg", benefit: "Supports calm, immune balance, and microbial defense." },
       { name: "Lemon Balm", dose: "150mg", benefit: "Reduces anxiety and nervous tension while supporting sleep quality." },
       { name: "Jujube Seed", dose: "200mg", benefit: "Supports deep relaxation and restorative sleep." },
-      { name: "Pine Sponge (Poria)", dose: "200mg", benefit: "Calms the nervous system and reduces fluid retention." },
+      { name: "Poria Cocos", dose: "200mg", benefit: "Calms the nervous system and supports deep relaxation." },
+      { name: "Magnesium", dose: "100mg", benefit: "Essential mineral for muscle relaxation, nervous system balance, and restful sleep." },
     ],
     studies: [
       { title: "Chamomile: A herbal medicine of the past with bright future", authors: "Srivastava, J.K. et al.", year: "2010", journal: "Molecular Medicine Reports", finding: "Chamomile demonstrated significant anxiolytic and mild sedative effects." },
@@ -192,6 +195,7 @@ export const products: Record<ProductSlug, ProductData> = {
       { name: "Juniper Berries", dose: "80mg", benefit: "Supports lymphatic drainage and clearer-looking skin." },
       { name: "Pomegranate Extract", dose: "250mg", benefit: "Polyphenols for skin elasticity and antioxidant defense." },
       { name: "Moringa", dose: "500mg", benefit: "Nutrient-dense botanical for skin renewal and cellular turnover." },
+      { name: "Vitamin C", dose: "150mg", benefit: "Antioxidant support for collagen synthesis and skin brightness." },
       { name: "Biotin (B7)", dose: "5000mcg", benefit: "Supports healthy hair, skin, nails, and energy metabolism." },
     ],
     studies: [
