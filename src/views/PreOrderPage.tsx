@@ -233,7 +233,7 @@ function ProductColumn({ slug }: { slug: ProductSlug }) {
   const [activeImg, setActiveImg]   = useState(0);
   const [loading, setLoading]         = useState(false);
   const [showDetail, setShowDetail]   = useState(false);
-  const [shippingRegion, setShipping] = useState('GB');
+  const [shippingRegion, setShipping] = useState('');
   const { addItem } = useCart();
 
   const oneOffPrice = size === "250ml" ? product.price250 : product.price500;
@@ -486,17 +486,23 @@ function ProductColumn({ slug }: { slug: ProductSlug }) {
             </>
           )}
 
-          {/* Shipping region selector */}
+          {/* Shipping region selector — required before checkout */}
           <div>
-            <label className="text-[10px] font-semibold text-primary/50 uppercase tracking-wider mb-1.5 block">
-              Shipping to
+            <label className="text-[10px] font-semibold uppercase tracking-wider mb-1.5 block" style={{ color: shippingRegion ? '#6b7280' : colors.accent }}>
+              {shippingRegion ? 'Shipping to' : '👇 Where are we shipping to?'}
             </label>
             <div className="relative">
               <select
                 value={shippingRegion}
                 onChange={e => setShipping(e.target.value)}
-                className="w-full appearance-none rounded-lg border border-primary/15 bg-white/60 px-3 py-2 text-[11px] text-primary font-medium pr-7 focus:outline-none focus:ring-1 focus:ring-primary/20"
+                className="w-full appearance-none rounded-lg px-3 py-2.5 text-[11px] font-medium pr-7 focus:outline-none transition-all"
+                style={{
+                  border: `2px solid ${shippingRegion ? 'rgba(0,0,0,0.1)' : colors.accent}`,
+                  backgroundColor: shippingRegion ? 'rgba(255,255,255,0.6)' : `${colors.light}cc`,
+                  color: shippingRegion ? '#1E2D3D' : colors.accent,
+                }}
               >
+                <option value="" disabled>Select your country / region…</option>
                 {SHIPPING_REGIONS.map(r => (
                   <option key={r.value} value={r.value}>
                     {r.label} — {r.display}
@@ -507,34 +513,36 @@ function ProductColumn({ slug }: { slug: ProductSlug }) {
             </div>
           </div>
 
-          {/* Deposit summary */}
-          <div className="rounded-xl px-3.5 py-3 border border-white/60 bg-white/40 space-y-1">
-            <div className="flex items-center justify-between">
-              <span className="text-[10px] text-primary/50">Deposit</span>
-              <span className="text-[10px] font-semibold text-primary">£{DEPOSIT}</span>
-            </div>
-            <div className="flex items-center justify-between">
-              <span className="text-[10px] text-primary/50">Shipping</span>
-              <span className="text-[10px] font-semibold text-primary">{shippingCost === 0 ? 'Free' : `£${shippingCost}`}</span>
-            </div>
-            <div className="flex items-center justify-between pt-1 border-t border-white/60">
-              <span className="text-xs font-bold text-primary">Today</span>
-              <div className="flex items-center gap-1.5">
-                <span className="text-xs font-bold text-primary">£{todayTotal}</span>
-                <span className="text-[9px] bg-white/70 rounded-full px-1.5 py-0.5 text-primary/50">Refundable</span>
+          {/* Deposit summary — only shows after region selected */}
+          {shippingRegion && (
+            <div className="rounded-xl px-3.5 py-3 border border-white/60 bg-white/40 space-y-1">
+              <div className="flex items-center justify-between">
+                <span className="text-[10px] text-primary/50">Deposit</span>
+                <span className="text-[10px] font-semibold text-primary">£{DEPOSIT}</span>
               </div>
+              <div className="flex items-center justify-between">
+                <span className="text-[10px] text-primary/50">Shipping</span>
+                <span className="text-[10px] font-semibold text-primary">{shippingCost === 0 ? 'Free' : `£${shippingCost}`}</span>
+              </div>
+              <div className="flex items-center justify-between pt-1 border-t border-white/60">
+                <span className="text-xs font-bold text-primary">Today</span>
+                <div className="flex items-center gap-1.5">
+                  <span className="text-xs font-bold text-primary">£{todayTotal}</span>
+                  <span className="text-[9px] bg-white/70 rounded-full px-1.5 py-0.5 text-primary/50">Refundable</span>
+                </div>
+              </div>
+              <p className="text-[9px] text-primary/40 pt-0.5">Balance £{balance} charged 1 Nov · Ships 17 Nov 2026</p>
             </div>
-            <p className="text-[9px] text-primary/40 pt-0.5">Balance £{balance} charged 1 Nov · Ships 17 Nov 2026</p>
-          </div>
+          )}
 
           {/* CTAs */}
           <button
             onClick={handleReserve}
-            disabled={loading}
-            className="w-full py-3.5 rounded-xl font-semibold text-sm text-white transition-all hover:opacity-90 disabled:opacity-60"
+            disabled={loading || !shippingRegion}
+            className="w-full py-3.5 rounded-xl font-semibold text-sm text-white transition-all hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed"
             style={{ backgroundColor: colors.accent }}
           >
-            {loading ? 'Redirecting to checkout…' : `Reserve — £${todayTotal} today →`}
+            {loading ? 'Redirecting to checkout…' : shippingRegion ? `Reserve — £${todayTotal} today →` : 'Select your region above →'}
           </button>
           <button
             onClick={() => {

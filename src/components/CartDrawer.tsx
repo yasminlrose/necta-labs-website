@@ -16,7 +16,7 @@ const SHIPPING_REGIONS = [
 const CartDrawer = () => {
   const { items, count, subtotal, isOpen, closeCart, removeItem, updateQty } = useCart();
   const [checkoutLoading, setCheckoutLoading] = useState(false);
-  const [shippingRegion, setShippingRegion] = useState('GB');
+  const [shippingRegion, setShippingRegion] = useState('');
 
   const shippingCost = SHIPPING_REGIONS.find(r => r.value === shippingRegion)?.cost ?? 0;
   const todayTotal = subtotal + shippingCost;
@@ -163,17 +163,23 @@ const CartDrawer = () => {
         {/* Footer */}
         {items.length > 0 && (
           <div className="px-6 py-5 border-t border-border space-y-3">
-            {/* Shipping region selector */}
+            {/* Shipping region selector — required */}
             <div>
-              <label className="text-[10px] font-semibold text-primary/40 uppercase tracking-wider mb-1 block">
-                Shipping to
+              <label className="text-[10px] font-semibold uppercase tracking-wider mb-1 block text-primary/40">
+                {shippingRegion ? 'Shipping to' : '👇 Where are we shipping to?'}
               </label>
               <div className="relative">
                 <select
                   value={shippingRegion}
                   onChange={e => setShippingRegion(e.target.value)}
-                  className="w-full appearance-none rounded-lg border border-border bg-muted/30 px-3 py-2 text-sm text-primary font-medium pr-8 focus:outline-none focus:ring-1 focus:ring-primary/20"
+                  className="w-full appearance-none rounded-lg border-2 px-3 py-2.5 text-sm font-medium pr-8 focus:outline-none transition-all"
+                  style={{
+                    borderColor: shippingRegion ? '#e5e7eb' : '#1E2D3D',
+                    backgroundColor: shippingRegion ? '#f9fafb' : '#f3f4f6',
+                    color: '#1E2D3D',
+                  }}
                 >
+                  <option value="" disabled>Select your country / region…</option>
                   {SHIPPING_REGIONS.map(r => (
                     <option key={r.value} value={r.value}>
                       {r.label} — {r.display}
@@ -184,32 +190,34 @@ const CartDrawer = () => {
               </div>
             </div>
 
-            {/* Totals */}
-            <div className="space-y-1">
-              <div className="flex items-center justify-between text-sm">
-                <span className="text-primary/60">Deposits ({items.length} × £10)</span>
-                <span className="font-medium text-primary">£{subtotal.toFixed(2)}</span>
+            {/* Totals — only show after region selected */}
+            {shippingRegion && (
+              <div className="space-y-1">
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-primary/60">Deposits ({items.length} × £10)</span>
+                  <span className="font-medium text-primary">£{subtotal.toFixed(2)}</span>
+                </div>
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-primary/60">Shipping</span>
+                  <span className="font-medium text-primary">{shippingCost === 0 ? 'Free' : `£${shippingCost}`}</span>
+                </div>
+                <div className="flex items-center justify-between text-sm pt-1 border-t border-border">
+                  <span className="font-semibold text-primary">Today's total</span>
+                  <span className="font-bold text-primary">£{todayTotal.toFixed(2)}</span>
+                </div>
               </div>
-              <div className="flex items-center justify-between text-sm">
-                <span className="text-primary/60">Shipping</span>
-                <span className="font-medium text-primary">{shippingCost === 0 ? 'Free' : `£${shippingCost}`}</span>
-              </div>
-              <div className="flex items-center justify-between text-sm pt-1 border-t border-border">
-                <span className="font-semibold text-primary">Today's total</span>
-                <span className="font-bold text-primary">£{todayTotal.toFixed(2)}</span>
-              </div>
-            </div>
+            )}
 
             <p className="text-[10px] text-primary/40">
               Product balance charged 1 Nov 2026 · Dispatches 17 Nov 2026
             </p>
 
             <button
-              disabled={checkoutLoading}
+              disabled={checkoutLoading || !shippingRegion}
               onClick={handleCheckout}
-              className="w-full bg-primary text-white font-semibold py-4 rounded-md hover:bg-primary/90 transition-colors text-sm disabled:opacity-60"
+              className="w-full bg-primary text-white font-semibold py-4 rounded-md hover:bg-primary/90 transition-colors text-sm disabled:opacity-40 disabled:cursor-not-allowed"
             >
-              {checkoutLoading ? 'Redirecting…' : `Reserve all — £${todayTotal.toFixed(2)} today`}
+              {checkoutLoading ? 'Redirecting…' : shippingRegion ? `Reserve all — £${todayTotal.toFixed(2)} today` : 'Select your region above →'}
             </button>
             <button
               onClick={closeCart}
