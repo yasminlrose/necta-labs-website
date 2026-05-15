@@ -186,8 +186,67 @@ const WaitlistPage = () => {
         </div>
       </section>
 
+      {/* PRODUCT GRID — shown before perks so visitors see what they're buying */}
+      <section className="py-16 px-5 max-w-5xl mx-auto">
+        <p className="text-center text-xs font-semibold uppercase tracking-[0.25em] text-primary/35 mb-3">
+          Four Variants
+        </p>
+        <h2 className="text-2xl md:text-3xl font-bold text-primary text-center mb-2">
+          One pump. Any drink. Every outcome.
+        </h2>
+        <p className="text-center text-sm text-primary/45 mb-10 max-w-md mx-auto">
+          Click any product to pre-order. £10 deposit secures your place — balance charged November 2026.
+        </p>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          {productSlugs.map((slug) => {
+            const p = products[slug];
+            const meta = skuMeta[slug];
+            return (
+              <Link
+                key={slug}
+                href={`/pre-order#${slug}`}
+                className="group rounded-3xl overflow-hidden border border-transparent hover:border-primary/10 hover:shadow-xl transition-all duration-300 flex flex-col"
+                style={{ backgroundColor: meta.bg }}
+              >
+                {/* Bottle + sachet images */}
+                <div className="relative flex items-end justify-center gap-2 px-4 pt-6 pb-0 h-52">
+                  <div className="relative h-44 w-20 shrink-0">
+                    <Image
+                      src={p.bottleImage}
+                      alt={`NECTA ${p.name} bottle`}
+                      fill
+                      className="object-contain object-bottom group-hover:scale-105 transition-transform duration-300"
+                    />
+                  </div>
+                  <div className="relative h-32 w-14 shrink-0 mb-1">
+                    <Image
+                      src={p.sachetImage}
+                      alt={`NECTA ${p.name} sachet`}
+                      fill
+                      className="object-contain object-bottom opacity-80 group-hover:scale-105 transition-transform duration-300"
+                    />
+                  </div>
+                </div>
+
+                {/* Info */}
+                <div className="px-4 pt-3 pb-5 flex flex-col gap-1 flex-1">
+                  <p className="font-bold text-primary text-sm">NECTA {p.name}</p>
+                  <p className="text-[10px] text-primary/45 italic">{p.flavor}</p>
+                  <p className="text-[10px] text-primary/55 leading-snug mt-0.5">{meta.label}</p>
+                  <div className="mt-auto pt-3">
+                    <span className="inline-flex items-center gap-1 text-[10px] font-bold text-primary/70 group-hover:text-primary transition-colors uppercase tracking-wide">
+                      Pre-order from £10 <ArrowRight className="h-2.5 w-2.5" />
+                    </span>
+                  </div>
+                </div>
+              </Link>
+            );
+          })}
+        </div>
+      </section>
+
       {/* FOUNDING MEMBER PERKS */}
-      <section className="py-16 px-5 max-w-4xl mx-auto">
+      <section className="py-16 px-5 max-w-4xl mx-auto border-t border-primary/6">
         <p className="text-center text-xs font-semibold uppercase tracking-[0.25em] text-primary/35 mb-3">
           Pre-order customers only
         </p>
@@ -234,40 +293,6 @@ const WaitlistPage = () => {
           >
             Become a Founding Member — £10 deposit <ArrowRight className="h-4 w-4" />
           </Link>
-        </div>
-      </section>
-
-      {/* PRODUCT GRID */}
-      <section className="py-8 px-5 pb-16 max-w-4xl mx-auto">
-        <p className="text-center text-xs font-semibold uppercase tracking-[0.25em] text-primary/35 mb-3">
-          Four Variants
-        </p>
-        <h2 className="text-2xl md:text-3xl font-bold text-primary text-center mb-8">
-          One pump. Any drink. Every outcome.
-        </h2>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
-          {productSlugs.map((slug) => {
-            const p = products[slug];
-            const meta = skuMeta[slug];
-            return (
-              <div key={slug} className="rounded-[22px] overflow-hidden" style={{ backgroundColor: meta.bg }}>
-                <div className="flex items-center justify-center p-6 pb-3" style={{ aspectRatio: "1" }}>
-                  <Image
-                    src={p.bottleImage}
-                    alt={p.name}
-                    width={180}
-                    height={180}
-                    className="max-h-full max-w-full object-contain"
-                  />
-                </div>
-                <div className="px-4 pb-5">
-                  <p className="font-bold text-primary text-sm">{p.name}</p>
-                  <p className="text-[10px] text-primary/45 italic mt-0.5">{p.flavor}</p>
-                  <p className="text-[10px] text-primary/50 mt-1 leading-snug">{meta.label}</p>
-                </div>
-              </div>
-            );
-          })}
         </div>
       </section>
 
