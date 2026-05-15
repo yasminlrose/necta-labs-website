@@ -359,7 +359,7 @@ function ProductColumn({ slug }: { slug: ProductSlug }) {
               </div>
             ))}
           </div>
-          <p className="text-[9px] text-primary/25 text-center mt-1">Currently shipping to the UK only</p>
+          <p className="text-[9px] text-primary/25 text-center mt-1">Shipping to UK, US, EU & more — dispatching November 2026</p>
         </div>
       </div>
   );
