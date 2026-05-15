@@ -69,9 +69,36 @@ export async function POST(req: NextRequest) {
         // Save card for off-session charge when orders dispatch (Nov 2026)
         setup_future_usage: 'off_session',
       },
-      shipping_address_collection: {
-        allowed_countries: ['GB', 'US', 'DE', 'FR', 'ES', 'IT', 'NL', 'BE', 'AT', 'SE', 'DK', 'FI', 'NO', 'CH', 'IE', 'PT', 'PL', 'SG', 'AU', 'CA'],
-      },
+      shipping_options: [
+        {
+          shipping_rate_data: {
+            type: 'fixed_amount',
+            fixed_amount: { amount: 0, currency: 'gbp' },
+            display_name: 'Free UK delivery',
+          },
+        },
+        {
+          shipping_rate_data: {
+            type: 'fixed_amount',
+            fixed_amount: { amount: 900, currency: 'gbp' },
+            display_name: 'EU tracked delivery (DPD)',
+          },
+        },
+        {
+          shipping_rate_data: {
+            type: 'fixed_amount',
+            fixed_amount: { amount: 1600, currency: 'gbp' },
+            display_name: 'US / Canada tracked (FedEx)',
+          },
+        },
+        {
+          shipping_rate_data: {
+            type: 'fixed_amount',
+            fixed_amount: { amount: 2000, currency: 'gbp' },
+            display_name: 'Australia / Singapore (DHL)',
+          },
+        },
+      ],
       success_url: `${origin}/order-success?session_id={CHECKOUT_SESSION_ID}&source=cart`,
       cancel_url: `${origin}/pre-order`,
       metadata: {
@@ -84,7 +111,7 @@ export async function POST(req: NextRequest) {
       },
       custom_text: {
         submit: {
-          message: `This £${items.length * 10} deposit (£10 per product) secures your founding member pre-orders. Your remaining balance of £${totalBalance} plus any applicable shipping is charged on 1 November 2026 — orders dispatch from 17 November 2026. Shipping is calculated from your delivery address below and added to your November balance. Cancel any time before dispatch for a full refund.`,
+          message: `Your £${items.length * 10} deposits (£10 per product) + shipping are charged today. Your remaining product balance of £${totalBalance} is charged on 1 November 2026 — orders dispatch from 17 November 2026. Cancel any time before dispatch for a full refund.`,
         },
       },
     });

@@ -202,17 +202,17 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
 
         <article
           className="
-            prose prose-base md:prose-lg max-w-none
+            prose prose-base max-w-none
             prose-headings:font-bold prose-headings:text-primary prose-headings:leading-tight
-            prose-h2:text-2xl md:prose-h2:text-3xl prose-h2:mt-14 prose-h2:mb-5 prose-h2:pt-4
-            prose-h3:text-xl prose-h3:mt-10 prose-h3:mb-4
-            prose-h4:text-base prose-h4:mt-6 prose-h4:mb-2 prose-h4:font-semibold
-            prose-p:text-primary/70 prose-p:leading-relaxed prose-p:mb-6
-            prose-li:text-primary/70 prose-li:mb-2
+            prose-h2:text-3xl prose-h2:mt-20 prose-h2:mb-6 prose-h2:pt-6 prose-h2:border-t prose-h2:border-border
+            prose-h3:text-2xl prose-h3:mt-12 prose-h3:mb-5
+            prose-h4:text-lg prose-h4:mt-8 prose-h4:mb-3 prose-h4:font-semibold
+            prose-p:text-primary/70 prose-p:leading-loose prose-p:mb-8 prose-p:text-base
+            prose-li:text-primary/70 prose-li:mb-3 prose-li:text-base
             prose-strong:text-primary prose-strong:font-semibold
             prose-a:font-medium prose-a:no-underline hover:prose-a:underline
-            prose-ul:space-y-2 prose-ol:space-y-2
-            prose-blockquote:border-l-4 prose-blockquote:pl-5 prose-blockquote:italic prose-blockquote:text-primary/50
+            prose-ul:space-y-2 prose-ul:my-6 prose-ol:space-y-2 prose-ol:my-6
+            prose-blockquote:border-l-4 prose-blockquote:pl-5 prose-blockquote:italic prose-blockquote:text-primary/50 prose-blockquote:my-8
             prose-table:text-sm prose-th:font-semibold prose-th:text-primary prose-td:text-primary/70
             [&>*:first-child]:mt-0
           "

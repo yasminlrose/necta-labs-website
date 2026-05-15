@@ -148,12 +148,13 @@ export async function POST(req: NextRequest) {
       const size = session.metadata?.size ?? '';
       const freq = session.metadata?.frequency ?? '';
 
-      // Extract shipping details (available at session scope for use in notification)
+      // Extract shipping details from Stripe (populated via shipping_options at checkout)
       type SessionWithShipping = Stripe.Checkout.Session & { shipping_details?: { address?: Stripe.Address | null; name?: string | null } | null };
       const s1 = session as SessionWithShipping;
       const shippingAddr = s1.shipping_details?.address;
       const shippingCountry = shippingAddr?.country ?? 'GB';
-      const { cost: shippingCost, courier: shippingCourier } = calculateShippingCost(shippingCountry);
+      const shippingCost = (session.shipping_cost?.amount_total ?? 0) / 100; // £, already charged today
+      const shippingCourier = session.shipping_cost ? 'selected at checkout' : 'Free UK delivery';
       const shippingName = s1.shipping_details?.name ?? rawName;
       const shippingFormatted = formatAddress(shippingAddr);
 
@@ -287,7 +288,7 @@ export async function POST(req: NextRequest) {
       // Internal notification to hello@nectalabs.com
       sendInternalNotification(
         `New pre-order — NECTA ${productName}`,
-        `New pre-order received!\n\nCustomer: ${rawName || email}\nEmail: ${email}\nProduct: NECTA ${productName}\nSize: ${size || '—'}\nType: ${purchaseType === 'subscribe' ? `Subscribe (${freq || 'monthly'})` : 'One-off'}\nMember #${memberNumber}\n\nShipping to: ${shippingName}\nAddress: ${shippingFormatted}\nShipping cost: ${shippingCost === 0 ? 'Free (UK)' : `£${shippingCost} (${shippingCourier})`}\nBalance due: £${balance}\nTotal November charge: £${Number(balance) + shippingCost}\n\nView in Stripe: https://dashboard.stripe.com/payments`,
+        `New pre-order received!\n\nCustomer: ${rawName || email}\nEmail: ${email}\nProduct: NECTA ${productName}\nSize: ${size || '—'}\nType: ${purchaseType === 'subscribe' ? `Subscribe (${freq || 'monthly'})` : 'One-off'}\nMember #${memberNumber}\n\nShipping to: ${shippingName}\nAddress: ${shippingFormatted}\nCountry: ${shippingCountry}\nShipping charged today: ${shippingCost === 0 ? 'Free (UK)' : `£${shippingCost}`}\nNovember balance due: £${balance}\n\nView in Stripe: https://dashboard.stripe.com/payments`,
       );
 
       return NextResponse.json({ received: true });
@@ -305,7 +306,8 @@ export async function POST(req: NextRequest) {
       const s2 = session as SessionWithShipping;
       const shippingAddr = s2.shipping_details?.address;
       const shippingCountry = shippingAddr?.country ?? 'GB';
-      const { cost: shippingCost, courier: shippingCourier } = calculateShippingCost(shippingCountry);
+      const shippingCost = (session.shipping_cost?.amount_total ?? 0) / 100; // £, already charged today
+      const shippingCourier = session.shipping_cost ? 'selected at checkout' : 'Free UK delivery';
       const shippingName = s2.shipping_details?.name ?? rawName;
       const shippingFormatted = formatAddress(shippingAddr);
 
@@ -341,7 +343,7 @@ export async function POST(req: NextRequest) {
 
       sendInternalNotification(
         `New basket pre-order — ${productNames}`,
-        `New basket pre-order!\n\nCustomer: ${rawName || email}\nEmail: ${email}\nProducts: ${productNames}\nItems: ${productSlugs.length}\n\nShipping to: ${shippingName}\nAddress: ${shippingFormatted}\nShipping cost: ${shippingCost === 0 ? 'Free (UK)' : `£${shippingCost} (${shippingCourier})`}\nBalance due: £${totalBalance}\nTotal November charge: £${Number(totalBalance) + shippingCost}\n\nView in Stripe: https://dashboard.stripe.com/payments`,
+        `New basket pre-order!\n\nCustomer: ${rawName || email}\nEmail: ${email}\nProducts: ${productNames}\nItems: ${productSlugs.length}\n\nShipping to: ${shippingName}\nAddress: ${shippingFormatted}\nCountry: ${shippingCountry}\nShipping charged today: ${shippingCost === 0 ? 'Free (UK)' : `£${shippingCost}`}\nNovember balance due: £${totalBalance}\n\nView in Stripe: https://dashboard.stripe.com/payments`,
       );
       return NextResponse.json({ received: true });
 

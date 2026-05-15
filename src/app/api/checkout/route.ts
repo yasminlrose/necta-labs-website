@@ -62,7 +62,36 @@ export async function POST(req: NextRequest) {
           // Save card for off-session charge when order dispatches (Nov 2026)
           setup_future_usage: 'off_session',
         },
-        shipping_address_collection: { allowed_countries: ['GB', 'US', 'DE', 'FR', 'ES', 'IT', 'NL', 'BE', 'AT', 'SE', 'DK', 'FI', 'NO', 'CH', 'IE', 'PT', 'PL', 'SG', 'AU', 'CA'] },
+        shipping_options: [
+          {
+            shipping_rate_data: {
+              type: 'fixed_amount',
+              fixed_amount: { amount: 0, currency: 'gbp' },
+              display_name: 'Free UK delivery',
+            },
+          },
+          {
+            shipping_rate_data: {
+              type: 'fixed_amount',
+              fixed_amount: { amount: 900, currency: 'gbp' },
+              display_name: 'EU tracked delivery (DPD)',
+            },
+          },
+          {
+            shipping_rate_data: {
+              type: 'fixed_amount',
+              fixed_amount: { amount: 1600, currency: 'gbp' },
+              display_name: 'US / Canada tracked (FedEx)',
+            },
+          },
+          {
+            shipping_rate_data: {
+              type: 'fixed_amount',
+              fixed_amount: { amount: 2000, currency: 'gbp' },
+              display_name: 'Australia / Singapore (DHL)',
+            },
+          },
+        ],
         success_url: `${origin}/order-success?session_id={CHECKOUT_SESSION_ID}`,
         cancel_url: `${origin}/pre-order`,
         metadata: {
@@ -74,7 +103,7 @@ export async function POST(req: NextRequest) {
         ...(promoCodesEnabled() && { allow_promotion_codes: true }),
         custom_text: {
           submit: {
-            message: `This £10 deposit secures your founding member pre-order. The remaining balance${balanceFormatted ? ` of ${balanceFormatted}` : ''} plus any applicable shipping is charged on 1 November 2026 — orders dispatch from 17 November 2026. Shipping is calculated from your delivery address below and added to your November balance. Cancel any time before dispatch for a full refund.`,
+            message: `Your £10 deposit + shipping is charged today. The remaining product balance${balanceFormatted ? ` of ${balanceFormatted}` : ''} is charged on 1 November 2026 — orders dispatch from 17 November 2026. Cancel any time before dispatch for a full refund.`,
           },
         },
       });
