@@ -175,21 +175,23 @@ export async function POST(req: NextRequest) {
         if (existingOrder) {
           console.log('[webhook] duplicate deposit event detected — skipping insert for:', email);
         } else {
-          await supabase.from('pre_orders').insert({
-            email,
-            product_slug: productSlug,
-            format: purchaseType === 'subscribe' ? `subscription${freq ? `:${freq}` : ''}` : 'one-off',
-            size,
-            quantity: 1,
-            status: 'deposit_paid',
-            shipping_name: shippingName || null,
-            shipping_address: shippingFormatted || null,
-            shipping_country: shippingCountry || null,
-            shipping_cost: shippingCost,
-          }).catch((e: unknown) => {
+          try {
+            await supabase.from('pre_orders').insert({
+              email,
+              product_slug: productSlug,
+              format: purchaseType === 'subscribe' ? `subscription${freq ? `:${freq}` : ''}` : 'one-off',
+              size,
+              quantity: 1,
+              status: 'deposit_paid',
+              shipping_name: shippingName || null,
+              shipping_address: shippingFormatted || null,
+              shipping_country: shippingCountry || null,
+              shipping_cost: shippingCost,
+            });
+          } catch (e: unknown) {
             // Gracefully handle if shipping columns don't exist yet — data is in the notification email
             console.warn('[webhook] shipping columns not in schema yet:', e instanceof Error ? e.message : String(e));
-          });
+          }
           // Also add to email_signups
           await supabase.from('email_signups').insert({
             email,
@@ -240,15 +242,13 @@ export async function POST(req: NextRequest) {
             });
           }
           // Create a unique promo code tied to this customer
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          await (stripe.promotionCodes.create as any)({
+          await (stripe.promotionCodes.create as (p: Record<string, unknown>) => Promise<unknown>)({
             coupon: FOUNDING_COUPON_ID,
             code: couponCode,
             customer: session.customer as string,
           });
           // Apply discount directly to customer account (auto-applies at checkout)
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          await (stripe.customers.update as any)(session.customer as string, {
+          await (stripe.customers.update as (id: string, p: Record<string, unknown>) => Promise<unknown>)(session.customer as string, {
             coupon: FOUNDING_COUPON_ID,
           });
           console.log('[webhook] founding coupon applied — code:', couponCode);
@@ -314,14 +314,18 @@ export async function POST(req: NextRequest) {
         for (const slug of productSlugs) {
           const { data: exists } = await supabase.from('pre_orders').select('id').eq('email', email).eq('product_slug', slug).gte('created_at', dedupWindow).limit(1).single();
           if (!exists) {
-            await supabase.from('pre_orders').insert({
-              email, product_slug: slug, format: 'one-off', quantity: 1, status: 'deposit_paid',
-              shipping_name: shippingName || null, shipping_address: shippingFormatted || null,
-              shipping_country: shippingCountry || null, shipping_cost: shippingCost,
-            }).catch((e: unknown) => console.warn('[webhook] cart-deposit shipping columns:', e instanceof Error ? e.message : String(e)));
+            try {
+              await supabase.from('pre_orders').insert({
+                email, product_slug: slug, format: 'one-off', quantity: 1, status: 'deposit_paid',
+                shipping_name: shippingName || null, shipping_address: shippingFormatted || null,
+                shipping_country: shippingCountry || null, shipping_cost: shippingCost,
+              });
+            } catch (e: unknown) {
+              console.warn('[webhook] cart-deposit shipping columns:', e instanceof Error ? e.message : String(e));
+            }
           }
         }
-        await supabase.from('email_signups').insert({ email, source: 'cart-deposit' }).catch(() => {});
+        try { await supabase.from('email_signups').insert({ email, source: 'cart-deposit' }); } catch { /* ok */ }
       } catch (err) { console.error('[webhook] cart-deposit DB error:', err instanceof Error ? err.message : String(err)); }
 
       const signInUrl = await generateMagicLink(email, process.env.VERCEL_ENV === 'production' ? 'https://www.nectalabs.com' : 'https://nectalabs.com');
