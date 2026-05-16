@@ -166,7 +166,7 @@ const ProductPage = ({ slug: slugProp }: { slug?: string } = {}) => {
             {/* LEFT — Image gallery */}
             <div className="order-1">
               {/* Main image */}
-              <div className="rounded-2xl overflow-hidden flex items-center justify-center h-[360px] md:h-[480px] mb-3 bg-white">
+              <div className="rounded-2xl overflow-hidden flex items-center justify-center h-[360px] md:h-[480px] mb-3" style={{ backgroundColor: colors.light }}>
                 <Image
                   src={images[activeImage].src}
                   alt={images[activeImage].alt}
@@ -174,7 +174,6 @@ const ProductPage = ({ slug: slugProp }: { slug?: string } = {}) => {
                   height={600}
                   priority
                   className="h-[90%] w-auto object-contain"
-                  style={{ mixBlendMode: "multiply" }}
                 />
               </div>
               {/* Thumbnails */}
@@ -183,11 +182,12 @@ const ProductPage = ({ slug: slugProp }: { slug?: string } = {}) => {
                   <button
                     key={i}
                     onClick={() => setActiveImage(i)}
-                    className={`rounded-xl overflow-hidden h-[70px] w-[70px] flex items-center justify-center border-2 transition-all flex-shrink-0 bg-white ${
+                    className={`rounded-xl overflow-hidden h-[70px] w-[70px] flex items-center justify-center border-2 transition-all flex-shrink-0 ${
                       activeImage === i ? "border-primary" : "border-border hover:border-primary/20"
                     }`}
+                    style={{ backgroundColor: colors.light }}
                   >
-                    <Image src={img.src} alt="" width={58} height={58} loading="lazy" className="h-[58px] object-contain" style={{ mixBlendMode: "multiply" }} />
+                    <Image src={img.src} alt="" width={58} height={58} loading="lazy" className="h-[58px] object-contain" />
                   </button>
                 ))}
               </div>
