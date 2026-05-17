@@ -275,6 +275,19 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
           </div>
         )}
 
+        {/* ── Waitlist CTA ── */}
+        <div className="mt-16 rounded-2xl px-6 py-7 text-center" style={{ background: 'linear-gradient(135deg, #FAD4C0 0%, #C4D9F5 50%, #C8E8C0 100%)' }}>
+          <p className="text-xs font-bold uppercase tracking-widest text-primary/50 mb-2">Now accepting pre-orders</p>
+          <h3 className="text-xl font-bold text-primary mb-2">Be a NECTA Labs Founding Member</h3>
+          <p className="text-sm text-primary/60 mb-5 max-w-sm mx-auto">First 100 founding members get 15% off every order, forever. £10 deposit secures your place — balance charged November 2026.</p>
+          <Link
+            href="/waitlist"
+            className="inline-flex items-center gap-2 bg-primary text-primary-foreground font-semibold text-sm px-6 py-3 rounded-full hover:bg-primary/90 transition-colors"
+          >
+            Join the Founding Waitlist →
+          </Link>
+        </div>
+
         {/* ── Related Articles ── */}
         {related.length > 0 && (
           <div className="mt-16 pt-12 border-t border-border">
