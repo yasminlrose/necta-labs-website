@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight, FlaskConical, Star, Sparkles } from "lucide-react";
+import { ArrowRight, FlaskConical, Star, Sparkles, Copy, Check } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useLiveCounters } from "@/hooks/use-live-counters";
@@ -33,6 +33,7 @@ const WaitlistPage = () => {
   const [memberNumber, setMemberNumber] = useState<number | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showForm, setShowForm] = useState(false);
+  const [copied, setCopied] = useState(false);
   const { toast } = useToast();
   const { waitlistCount, preorderCount } = useLiveCounters();
 
@@ -141,6 +142,38 @@ const WaitlistPage = () => {
               >
                 Become a Founding Member — £10 deposit <ArrowRight className="h-3.5 w-3.5" />
               </Link>
+              <div className="mt-6 pt-5 border-t border-primary/8">
+                <p className="text-[11px] text-primary/35 mb-3 font-medium uppercase tracking-wide">Know someone who'd love this?</p>
+                <div className="flex gap-2 justify-center flex-wrap">
+                  <button
+                    onClick={() => {
+                      navigator.clipboard.writeText("https://nectalabs.com/waitlist");
+                      setCopied(true);
+                      setTimeout(() => setCopied(false), 2000);
+                    }}
+                    className="inline-flex items-center gap-1.5 text-xs font-medium bg-primary/6 text-primary px-3.5 py-2 rounded-full hover:bg-primary/10 transition-colors"
+                  >
+                    {copied ? <Check className="h-3 w-3" /> : <Copy className="h-3 w-3" />}
+                    {copied ? "Copied!" : "Copy link"}
+                  </button>
+                  <a
+                    href={`https://twitter.com/intent/tweet?text=${encodeURIComponent("Just joined the @nectalabs founding waitlist 👀 functional adaptogens that add to any drink. First 100 get 15% off forever →")}&url=${encodeURIComponent("https://nectalabs.com/waitlist")}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1.5 text-xs font-medium bg-primary/6 text-primary px-3.5 py-2 rounded-full hover:bg-primary/10 transition-colors"
+                  >
+                    Share on X
+                  </a>
+                  <a
+                    href={`https://wa.me/?text=${encodeURIComponent("Just joined the NECTA Labs founding waitlist — functional adaptogens that add to any drink. First 100 get 15% off forever 👀 https://nectalabs.com/waitlist")}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1.5 text-xs font-medium bg-primary/6 text-primary px-3.5 py-2 rounded-full hover:bg-primary/10 transition-colors"
+                  >
+                    WhatsApp
+                  </a>
+                </div>
+              </div>
             </div>
           ) : (
             <div className="flex flex-col gap-3 max-w-sm mx-auto">
